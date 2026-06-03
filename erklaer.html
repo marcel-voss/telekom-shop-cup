@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Telekom Shop Cup – So funktioniert's</title>
+<style>
+  :root{
+    --magenta:#E20074;--magenta-deep:#8a0048;--ink:#13131a;--ink2:#2a2a33;
+    --muted:#8a8a95;--line:#ededf0;--bg:#f3f3f6;--card:#fff;
+    --pitch:#0fa45a;--gold:#f5c542;--blue:#3c78f0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .brand{font-weight:800}
+  .navlinks{display:flex;gap:6px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink2);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--magenta);color:#fff}
+  .navlinks a:not(.active):hover{background:#f3eef1}
+
+  section{padding:84px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:800;opacity:.8}
+  h1{font-size:clamp(34px,7vw,68px);font-weight:900;line-height:1.02;letter-spacing:-1px}
+  h2{font-size:clamp(26px,4.5vw,42px);font-weight:900;margin-bottom:10px}
+  p.lead{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:620px;margin-top:6px}
+  .mag{background:linear-gradient(135deg,#E20074,#b3005c 55%,#8a0048);color:#fff}
+  .mag .eyebrow{color:#fff} .mag p.lead{color:rgba(255,255,255,.9)}
+  .dark{background:linear-gradient(135deg,#23232c,#13131a);color:#fff}
+  .dark p.lead{color:#b9b9c4}
+  .step{font-size:13px;font-weight:800;color:var(--magenta);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+  .dark .step{color:var(--gold)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+  .chips{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+  .chip{width:96px;height:110px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+  .cA{background:#E20074}.cB{background:#7b2ff7}.cC{background:#0fa45a}.cD{background:#ff8a3d}
+
+  .cards{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin-top:34px}
+  .pcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:26px 28px;width:330px;text-align:left}
+  .pcard .dot{width:34px;height:34px;border-radius:50%;display:inline-block;margin-bottom:14px}
+  .pcard h3{font-size:24px;font-weight:800}
+  .pcard span{color:#b9b9c4;font-size:15px}
+
+  .bar{width:min(680px,90%);height:54px;background:rgba(255,255,255,.25);border-radius:27px;margin:34px 0 10px;position:relative;overflow:hidden}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#fff;border-radius:27px;transition:width 1.6s ease}
+  .bar.in .fill{width:100%}
+  .barwrap .mark{color:var(--gold);font-weight:800;font-size:14px}
+  .bignum{font-size:46px;font-weight:900;margin-top:6px}
+
+  .ex{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:18px 22px;margin-top:16px;width:min(760px,92%);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;font-size:clamp(15px,2.3vw,20px);font-weight:800}
+  .ok{color:var(--pitch)} .no{color:#9a9aa3} .res{color:var(--gold)}
+  .note{color:#b9b9c4;font-size:15px;margin-top:18px;font-weight:600}
+
+  .trophy{font-size:0}
+  .prizebox{background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.4);border-radius:22px;padding:30px 34px;margin-top:24px}
+  .prizebox .big{font-size:clamp(24px,4vw,38px);font-weight:900}
+  .prizebox .sub{color:#cfcfd6;margin-top:8px}
+  .prizebox .pick{margin-top:18px;padding-top:16px;border-top:1px solid rgba(245,197,66,.3);color:#fff;font-size:15px;font-weight:600;max-width:560px}
+  .prizebox .pick b{color:var(--gold)}
+
+  .cta a{display:inline-block;margin-top:26px;background:#fff;color:var(--magenta-deep);text-decoration:none;font-weight:900;font-size:18px;padding:16px 30px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+  .urlpill{margin-top:16px;font-size:14px;opacity:.9}
+  svg.trophy-svg{width:90px;height:90px;display:block;margin:0 auto 8px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">Telekom Shop Cup</div>
+    <div class="navlinks"><a href="index.html">Tabelle</a><a href="stats.html">Rankings</a><a href="news.html">News</a><a href="erklaer.html" class="active">So geht's</a></div>
+  </nav>
+
+  <section class="mag">
+    <div class="eyebrow reveal">Voss Telekom · Sprint-Incentive</div>
+    <h1 class="reveal d1">TELEKOM<br>SHOP CUP</h1>
+    <p class="lead reveal d2">So funktioniert das Incentive – in 6 Schritten erklärt.</p>
+    <p class="lead reveal d3" style="margin-top:14px;font-weight:800;color:#fff">05. – 13. Juni 2026</p>
+  </section>
+
+  <section class="dark">
+    <div class="step reveal">Schritt 1</div>
+    <h2 class="reveal d1">16 Shops · 4 Gruppen</h2>
+    <p class="lead reveal d2">Alle Shops werden in vier gleich starke Gruppen aufgeteilt. In jeder Gruppe zählt nur eins: Platz 1.</p>
+    <div class="chips">
+      <div class="chip cA reveal d1">A</div>
+      <div class="chip cB reveal d2">B</div>
+      <div class="chip cC reveal d3">C</div>
+      <div class="chip cD reveal d4">D</div>
+    </div>
+  </section>
+
+  <section class="mag">
+    <div class="step reveal" style="color:#fff">Schritt 2</div>
+    <h2 class="reveal d1">Diese zwei Produkte zählen</h2>
+    <div class="cards">
+      <div class="pcard reveal d2"><span class="dot" style="background:var(--blue)"></span><h3>Breitband Neu</h3><span>Privat- & Geschäftskunden</span></div>
+      <div class="pcard reveal d3"><span class="dot" style="background:#fff"></span><h3>MagentaTV Neu</h3><span>Neuaktivierung</span></div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="step reveal">Schritt 3</div>
+    <h2 class="reveal d1">So bist du dabei</h2>
+    <p class="lead reveal d2">Erreiche bei <b style="color:#fff">mindestens einem</b> Produkt die 100 % – dann bist du in der Wertung.</p>
+    <div class="barwrap reveal d2" style="width:min(680px,90%)">
+      <div style="text-align:right" class="mark">100%</div>
+      <div class="bar" id="bar"><div class="fill"></div></div>
+    </div>
+  </section>
+
+  <section class="mag">
+    <div class="step reveal" style="color:#fff">Schritt 4</div>
+    <h2 class="reveal d1">So zählen die Punkte</h2>
+    <p class="lead reveal d2">Nur was die 100 % knackt, bringt Punkte. Beide über 100 %? Beide zählen.</p>
+    <div class="ex reveal d2"><span class="ok">Breitband 108 %</span><span class="no">+ MagentaTV 90 %</span><span class="res">= 108 Punkte</span></div>
+    <div class="ex reveal d3"><span class="ok">Breitband 102 %</span><span class="ok">+ MagentaTV 104 %</span><span class="res">= 206 Punkte</span></div>
+  </section>
+
+  <section class="dark">
+    <div class="step reveal">Der Gewinn</div>
+    <h2 class="reveal d1" style="color:var(--gold)">Das gibt's zu gewinnen</h2>
+    <div class="prizebox reveal d2">
+      <svg class="trophy-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe487"/><stop offset="1" stop-color="#dca513"/></linearGradient></defs>
+        <path d="M14 14 H8 a8 8 0 0 0 9 12" fill="none" stroke="url(#g)" stroke-width="4"/>
+        <path d="M50 14 H56 a8 8 0 0 1 -9 12" fill="none" stroke="url(#g)" stroke-width="4"/>
+        <path d="M14 9 H50 V21 a18 18 0 0 1 -36 0 Z" fill="url(#g)"/>
+        <rect x="29" y="38" width="6" height="9" fill="url(#g)"/><rect x="20" y="46" width="24" height="5" rx="2" fill="url(#g)"/><rect x="23" y="51" width="18" height="6" rx="2" fill="url(#g)"/>
+      </svg>
+      <div class="big">Trikots fürs ganze Team<br>+ Sprint-Incentive-Pokal</div>
+      <div class="sub">für die vier Gruppensieger</div>
+      <div class="pick">Das <b>Trikot dürft ihr euch aussuchen</b> – Voraussetzung: Das Team ist bei der <b>WM 2026</b> dabei und eure <b>Größe ist beim offiziellen Trikot-Hersteller lieferbar</b>.</div>
+    </div>
+  </section>
+
+  <section class="mag cta">
+    <h2 class="reveal">Jetzt live dabei!</h2>
+    <p class="lead reveal d1" style="color:#fff">Tabelle, Top-Rankings und News – immer aktuell.</p>
+    <a class="reveal d2" href="index.html">Zur Live-Tabelle →</a>
+    <div class="urlpill reveal d3">marcel-voss.github.io/telekom-shop-cup</div>
+  </section>
+
+  <footer>Voss Telekom · Telekom Shop Cup</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.id==='bar')e.target.classList.add('in');}});},{threshold:.2});
+  document.querySelectorAll('.reveal,#bar').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
