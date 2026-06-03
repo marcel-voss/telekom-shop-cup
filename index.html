@@ -90,14 +90,15 @@
   .prize strong{color:var(--magenta)}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
   .loading{text-align:center;color:var(--muted);padding:50px;font-size:15px}
+  #toasts{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+  .toast{background:#fff;border:1px solid var(--line);border-left:6px solid var(--pitch);border-radius:12px;padding:13px 20px;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 8px 30px rgba(20,20,40,.18);animation:tin .4s ease;max-width:90vw}
+  @keyframes tin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+  #confetti-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9998}
 </style>
 </head>
 <body>
   <nav class="nav">
-    <div class="brand">
-      <span class="tlogo"><i></i><i></i><b>T</b><i></i><i></i></span>
-      Shop Cup
-    </div>
+    <div class="brand">Telekom Shop Cup</div>
     <div class="navlinks">
       <a href="index.html" class="active">Tabelle</a>
       <a href="stats.html">Rankings</a>
@@ -145,6 +146,9 @@
 
   <footer>Voss Telekom · Live-Tabelle · keine Anmeldung erforderlich</footer>
 
+  <div id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -160,6 +164,36 @@
     else el.textContent="Abpfiff · Endstand";
   }
   updateCountdown(); setInterval(updateCountdown,60000);
+
+  // ---- Gamification: Konfetti + Glückwunsch bei neuem 100% ----
+  let prevHit=null;
+  function toast(msg){
+    const wrap=document.getElementById('toasts');
+    const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+    wrap.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(()=>t.remove(),500);},6000);
+  }
+  function fireConfetti(){
+    if(typeof confetti!=='function') return;
+    const colors=['#E20074','#ffffff','#0fa45a','#f5c542'];
+    confetti({particleCount:140,spread:75,origin:{y:0.25},colors});
+    setTimeout(()=>confetti({particleCount:90,angle:60,spread:60,origin:{x:0,y:0.4},colors}),150);
+    setTimeout(()=>confetti({particleCount:90,angle:120,spread:60,origin:{x:1,y:0.4},colors}),150);
+  }
+  function checkMilestones(){
+    const cur={}; const newly=[];
+    window.SHOPS.forEach(s=>{
+      const d=shopData[s.id]||{};
+      const bb=(Number(d.breitband)||0)>=100, tv=(Number(d.magentatv)||0)>=100;
+      cur[s.id]={bb,tv};
+      if(prevHit&&prevHit[s.id]){
+        if(bb&&!prevHit[s.id].bb) newly.push(s.name+' hat bei Breitband Neu die 100% geknackt!');
+        if(tv&&!prevHit[s.id].tv) newly.push(s.name+' hat bei MagentaTV Neu die 100% geknackt!');
+      }
+    });
+    prevHit=cur;
+    if(newly.length){ fireConfetti(); newly.forEach(m=>toast('🎉 '+m)); }
+  }
 
   let shopData={};
   function render(){
@@ -193,7 +227,7 @@
   try{
     const app=initializeApp(window.FIREBASE_CONFIG);
     const db=getFirestore(app);
-    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();},
+    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();checkMilestones();},
       err=>{console.error(err);document.getElementById("groups").innerHTML='<div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div>';});
   }catch(e){console.error(e);document.getElementById("groups").innerHTML='<div class="loading">Firebase nicht konfiguriert.</div>';}
 </script>

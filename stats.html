@@ -92,11 +92,25 @@
   footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
   .backcta{display:flex;justify-content:center;margin-top:30px}
   .backcta a{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;text-decoration:none;font-weight:800;padding:14px 24px;border-radius:14px;font-size:15px}
+  #toasts{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+  .toast{background:#fff;border:1px solid var(--line);border-left:6px solid var(--pitch);border-radius:12px;padding:13px 20px;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 8px 30px rgba(20,20,40,.18);animation:tin .4s ease;max-width:90vw}
+  @keyframes tin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+  /* Aufsteiger des Tages */
+  .climber{background:linear-gradient(135deg,#13131a,#2b2b35);color:#fff;border-radius:18px;padding:20px 24px;display:flex;align-items:center;gap:18px;box-shadow:0 6px 20px rgba(20,20,40,.15);margin-top:6px}
+  .climber .rk{font-size:38px;line-height:1}
+  .climber .who{flex:1}
+  .climber .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.75;font-weight:800}
+  .climber .nm{font-size:22px;font-weight:900;margin-top:2px}
+  .climber .nm .grp{font-size:11px;opacity:.7;font-weight:700;margin-left:6px}
+  .climber .gain{font-size:30px;font-weight:900;color:#3df08a;white-space:nowrap}
+  .climber .gain small{display:block;font-size:11px;color:#fff;opacity:.7;font-weight:700;text-align:right}
+  .climber.empty2{color:#cfcfd6}
+  .b-mover{background:#eafff2;color:var(--pitch-dk)}
 </style>
 </head>
 <body>
   <nav class="nav">
-    <div class="brand"><span class="tlogo"><i></i><i></i><b>T</b><i></i><i></i></span> Shop Cup</div>
+    <div class="brand">Telekom Shop Cup</div>
     <div class="navlinks"><a href="index.html">Tabelle</a><a href="stats.html" class="active">Rankings</a></div>
   </nav>
 
@@ -111,6 +125,9 @@
 
   <div class="wrap">
     <div class="stats" id="stats"></div>
+
+    <div class="sectit">🚀 Aufsteiger des Tages</div>
+    <div id="climber"></div>
 
     <div class="sectit">🏆 Das Podium</div>
     <div class="podium" id="podium"></div>
@@ -132,21 +149,71 @@
 
   <footer>Voss Telekom · Live-Rankings · aktualisiert sich automatisch</footer>
 
+  <div id="toasts"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const groupOf={}; window.SHOPS.forEach(s=>groupOf[s.id]=s.group);
-  let shopData={}, chart=null;
+  let shopData={}, chart=null, topMover=null, prevHit=null;
+  const today=new Date().toISOString().slice(0,10);
 
   function enrich(){
     return window.SHOPS.map(s=>{
-      const sc=window.computeScore((shopData[s.id]||{}).breitband,(shopData[s.id]||{}).magentatv);
+      const d=shopData[s.id]||{};
+      const sc=window.computeScore(d.breitband,d.magentatv);
+      let gain=0;
+      if(d.dayBaseline&&d.dayBaseline.date===today) gain=Math.round((sc.total-(d.dayBaseline.total||0))*10)/10;
       return {id:s.id,name:s.name,group:s.group,bb:sc.bb,tv:sc.tv,total:sc.total,qualified:sc.qualified,
-              double100:sc.bb>=100&&sc.tv>=100};
+              double100:sc.bb>=100&&sc.tv>=100, gain};
     });
+  }
+
+  // ---- Aufsteiger des Tages ----
+  function renderClimber(list){
+    const movers=list.filter(s=>s.gain>0).sort((a,b)=>b.gain-a.gain);
+    const el=document.getElementById('climber');
+    if(!movers.length){
+      el.innerHTML='<div class="climber empty2"><div class="rk">🚀</div><div class="who"><div class="lbl">Aufsteiger des Tages</div><div class="nm">Noch keine Bewegung heute</div></div></div>';
+      return null;
+    }
+    const m=movers[0];
+    el.innerHTML='<div class="climber"><div class="rk">🚀</div><div class="who"><div class="lbl">Aufsteiger des Tages</div>'
+      +'<div class="nm">'+m.name+'<span class="grp">Gruppe '+m.group+'</span></div></div>'
+      +'<div class="gain">+'+m.gain+'<small>Punkte heute</small></div></div>';
+    return m.id;
+  }
+
+  // ---- Konfetti + Glückwunsch bei neuem 100% ----
+  function toast(msg){
+    const wrap=document.getElementById('toasts');
+    const t=document.createElement('div'); t.className='toast'; t.textContent=msg; wrap.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(()=>t.remove(),500);},6000);
+  }
+  function fireConfetti(){
+    if(typeof confetti!=='function') return;
+    const colors=['#E20074','#ffffff','#0fa45a','#f5c542'];
+    confetti({particleCount:140,spread:75,origin:{y:0.25},colors});
+    setTimeout(()=>confetti({particleCount:90,angle:60,spread:60,origin:{x:0,y:0.4},colors}),150);
+    setTimeout(()=>confetti({particleCount:90,angle:120,spread:60,origin:{x:1,y:0.4},colors}),150);
+  }
+  function checkMilestones(){
+    const cur={}; const newly=[];
+    window.SHOPS.forEach(s=>{
+      const d=shopData[s.id]||{};
+      const bb=(Number(d.breitband)||0)>=100, tv=(Number(d.magentatv)||0)>=100;
+      cur[s.id]={bb,tv};
+      if(prevHit&&prevHit[s.id]){
+        if(bb&&!prevHit[s.id].bb) newly.push(s.name+' hat bei Breitband Neu die 100% geknackt!');
+        if(tv&&!prevHit[s.id].tv) newly.push(s.name+' hat bei MagentaTV Neu die 100% geknackt!');
+      }
+    });
+    prevHit=cur;
+    if(newly.length){ fireConfetti(); newly.forEach(m=>toast('🎉 '+m)); }
   }
   function rankOverall(list){
     return [...list].sort((a,b)=>{
@@ -194,6 +261,7 @@
       let badges='';
       if(s.double100) badges+='<span class="badge b-d100">Doppel-100</span>';
       else if(s.qualified) badges+='<span class="badge b-q">dabei</span>';
+      if(s.id===topMover) badges+='<span class="badge b-mover">🚀 Aufsteiger</span>';
       html+='<tr class="'+rc+' '+qcls+'">'
         +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
         +'<td class="team">'+s.name+'<span class="gtag '+s.group+'">'+s.group+'</span>'+badges+'</td>'
@@ -232,6 +300,7 @@
 
   function renderAll(){
     const list=enrich(), ranked=rankOverall(list);
+    topMover=renderClimber(list);
     renderStats(list); renderPodium(ranked); renderOverall(ranked);
     renderTop('topBB','bb'); renderTop('topTV','tv'); renderChart(ranked);
   }
@@ -239,7 +308,7 @@
   try{
     const app=initializeApp(window.FIREBASE_CONFIG);
     const db=getFirestore(app);
-    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());renderAll();},
+    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());renderAll();checkMilestones();},
       err=>{console.error(err);document.getElementById('overall').innerHTML='<div class="empty">Verbindung fehlgeschlagen.</div>';});
   }catch(e){console.error(e);renderAll();}
 </script>

@@ -158,14 +158,24 @@
     if(!db){ msg.textContent = "Keine Datenbankverbindung."; return; }
     btn.disabled = true; msg.className = "savemsg"; msg.textContent = "Speichere …";
     try{
+      const today = new Date().toISOString().slice(0,10);
       for(const s of window.SHOPS){
         const bb = Number(document.getElementById("in-"+s.id+"-breitband").value) || 0;
         const tv = Number(document.getElementById("in-"+s.id+"-magentatv").value) || 0;
+        const existing = shopData[s.id] || {};
+        // Tages-Baseline: einmal pro Tag den Punktestand zu Tagesbeginn festhalten
+        let dayBaseline = existing.dayBaseline;
+        if(!dayBaseline || dayBaseline.date !== today){
+          const prevTotal = window.computeScore(existing.breitband, existing.magentatv).total;
+          dayBaseline = { date: today, total: prevTotal };
+        }
         await setDoc(doc(db, "shops", s.id), {
           name: s.name, group: s.group,
           breitband: bb, magentatv: tv,
+          dayBaseline: dayBaseline,
           updatedAt: new Date().toISOString()
         });
+        shopData[s.id] = Object.assign({}, existing, {breitband: bb, magentatv: tv, dayBaseline: dayBaseline});
       }
       const now = new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
       msg.className = "savemsg ok"; msg.textContent = "Gespeichert um " + now + " ✓";
