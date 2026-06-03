@@ -64,14 +64,24 @@ window.GROUPS = ["A", "B", "C", "D"];
 // --- 6) Scoring-Logik (zentral, von beiden Seiten genutzt) ----
 // Regel:
 //  * Werte werden als Prozent der Zielerreichung eingegeben.
+//  * Ein Produkt zaehlt NUR mit, wenn es selbst >= 100% erreicht.
+//    Produkte unter 100% zaehlen 0 Punkte.
 //  * Ein Shop ist qualifiziert, wenn MINDESTENS ein Produkt >= 100%.
-//  * Nur dann zaehlt die Gesamtpunktzahl = Breitband% + MagentaTV%.
-//  * Ist kein Produkt >= 100%, gibt es 0 Punkte (kein Gewinn moeglich).
+//  * Gesamtpunktzahl = Summe der Prozentwerte aller Produkte, die >= 100% sind.
+//  Beispiele:
+//    Breitband 108% / TV 90%  -> 108 Punkte (nur Breitband zaehlt)
+//    Breitband 102% / TV 104% -> 206 Punkte (beide zaehlen)
+//    Breitband 90%  / TV 95%  ->   0 Punkte (nicht qualifiziert)
 window.computeScore = function (breitband, magentatv) {
   const bb = Number(breitband) || 0;
   const tv = Number(magentatv) || 0;
-  const qualified = bb >= 100 || tv >= 100;
-  const total = qualified ? Math.round((bb + tv) * 10) / 10 : 0;
+  const bbHit = bb >= 100;
+  const tvHit = tv >= 100;
+  const qualified = bbHit || tvHit;
+  let total = 0;
+  if (bbHit) total += bb;
+  if (tvHit) total += tv;
+  total = Math.round(total * 10) / 10;
   return { bb, tv, qualified, total };
 };
 
