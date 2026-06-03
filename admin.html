@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Telekom Shop Cup – Eingabe (Admin)</title>
+<style>
+  :root{
+    --magenta:#E20074;--magenta-dark:#b3005c;--ink:#1a1a1a;--muted:#6b6b6b;
+    --line:#ececec;--bg:#f5f5f7;--card:#fff;--green:#1d9d54;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(135deg,var(--magenta),var(--magenta-dark));color:#fff;padding:22px 20px;text-align:center}
+  header h1{font-size:22px;font-weight:800}
+  header .sub{font-size:13px;opacity:.9;margin-top:3px}
+  .wrap{max-width:900px;margin:0 auto;padding:22px 16px 70px}
+
+  /* Gate */
+  .gate{max-width:380px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}
+  .gate h2{font-size:18px;margin-bottom:6px}
+  .gate p{font-size:14px;color:var(--muted);margin-bottom:18px}
+  .gate input{width:100%;padding:12px 14px;font-size:16px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
+  .btn{background:var(--magenta);color:#fff;border:none;padding:12px 20px;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer}
+  .btn:hover{background:var(--magenta-dark)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .err{color:#c0392b;font-size:13px;min-height:18px;margin-top:4px}
+
+  .group-block{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:18px;overflow:hidden}
+  .group-block h2{background:var(--ink);color:#fff;font-size:15px;padding:12px 18px;letter-spacing:1px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px 14px;font-size:14px;text-align:left;border-bottom:1px solid var(--line)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  .shop-name{font-weight:600;white-space:nowrap}
+  input.pct{width:90px;padding:8px 10px;font-size:15px;border:1px solid var(--line);border-radius:8px;text-align:right;font-variant-numeric:tabular-nums}
+  input.pct:focus{outline:none;border-color:var(--magenta)}
+  .pts{font-weight:800;color:var(--magenta);text-align:right;font-variant-numeric:tabular-nums}
+  .q-dot{font-size:11px;color:var(--green);font-weight:700}
+  .bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .savemsg{font-size:13px;color:var(--muted)}
+  .savemsg.ok{color:var(--green);font-weight:600}
+  .topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:14px}
+  .topnav a{color:var(--magenta);text-decoration:none;font-weight:600}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Eingabe – Telekom Shop Cup</h1>
+  <div class="sub">Backend für die Ergebnis-Erfassung</div>
+</header>
+
+<!-- Passcode-Gate -->
+<div class="gate" id="gate">
+  <h2>Zugang</h2>
+  <p>Bitte Passcode eingeben, um Ergebnisse einzutragen.</p>
+  <input type="password" id="pass" placeholder="Passcode" autocomplete="off" />
+  <div class="err" id="gate-err"></div>
+  <button class="btn" id="gate-btn">Einloggen</button>
+</div>
+
+<!-- App -->
+<div class="wrap hidden" id="app">
+  <div class="topnav">
+    <span>Werte in % der Zielerreichung eintragen.</span>
+    <a href="index.html" target="_blank">Live-Tabelle ansehen ↗</a>
+  </div>
+  <div id="forms"></div>
+</div>
+
+<div class="bar hidden" id="bar">
+  <span class="savemsg" id="savemsg">Änderungen werden beim Speichern übernommen.</span>
+  <button class="btn" id="save-btn">Alle speichern</button>
+</div>
+
+<script src="config.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, setDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  let db = null, shopData = {};
+
+  // --- Gate ---
+  const gate = document.getElementById("gate");
+  const gateBtn = document.getElementById("gate-btn");
+  const passInput = document.getElementById("pass");
+  function tryLogin(){
+    if(passInput.value === window.ADMIN_PASSCODE){
+      gate.classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("bar").classList.remove("hidden");
+      boot();
+    } else {
+      document.getElementById("gate-err").textContent = "Falscher Passcode.";
+    }
+  }
+  gateBtn.addEventListener("click", tryLogin);
+  passInput.addEventListener("keydown", function(e){ if(e.key==="Enter") tryLogin(); });
+
+  // --- App ---
+  function recalcRow(shopId){
+    const bb = Number(document.getElementById("in-"+shopId+"-breitband").value) || 0;
+    const tv = Number(document.getElementById("in-"+shopId+"-magentatv").value) || 0;
+    const sc = window.computeScore(bb, tv);
+    document.getElementById("pts-"+shopId).textContent = sc.qualified ? sc.total : "–";
+    document.getElementById("q-"+shopId).textContent = sc.qualified ? "✓ qualifiziert" : "";
+  }
+
+  function buildForms(){
+    const root = document.getElementById("forms");
+    let html = "";
+    window.GROUPS.forEach(function(g){
+      html += '<div class="group-block"><h2>Gruppe ' + g + '</h2>'
+            + '<table><thead><tr><th>Shop</th><th>Breitband Neu %</th><th>MagentaTV Neu %</th><th style="text-align:right">Punkte</th><th></th></tr></thead><tbody>';
+      window.SHOPS.filter(function(s){return s.group===g;}).forEach(function(s){
+        const d = shopData[s.id] || {};
+        const bb = d.breitband != null ? d.breitband : "";
+        const tv = d.magentatv != null ? d.magentatv : "";
+        html += '<tr><td class="shop-name">' + s.name + '</td>'
+              + '<td><input class="pct" type="number" min="0" step="1" id="in-'+s.id+'-breitband" value="'+bb+'"></td>'
+              + '<td><input class="pct" type="number" min="0" step="1" id="in-'+s.id+'-magentatv" value="'+tv+'"></td>'
+              + '<td class="pts" id="pts-'+s.id+'">–</td>'
+              + '<td class="q-dot" id="q-'+s.id+'"></td></tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+    root.innerHTML = html;
+    // live recalc + initial
+    window.SHOPS.forEach(function(s){
+      ["breitband","magentatv"].forEach(function(k){
+        document.getElementById("in-"+s.id+"-"+k).addEventListener("input", function(){ recalcRow(s.id); });
+      });
+      recalcRow(s.id);
+    });
+  }
+
+  async function boot(){
+    try{
+      const app = initializeApp(window.FIREBASE_CONFIG);
+      db = getFirestore(app);
+      const snap = await getDocs(collection(db, "shops"));
+      shopData = {};
+      snap.forEach(function(d){ shopData[d.id] = d.data(); });
+      buildForms();
+    }catch(e){
+      console.error(e);
+      document.getElementById("forms").innerHTML =
+        '<div class="group-block" style="padding:18px">Firebase-Verbindung fehlgeschlagen. Bitte config.js prüfen.</div>';
+      buildForms();
+    }
+  }
+
+  document.getElementById("save-btn").addEventListener("click", async function(){
+    const btn = this;
+    const msg = document.getElementById("savemsg");
+    if(!db){ msg.textContent = "Keine Datenbankverbindung."; return; }
+    btn.disabled = true; msg.className = "savemsg"; msg.textContent = "Speichere …";
+    try{
+      for(const s of window.SHOPS){
+        const bb = Number(document.getElementById("in-"+s.id+"-breitband").value) || 0;
+        const tv = Number(document.getElementById("in-"+s.id+"-magentatv").value) || 0;
+        await setDoc(doc(db, "shops", s.id), {
+          name: s.name, group: s.group,
+          breitband: bb, magentatv: tv,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      const now = new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+      msg.className = "savemsg ok"; msg.textContent = "Gespeichert um " + now + " ✓";
+    }catch(e){
+      console.error(e); msg.className = "savemsg"; msg.textContent = "Fehler beim Speichern – siehe Konsole.";
+    }finally{ btn.disabled = false; }
+  });
+</script>
+</body>
+</html>
