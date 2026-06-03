@@ -85,6 +85,27 @@ window.computeScore = function (breitband, magentatv) {
   return { bb, tv, qualified, total };
 };
 
+// --- 6b) Soll/Ist-Modell -------------------------------------
+// Im Backend werden je Produkt ein ZIEL (Soll) und der IST-Stand
+// eingegeben. Daraus wird die Prozent-Zielerreichung berechnet:
+//   % = round(Ist / Ziel * 100)   (Ziel 0 -> 0%)
+// "rest" = noch fehlende Zaehler bis 100% = max(0, Ziel - Ist).
+window.shopPercents = function (d) {
+  d = d || {};
+  const bbZiel = Number(d.breitbandZiel) || 0;
+  const bbIst  = Number(d.breitbandIst)  || 0;
+  const tvZiel = Number(d.magentatvZiel) || 0;
+  const tvIst  = Number(d.magentatvIst)  || 0;
+  const bb = bbZiel > 0 ? Math.round((bbIst / bbZiel) * 100) : 0;
+  const tv = tvZiel > 0 ? Math.round((tvIst / tvZiel) * 100) : 0;
+  return {
+    bb: bb, tv: tv,
+    bbZiel: bbZiel, bbIst: bbIst, tvZiel: tvZiel, tvIst: tvIst,
+    bbRest: Math.max(0, bbZiel - bbIst),
+    tvRest: Math.max(0, tvZiel - tvIst)
+  };
+};
+
 // Ermittelt je Gruppe den Sieger (hoechste Gesamtpunktzahl unter
 // qualifizierten Shops). Gibt ein Objekt { A: shopId|null, ... } zurueck.
 // Bei Gleichstand wird der zuerst gefundene Shop als Sieger markiert.
@@ -94,7 +115,8 @@ window.computeGroupWinners = function (shopData) {
     let best = null;
     window.SHOPS.filter(function (s) { return s.group === g; }).forEach(function (s) {
       const d = shopData[s.id] || {};
-      const sc = window.computeScore(d.breitband, d.magentatv);
+      const p = window.shopPercents(d);
+      const sc = window.computeScore(p.bb, p.tv);
       if (sc.qualified && (best === null || sc.total > best.total)) {
         best = { id: s.id, total: sc.total };
       }

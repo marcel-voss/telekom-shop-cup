@@ -210,7 +210,8 @@
   function enrich(){
     return window.SHOPS.map(s=>{
       const d=shopData[s.id]||{};
-      const sc=window.computeScore(d.breitband,d.magentatv);
+      const p=window.shopPercents(d);
+      const sc=window.computeScore(p.bb,p.tv);
       let gain=0;
       if(d.dayBaseline&&d.dayBaseline.date===today) gain=Math.round((sc.total-(d.dayBaseline.total||0))*10)/10;
       return {id:s.id,name:s.name,group:s.group,bb:sc.bb,tv:sc.tv,total:sc.total,qualified:sc.qualified,
@@ -249,8 +250,8 @@
   function checkMilestones(){
     const cur={}; const newly=[];
     window.SHOPS.forEach(s=>{
-      const d=shopData[s.id]||{};
-      const bb=(Number(d.breitband)||0)>=100, tv=(Number(d.magentatv)||0)>=100;
+      const p=window.shopPercents(shopData[s.id]||{});
+      const bb=p.bb>=100, tv=p.tv>=100;
       cur[s.id]={bb,tv};
       if(prevHit&&prevHit[s.id]){
         if(bb&&!prevHit[s.id].bb) newly.push(s.name+' hat bei Breitband Neu die 100% geknackt!');

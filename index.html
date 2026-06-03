@@ -73,6 +73,8 @@
   .pct{font-weight:600;color:var(--ink-soft)}
   .pct.hit{color:var(--pitch);font-weight:800}
   .pts{font-weight:900;color:var(--magenta);font-size:15px}
+  .rem{font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:600}
+  .rem.done{color:var(--pitch);font-weight:800}
   .crown{margin-right:4px}
   .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
   .stat.q{background:#e3f6ec;color:var(--pitch-dk)}
@@ -244,8 +246,8 @@
   function checkMilestones(){
     const cur={}; const newly=[];
     window.SHOPS.forEach(s=>{
-      const d=shopData[s.id]||{};
-      const bb=(Number(d.breitband)||0)>=100, tv=(Number(d.magentatv)||0)>=100;
+      const p=window.shopPercents(shopData[s.id]||{});
+      const bb=p.bb>=100, tv=p.tv>=100;
       cur[s.id]={bb,tv};
       if(prevHit&&prevHit[s.id]){
         if(bb&&!prevHit[s.id].bb) newly.push(s.name+' hat bei Breitband Neu die 100% geknackt!');
@@ -262,12 +264,22 @@
     const winners=window.computeGroupWinners(shopData);
     let html="";
     window.GROUPS.forEach(function(g){
-      const rows=window.SHOPS.filter(s=>s.group===g).map(s=>({shop:s,sc:window.computeScore((shopData[s.id]||{}).breitband,(shopData[s.id]||{}).magentatv)})).sort((a,b)=>b.sc.total-a.sc.total);
+      const rows=window.SHOPS.filter(s=>s.group===g).map(function(s){
+        const p=window.shopPercents(shopData[s.id]||{});
+        return {shop:s, p:p, sc:window.computeScore(p.bb,p.tv)};
+      }).sort((a,b)=>b.sc.total-a.sc.total);
       const winnerId=winners[g];
       const winnerName=winnerId?window.SHOPS.find(s=>s.id===winnerId).name:"—";
       html+='<div class="gcard"><div class="ghead"><div class="gbadge">'+g+'</div>'
           +'<h2>Gruppe '+g+'</h2><div class="lead">Führend<b>'+winnerName+'</b></div></div>'
-          +'<table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitb.</th><th>MagentaTV</th><th>Pkt</th><th>Status</th></tr></thead><tbody>';
+          +'<table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitband</th><th>MagentaTV</th><th>Pkt</th><th>Status</th></tr></thead><tbody>';
+      function cell(pct, rest, ziel){
+        const hit = pct>=100;
+        const rem = ziel<=0 ? '<div class="rem">–</div>'
+                  : (hit ? '<div class="rem done">✓ Ziel erreicht</div>'
+                         : '<div class="rem">noch '+rest+' bis 100%</div>');
+        return '<td><span class="pct'+(hit?' hit':'')+'">'+pct+'%</span>'+rem+'</td>';
+      }
       rows.forEach(function(r,i){
         const isLead=r.shop.id===winnerId;
         const cls=isLead?"lead":(r.sc.qualified?"q":"");
@@ -275,8 +287,8 @@
         html+='<tr class="'+cls+'">'
             +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
             +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+'</td>'
-            +'<td><span class="pct'+(r.sc.bb>=100?' hit':'')+'">'+r.sc.bb+'%</span></td>'
-            +'<td><span class="pct'+(r.sc.tv>=100?' hit':'')+'">'+r.sc.tv+'%</span></td>'
+            +cell(r.p.bb, r.p.bbRest, r.p.bbZiel)
+            +cell(r.p.tv, r.p.tvRest, r.p.tvZiel)
             +'<td class="pts">'+(r.sc.qualified?r.sc.total:'–')+'</td>'
             +'<td>'+badge+'</td></tr>';
       });
