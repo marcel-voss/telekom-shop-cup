@@ -1,0 +1,13 @@
+rules_version = '2';
+// Firebase Storage – Telekom Shop Cup
+// News-Medien (Bilder/Videos) liegen unter /news/.
+// Oeffentlich lesbar (damit die News-Seite sie anzeigen kann),
+// Schreiben ueber den Admin-Bereich (Passcode-geschuetzt im Client).
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /news/{allPaths=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

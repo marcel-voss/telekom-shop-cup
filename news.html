@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Telekom Shop Cup – News</title>
+<style>
+  :root{
+    --magenta:#E20074; --magenta-deep:#8a0048;
+    --ink:#13131a; --ink-soft:#2a2a33; --muted:#7a7a85; --line:#ededf0; --bg:#f3f3f6; --card:#fff;
+    --pitch:#0fa45a; --gold:#f5c542;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .brand{font-weight:800}
+  .navlinks{display:flex;gap:8px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--magenta);color:#fff}
+  .navlinks a:not(.active):hover{background:#f3eef1}
+
+  /* Gewinn-Banner */
+  .prizebanner{position:relative;overflow:hidden;background:radial-gradient(circle at 18% 20%,#33333f,#14141a 72%);color:#fff;display:flex;align-items:center;gap:22px;padding:16px 26px;border-bottom:3px solid var(--gold)}
+  .pb-art{display:flex;align-items:center;gap:6px;flex:none;z-index:2}
+  .pb-art svg{width:56px;height:56px;filter:drop-shadow(0 5px 10px rgba(0,0,0,.45))}
+  .pb-text{flex:1;min-width:0;z-index:2}
+  .pb-eyebrow{color:var(--gold);font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase}
+  .pb-title{font-size:22px;font-weight:900;line-height:1.05;margin:2px 0}
+  .pb-title .amp{color:var(--gold)}
+  .pb-sub{font-size:13px;opacity:.82}
+  .pb-glow{position:absolute;right:-50px;top:-70px;width:240px;height:240px;background:radial-gradient(circle,rgba(226,0,116,.5),transparent 70%);pointer-events:none}
+  @media(max-width:640px){.pb-title{font-size:18px}.pb-art svg{width:46px;height:46px}}
+
+  .hero{background:linear-gradient(135deg,#E20074,#b3005c 55%,#8a0048);color:#fff;padding:26px 20px;text-align:center}
+  .hero .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.9;font-weight:700}
+  .hero h1{font-size:32px;font-weight:900;margin:6px 0 2px}
+  .hero .sub{font-size:14px;opacity:.95}
+
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 70px}
+  .news-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-bottom:20px;box-shadow:0 3px 14px rgba(20,20,40,.05)}
+  .news-card h2{font-size:21px;font-weight:800;margin-bottom:4px}
+  .news-date{font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:12px}
+  .news-text{font-size:15px;color:#2a2a33;white-space:pre-wrap;margin-bottom:6px}
+  .news-media{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+  .news-media img,.news-media video{width:100%;border-radius:12px;display:block;background:#000}
+  .news-media img{object-fit:cover;max-height:520px}
+  .empty{text-align:center;color:var(--muted);padding:50px 16px;font-size:15px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">Telekom Shop Cup</div>
+    <div class="navlinks">
+      <a href="index.html">Tabelle</a>
+      <a href="stats.html">Rankings</a>
+      <a href="news.html" class="active">News</a>
+    </div>
+  </nav>
+
+  <div class="prizebanner">
+    <div class="pb-art">
+      <svg class="jersey" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M24 7 L15 11 L6 22 L13 31 L20 27 V54 a2 2 0 0 0 2 2 H42 a2 2 0 0 0 2-2 V27 L51 31 L58 22 L49 11 L40 7 a8 6 0 0 1 -16 0 Z" fill="#E20074"/>
+        <text x="32" y="45" font-size="20" font-weight="900" fill="#fff" text-anchor="middle" font-family="Arial,Helvetica,sans-serif">1</text>
+      </svg>
+      <svg class="trophy" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><linearGradient id="gld3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe487"/><stop offset="1" stop-color="#dca513"/></linearGradient></defs>
+        <path d="M14 14 H8 a8 8 0 0 0 9 12" fill="none" stroke="url(#gld3)" stroke-width="4"/>
+        <path d="M50 14 H56 a8 8 0 0 1 -9 12" fill="none" stroke="url(#gld3)" stroke-width="4"/>
+        <path d="M14 9 H50 V21 a18 18 0 0 1 -36 0 Z" fill="url(#gld3)"/>
+        <rect x="29" y="38" width="6" height="9" fill="url(#gld3)"/>
+        <rect x="20" y="46" width="24" height="5" rx="2" fill="url(#gld3)"/>
+        <rect x="23" y="51" width="18" height="6" rx="2" fill="url(#gld3)"/>
+        <path d="M32 13 l2.1 4.4 4.9 .7 -3.5 3.4 .8 4.8 -4.3-2.2 -4.3 2.2 .8-4.8 -3.5-3.4 4.9-.7 Z" fill="#fff" opacity=".92"/>
+      </svg>
+    </div>
+    <div class="pb-text">
+      <div class="pb-eyebrow">★ Das gibt's zu gewinnen ★</div>
+      <div class="pb-title">Team-Trikots <span class="amp">+</span> Sprint-Pokal</div>
+      <div class="pb-sub">Für die vier Gruppensieger.</div>
+    </div>
+    <div class="pb-glow"></div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Rund um den Shop Cup</div>
+    <h1>News & Updates</h1>
+    <div class="sub">Aktuelles vom Team – Texte, Bilder und Videos</div>
+  </header>
+
+  <div class="wrap">
+    <div id="news"><div class="empty">Lade News …</div></div>
+  </div>
+
+  <footer>Voss Telekom · Shop Cup News</footer>
+
+<script src="config.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  function fmt(ts){ return new Date(ts).toLocaleString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})+" Uhr"; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); }
+
+  function render(items){
+    const root=document.getElementById("news");
+    if(!items.length){ root.innerHTML='<div class="empty">Noch keine News veröffentlicht. Schau bald wieder vorbei! ⚽</div>'; return; }
+    let html="";
+    items.forEach(function(n){
+      let media="";
+      (n.media||[]).forEach(function(m){
+        if(m.type==="video") media+='<video controls preload="metadata" playsinline src="'+m.url+'"></video>';
+        else media+='<img loading="lazy" src="'+m.url+'" alt="'+esc(m.name||"")+'">';
+      });
+      html+='<div class="news-card">'
+          +(n.title?'<h2>'+esc(n.title)+'</h2>':'')
+          +'<div class="news-date">'+fmt(n.createdAt)+'</div>'
+          +(n.text?'<div class="news-text">'+esc(n.text)+'</div>':'')
+          +(media?'<div class="news-media">'+media+'</div>':'')
+          +'</div>';
+    });
+    root.innerHTML=html;
+  }
+
+  try{
+    const app=initializeApp(window.FIREBASE_CONFIG);
+    const db=getFirestore(app);
+    const q=query(collection(db,"news"),orderBy("createdAt","desc"));
+    onSnapshot(q,function(snap){
+      const items=[]; snap.forEach(function(d){ items.push(d.data()); });
+      render(items);
+    },function(err){ console.error(err); document.getElementById("news").innerHTML='<div class="empty">News konnten nicht geladen werden.</div>'; });
+  }catch(e){ console.error(e); document.getElementById("news").innerHTML='<div class="empty">Firebase nicht konfiguriert.</div>'; }
+</script>
+</body>
+</html>

@@ -90,6 +90,9 @@
   .prize strong{color:var(--magenta)}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
   .loading{text-align:center;color:var(--muted);padding:50px;font-size:15px}
+  .stampbar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;background:#fff;border-bottom:1px solid var(--line);padding:11px 16px;font-size:13px;color:var(--muted)}
+  .stampbar span{display:inline-flex;align-items:center;gap:7px}
+  .stampbar b{color:var(--ink);font-weight:700}
   #toasts{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
   .toast{background:#fff;border:1px solid var(--line);border-left:6px solid var(--pitch);border-radius:12px;padding:13px 20px;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 8px 30px rgba(20,20,40,.18);animation:tin .4s ease;max-width:90vw}
   @keyframes tin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
@@ -120,6 +123,7 @@
     <div class="navlinks">
       <a href="index.html" class="active">Tabelle</a>
       <a href="stats.html">Rankings</a>
+      <a href="news.html">News</a>
     </div>
   </nav>
 
@@ -168,6 +172,11 @@
     </div>
   </header>
 
+  <div class="stampbar">
+    <span>🕒 Letzte Eingabe der Ergebnisse: <b id="stamp-data">–</b></span>
+    <span>📰 Letzte News: <b id="stamp-news">–</b></span>
+  </div>
+
   <div class="wrap">
     <div class="legend">
       <span><i class="swatch sw-lead"></i> Gruppenführer</span>
@@ -197,9 +206,16 @@
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   document.getElementById("event-name").textContent = window.EVENT.name;
+
+  function fmtStamp(ts){ return ts ? (new Date(ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" Uhr") : "–"; }
+  function updateDataStamp(){
+    let latest=null;
+    window.SHOPS.forEach(function(s){ const u=(shopData[s.id]||{}).updatedAt; if(u && (!latest || u>latest)) latest=u; });
+    document.getElementById("stamp-data").textContent = fmtStamp(latest);
+  }
 
   function updateCountdown(){
     const now=new Date(), start=new Date(window.EVENT.start), end=new Date(window.EVENT.end);
@@ -272,8 +288,15 @@
   try{
     const app=initializeApp(window.FIREBASE_CONFIG);
     const db=getFirestore(app);
-    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();checkMilestones();},
+    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();updateDataStamp();checkMilestones();},
       err=>{console.error(err);document.getElementById("groups").innerHTML='<div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div>';});
+    // Zeitstempel der letzten News
+    try{
+      onSnapshot(query(collection(db,"news"),orderBy("createdAt","desc")),function(snap){
+        let latest=null; snap.forEach(function(d){ const c=d.data().createdAt; if(c && (!latest||c>latest)) latest=c; });
+        document.getElementById("stamp-news").textContent = fmtStamp(latest);
+      }, function(){});
+    }catch(e){}
   }catch(e){console.error(e);document.getElementById("groups").innerHTML='<div class="loading">Firebase nicht konfiguriert.</div>';}
 </script>
 </body>
