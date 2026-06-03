@@ -1,0 +1,1 @@
+# telekom-shop-cup
