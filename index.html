@@ -3,203 +3,199 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Telekom Shop Cup – Live-Tabelle</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Telekom Shop Cup – Gruppentabellen</title>
 <style>
   :root{
-    --magenta:#E20074;
-    --magenta-dark:#b3005c;
-    --ink:#1a1a1a;
-    --muted:#6b6b6b;
-    --line:#ececec;
-    --bg:#f5f5f7;
-    --card:#ffffff;
-    --gold:#d4af37;
-    --green:#1d9d54;
+    --magenta:#E20074; --magenta-dk:#a8005780; --magenta-deep:#8a0048;
+    --ink:#13131a; --ink-soft:#2a2a33;
+    --muted:#7a7a85; --line:#ededf0; --bg:#f3f3f6; --card:#fff;
+    --pitch:#0fa45a; --pitch-dk:#0b8048; --gold:#f5c542; --silver:#c8ccd4; --bronze:#d98a4a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--ink);line-height:1.45;
-  }
-  header{
-    background:linear-gradient(135deg,var(--magenta),var(--magenta-dark));
-    color:#fff;padding:28px 20px 32px;text-align:center;
-  }
-  header .eyebrow{font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.85}
-  header h1{font-size:30px;font-weight:800;margin:6px 0 4px}
-  header .dates{font-size:15px;opacity:.95}
-  .countdown{
-    display:inline-block;margin-top:14px;background:rgba(255,255,255,.15);
-    padding:8px 16px;border-radius:999px;font-size:14px;font-weight:600;
-    backdrop-filter:blur(4px);
-  }
-  .wrap{max-width:1100px;margin:0 auto;padding:22px 16px 60px}
-  .status-banner{
-    background:#fff;border:1px solid var(--line);border-radius:12px;
-    padding:14px 18px;margin-bottom:20px;font-size:14px;color:var(--muted);
-    display:flex;align-items:center;gap:10px;
-  }
-  .status-banner .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none}
-  .groups{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-  @media(max-width:760px){.groups{grid-template-columns:1fr}}
-  .group-card{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
-    overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);
-  }
-  .group-head{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 18px;background:var(--ink);color:#fff;
-  }
-  .group-head h2{font-size:17px;font-weight:700;letter-spacing:1px}
-  .group-head .lead-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.7}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+
+  /* ---- Top nav ---- */
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+  .tlogo{display:inline-flex;align-items:center;gap:3px}
+  .tlogo i{width:7px;height:7px;background:var(--magenta);border-radius:1px;display:inline-block}
+  .tlogo b{color:#3a3a44;font-size:20px;font-weight:800;margin:0 1px}
+  .navlinks{display:flex;gap:8px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--magenta);color:#fff}
+  .navlinks a:not(.active):hover{background:#f3eef1}
+
+  /* ---- Hero / scoreboard ---- */
+  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E20074 0%,#b3005c 55%,#8a0048 100%);color:#fff;padding:30px 20px 38px;text-align:center}
+  .hero .pitch-lines{position:absolute;inset:0;opacity:.18;pointer-events:none}
+  .hero .blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
+  .hero .b1{width:360px;height:360px;top:-160px;left:-120px}
+  .hero .b2{width:300px;height:300px;bottom:-160px;right:-80px;background:rgba(0,0,0,.10)}
+  .hero-inner{position:relative;z-index:2}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.9;font-weight:700}
+  .hero h1{font-size:38px;font-weight:900;margin:8px 0 2px;letter-spacing:-.5px;line-height:1.05}
+  .hero .sub{font-size:15px;opacity:.95}
+  .matchday{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:700}
+  .matchday .live-dot{width:8px;height:8px;border-radius:50%;background:#3df08a;box-shadow:0 0 0 0 rgba(61,240,138,.7);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,240,138,.6)}70%{box-shadow:0 0 0 10px rgba(61,240,138,0)}100%{box-shadow:0 0 0 0 rgba(61,240,138,0)}}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 16px 70px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center;font-size:13px;color:var(--muted);margin-bottom:22px}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
+  .sw-q{background:var(--pitch)} .sw-lead{background:var(--gold)}
+
+  .groups{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:780px){.groups{grid-template-columns:1fr}}
+
+  .gcard{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,40,.06);border:1px solid var(--line)}
+  .ghead{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#1b1b22,#2b2b35);color:#fff}
+  .gbadge{width:38px;height:38px;border-radius:11px;background:var(--magenta);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;box-shadow:0 3px 8px rgba(226,0,116,.45)}
+  .ghead h2{font-size:16px;font-weight:800;letter-spacing:.5px;flex:1}
+  .ghead .lead{font-size:12px;opacity:.8;text-align:right}
+  .ghead .lead b{display:block;font-size:13px;opacity:1}
+
   table{width:100%;border-collapse:collapse}
-  th,td{padding:11px 14px;text-align:left;font-size:14px}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line)}
-  td{border-bottom:1px solid var(--line)}
-  tr:last-child td{border-bottom:none}
-  .num{text-align:right;font-variant-numeric:tabular-nums}
-  .shop-name{font-weight:600}
-  .total{font-weight:800;color:var(--magenta);font-size:15px}
-  .pct-ok{color:var(--green);font-weight:700}
-  .winner-row{background:linear-gradient(90deg,rgba(212,175,55,.14),transparent)}
-  .crown{color:var(--gold);margin-right:5px}
-  .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
-  .badge-q{background:#e7f6ee;color:var(--green)}
-  .badge-n{background:#f1f1f1;color:#999}
-  .rules{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:22px 24px;margin-top:26px;
-  }
-  .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta)}
+  thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}
+  thead th.l{text-align:left}
+  tbody td{padding:11px 8px;border-bottom:1px solid var(--line);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:none}
+  td.pos{text-align:center;width:42px}
+  td.team{text-align:left;font-weight:700}
+  .ranknum{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#eceef2;color:#444;font-weight:800;font-size:13px}
+  tr.q .ranknum{background:var(--pitch);color:#fff}
+  tr.lead .ranknum{background:var(--gold);color:#3a2b00}
+  tr.q{background:linear-gradient(90deg,rgba(15,164,90,.08),transparent)}
+  tr.lead{background:linear-gradient(90deg,rgba(245,197,66,.16),transparent)}
+  tr.q td.team, tr.lead td.team{box-shadow:inset 4px 0 0 var(--pitch)}
+  tr.lead td.team{box-shadow:inset 4px 0 0 var(--gold)}
+  .pct{font-weight:600;color:var(--ink-soft)}
+  .pct.hit{color:var(--pitch);font-weight:800}
+  .pts{font-weight:900;color:var(--magenta);font-size:15px}
+  .crown{margin-right:4px}
+  .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
+  .stat.q{background:#e3f6ec;color:var(--pitch-dk)}
+  .stat.o{background:#f0f0f3;color:#9a9aa3}
+
+  .cta{display:flex;justify-content:center;margin-top:28px}
+  .cta a{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;text-decoration:none;font-weight:800;padding:15px 26px;border-radius:14px;font-size:15px;box-shadow:0 6px 20px rgba(20,20,40,.18)}
+  .cta a:hover{background:#000}
+  .cta .arrow{background:var(--magenta);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+  .rules{background:var(--card);border-radius:18px;padding:24px 26px;margin-top:26px;border:1px solid var(--line)}
+  .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta);display:flex;align-items:center;gap:8px}
   .rules p{font-size:14px;color:#333;margin-bottom:10px}
-  .prize{
-    margin-top:14px;padding:14px 16px;background:#fff6fb;border:1px solid #ffd9ec;
-    border-radius:12px;font-size:14px;
-  }
+  .prize{margin-top:14px;padding:16px 18px;background:linear-gradient(135deg,#fff6fb,#fff0f7);border:1px solid #ffd9ec;border-radius:14px;font-size:14px}
   .prize strong{color:var(--magenta)}
-  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
-  .loading{text-align:center;color:var(--muted);padding:40px;font-size:15px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
+  .loading{text-align:center;color:var(--muted);padding:50px;font-size:15px}
 </style>
 </head>
 <body>
-<header>
-  <div class="eyebrow">Sprint-Incentive</div>
-  <h1 id="event-name">Telekom Shop Cup</h1>
-  <div class="dates" id="event-dates">05. – 13. Juni 2026</div>
-  <div class="countdown" id="countdown">…</div>
-</header>
+  <nav class="nav">
+    <div class="brand">
+      <span class="tlogo"><i></i><i></i><b>T</b><i></i><i></i></span>
+      Shop Cup
+    </div>
+    <div class="navlinks">
+      <a href="index.html" class="active">Tabelle</a>
+      <a href="stats.html">Rankings</a>
+    </div>
+  </nav>
 
-<div class="wrap">
-  <div class="status-banner">
-    <span class="dot"></span>
-    <span id="status-text">Live-Tabelle – aktualisiert sich automatisch, sobald neue Zahlen eingetragen werden.</span>
+  <header class="hero">
+    <svg class="pitch-lines" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="1116" height="296" fill="none" stroke="#fff" stroke-width="2"/>
+      <line x1="560" y1="2" x2="560" y2="298" stroke="#fff" stroke-width="2"/>
+      <circle cx="560" cy="150" r="70" fill="none" stroke="#fff" stroke-width="2"/>
+      <circle cx="560" cy="150" r="4" fill="#fff"/>
+      <rect x="2" y="80" width="80" height="140" fill="none" stroke="#fff" stroke-width="2"/>
+      <rect x="1038" y="80" width="80" height="140" fill="none" stroke="#fff" stroke-width="2"/>
+    </svg>
+    <span class="blob b1"></span><span class="blob b2"></span>
+    <div class="hero-inner">
+      <div class="eyebrow">Voss Telekom · Sprint-Incentive</div>
+      <h1 id="event-name">Telekom Shop Cup</h1>
+      <div class="sub">Die Gruppenphase · <span id="event-dates">05.–13. Juni 2026</span></div>
+      <div class="matchday"><span class="live-dot"></span><span id="countdown">…</span></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="legend">
+      <span><i class="swatch sw-lead"></i> Gruppenführer</span>
+      <span><i class="swatch sw-q"></i> Qualifiziert (≥100% bei einem Produkt)</span>
+      <span>Punkte = Breitband% + MagentaTV%</span>
+    </div>
+
+    <div class="groups" id="groups"><div class="loading">Lade Tabellen …</div></div>
+
+    <div class="cta">
+      <a href="stats.html">Zu den Top-Rankings & Statistiken <span class="arrow">→</span></a>
+    </div>
+
+    <div class="rules">
+      <h3>⚽ So funktioniert die Wertung</h3>
+      <p>Gemessen wird in zwei Produkten: <strong>Breitband Neu (PK/GK)</strong> und <strong>MagentaTV Neu</strong> – jeweils als Zielerreichung in Prozent.</p>
+      <p>Ein Shop steht erst in der Wertung, wenn er bei <strong>mindestens einem</strong> Produkt die <strong>100%</strong> knackt. Dann zählt die Gesamtpunktzahl = <strong>Breitband% + MagentaTV%</strong>. Schafft in einer Gruppe niemand die 100%, gibt es dort keinen Sieger.</p>
+      <div class="prize">🏆 Die vier Gruppensieger holen sich <strong>Trikots fürs ganze Team</strong> und den <strong>Sprint-Incentive-Pokal</strong>.</div>
+    </div>
   </div>
 
-  <div class="groups" id="groups">
-    <div class="loading">Lade aktuelle Zahlen …</div>
-  </div>
-
-  <div class="rules">
-    <h3>So funktioniert die Wertung</h3>
-    <p>Jeder Shop wird in zwei Produkten gemessen: <strong>Breitband Neu (PK/GK)</strong> und <strong>MagentaTV Neu</strong>. Eingetragen wird die Zielerreichung in Prozent.</p>
-    <p>Ein Shop kommt nur in die Wertung, wenn er bei <strong>mindestens einem</strong> der beiden Produkte die <strong>100 %</strong> erreicht. Erst dann wird die Gesamtpunktzahl gebildet – als <strong>Summe beider Prozentwerte</strong> (Breitband % + MagentaTV %).</p>
-    <p>Erreicht in einer Gruppe kein Shop bei mindestens einem Produkt die 100 %, gibt es in dieser Gruppe keinen Sieger und keinen Gewinn.</p>
-    <div class="prize">🏆 Die vier Gruppensieger erhalten jeweils <strong>Trikots für ihr gesamtes Team</strong> und den <strong>Sprint-Incentive-Pokal</strong>.</div>
-  </div>
-</div>
-
-<footer>Voss Telekom · Live-Tabelle · keine Anmeldung erforderlich</footer>
+  <footer>Voss Telekom · Live-Tabelle · keine Anmeldung erforderlich</footer>
 
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Event-Texte
   document.getElementById("event-name").textContent = window.EVENT.name;
 
-  // Countdown
-  function fmtDate(d){ return new Date(d).toLocaleDateString("de-DE",{day:"2-digit",month:"long"}); }
   function updateCountdown(){
-    const now = new Date();
-    const start = new Date(window.EVENT.start);
-    const end = new Date(window.EVENT.end);
-    const el = document.getElementById("countdown");
-    if(now < start){
-      const days = Math.ceil((start-now)/86400000);
-      el.textContent = "Start in " + days + " Tag" + (days===1?"":"en");
-    } else if(now <= end){
-      const days = Math.ceil((end-now)/86400000);
-      el.textContent = "Noch " + days + " Tag" + (days===1?"":"e") + " im Rennen";
-    } else {
-      el.textContent = "Event beendet – Endstand";
-    }
+    const now=new Date(), start=new Date(window.EVENT.start), end=new Date(window.EVENT.end);
+    const el=document.getElementById("countdown");
+    if(now<start){const d=Math.ceil((start-now)/86400000);el.textContent="Anpfiff in "+d+" Tag"+(d===1?"":"en");}
+    else if(now<=end){const d=Math.ceil((end-now)/86400000);el.textContent="Live · noch "+d+" Tag"+(d===1?"":"e");}
+    else el.textContent="Abpfiff · Endstand";
   }
-  updateCountdown(); setInterval(updateCountdown, 60000);
+  updateCountdown(); setInterval(updateCountdown,60000);
 
-  // Firestore live
-  let shopData = {};
+  let shopData={};
   function render(){
-    const root = document.getElementById("groups");
-    const winners = window.computeGroupWinners(shopData);
-    let html = "";
+    const root=document.getElementById("groups");
+    const winners=window.computeGroupWinners(shopData);
+    let html="";
     window.GROUPS.forEach(function(g){
-      const rows = window.SHOPS.filter(function(s){return s.group===g;})
-        .map(function(s){
-          const d = shopData[s.id] || {};
-          const sc = window.computeScore(d.breitband, d.magentatv);
-          return { shop:s, sc:sc };
-        })
-        .sort(function(a,b){ return b.sc.total - a.sc.total; });
-
-      const winnerId = winners[g];
-      const winnerName = winnerId ? (window.SHOPS.find(function(s){return s.id===winnerId;}).name) : "—";
-
-      html += '<div class="group-card"><div class="group-head">'
-            + '<h2>Gruppe ' + g + '</h2>'
-            + '<div><span class="lead-label">Führend:</span> ' + winnerName + '</div></div>'
-            + '<table><thead><tr><th>Shop</th>'
-            + '<th class="num">Breitb.</th><th class="num">MagentaTV</th>'
-            + '<th class="num">Punkte</th><th class="num">Status</th></tr></thead><tbody>';
-
-      rows.forEach(function(r){
-        const isWinner = r.shop.id === winnerId;
-        const bbCls = r.sc.bb >= 100 ? "num pct-ok" : "num";
-        const tvCls = r.sc.tv >= 100 ? "num pct-ok" : "num";
-        const badge = r.sc.qualified
-          ? '<span class="badge badge-q">qualifiziert</span>'
-          : '<span class="badge badge-n">offen</span>';
-        html += '<tr class="' + (isWinner?"winner-row":"") + '">'
-              + '<td class="shop-name">' + (isWinner?'<span class="crown">👑</span>':'') + r.shop.name + '</td>'
-              + '<td class="' + bbCls + '">' + r.sc.bb + '%</td>'
-              + '<td class="' + tvCls + '">' + r.sc.tv + '%</td>'
-              + '<td class="num total">' + (r.sc.qualified ? r.sc.total : "–") + '</td>'
-              + '<td class="num">' + badge + '</td></tr>';
+      const rows=window.SHOPS.filter(s=>s.group===g).map(s=>({shop:s,sc:window.computeScore((shopData[s.id]||{}).breitband,(shopData[s.id]||{}).magentatv)})).sort((a,b)=>b.sc.total-a.sc.total);
+      const winnerId=winners[g];
+      const winnerName=winnerId?window.SHOPS.find(s=>s.id===winnerId).name:"—";
+      html+='<div class="gcard"><div class="ghead"><div class="gbadge">'+g+'</div>'
+          +'<h2>Gruppe '+g+'</h2><div class="lead">Führend<b>'+winnerName+'</b></div></div>'
+          +'<table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitb.</th><th>MagentaTV</th><th>Pkt</th><th>Status</th></tr></thead><tbody>';
+      rows.forEach(function(r,i){
+        const isLead=r.shop.id===winnerId;
+        const cls=isLead?"lead":(r.sc.qualified?"q":"");
+        const badge=r.sc.qualified?'<span class="stat q">dabei</span>':'<span class="stat o">offen</span>';
+        html+='<tr class="'+cls+'">'
+            +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
+            +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+'</td>'
+            +'<td><span class="pct'+(r.sc.bb>=100?' hit':'')+'">'+r.sc.bb+'%</span></td>'
+            +'<td><span class="pct'+(r.sc.tv>=100?' hit':'')+'">'+r.sc.tv+'%</span></td>'
+            +'<td class="pts">'+(r.sc.qualified?r.sc.total:'–')+'</td>'
+            +'<td>'+badge+'</td></tr>';
       });
-      html += '</tbody></table></div>';
+      html+='</tbody></table></div>';
     });
-    root.innerHTML = html;
+    root.innerHTML=html;
   }
 
   try{
-    const app = initializeApp(window.FIREBASE_CONFIG);
-    const db = getFirestore(app);
-    onSnapshot(collection(db, "shops"), function(snap){
-      shopData = {};
-      snap.forEach(function(doc){ shopData[doc.id] = doc.data(); });
-      render();
-    }, function(err){
-      document.getElementById("status-text").textContent =
-        "Verbindung zur Datenbank fehlgeschlagen – bitte Firebase-Konfiguration prüfen.";
-      console.error(err);
-      render();
-    });
-  }catch(e){
-    document.getElementById("groups").innerHTML =
-      '<div class="loading">Firebase ist noch nicht konfiguriert. Bitte config.js ausfüllen.</div>';
-    console.error(e);
-  }
+    const app=initializeApp(window.FIREBASE_CONFIG);
+    const db=getFirestore(app);
+    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();},
+      err=>{console.error(err);document.getElementById("groups").innerHTML='<div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div>';});
+  }catch(e){console.error(e);document.getElementById("groups").innerHTML='<div class="loading">Firebase nicht konfiguriert.</div>';}
 </script>
 </body>
 </html>
