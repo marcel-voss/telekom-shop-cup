@@ -45,6 +45,16 @@
   .news-media img,.news-media video{width:100%;border-radius:12px;display:block;background:#000}
   .news-media img{object-fit:cover;max-height:520px}
   .empty{text-align:center;color:var(--muted);padding:50px 16px;font-size:15px}
+  .ticker{background:linear-gradient(90deg,#13131a,#2b2b35);border-radius:14px;margin:0 0 24px;display:flex;align-items:stretch;overflow:hidden;box-shadow:0 3px 14px rgba(20,20,40,.08)}
+  .ticker .lbl{background:var(--magenta);color:#fff;font-weight:900;font-size:12px;letter-spacing:1px;padding:0 14px;display:flex;align-items:center;gap:7px;white-space:nowrap;flex:none}
+  .ticker .lbl .dot{width:8px;height:8px;border-radius:50%;background:#3df08a;animation:tpulse 1.4s infinite}
+  @keyframes tpulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .ticker .vp{overflow:hidden;flex:1;display:flex;align-items:center}
+  .ticker-track{display:inline-flex;white-space:nowrap;animation:scrollx 38s linear infinite}
+  .ticker-track span{padding:13px 24px;font-size:14px;font-weight:600;color:#eaeaf0}
+  .ticker-track span b{color:var(--gold);font-weight:800}
+  @keyframes scrollx{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ticker:hover .ticker-track{animation-play-state:paused}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
 </style>
 </head>
@@ -91,6 +101,10 @@
   </header>
 
   <div class="wrap">
+    <div class="ticker">
+      <div class="lbl"><span class="dot"></span>LIVE-TICKER</div>
+      <div class="vp"><div class="ticker-track" id="ticker"><span>Lade Live-Ticker …</span></div></div>
+    </div>
     <div id="news"><div class="empty">Lade News …</div></div>
   </div>
 
@@ -104,6 +118,29 @@
 
   function fmt(ts){ return new Date(ts).toLocaleString("de-DE",{weekday:"short",day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})+" Uhr"; }
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); }
+
+  function buildTicker(sd){
+    const track=document.getElementById("ticker"); if(!track) return;
+    const lines=[];
+    const winners=window.computeGroupWinners(sd);
+    const arr=window.SHOPS.map(function(s){var p=window.shopPercents(sd[s.id]||{});var sc=window.computeScore(p.bb,p.tv);return {s:s,p:p,sc:sc,cheers:((sd[s.id]||{}).cheers)||0};});
+    const qual=arr.filter(function(a){return a.sc.qualified;}).sort(function(a,b){return b.sc.total-a.sc.total;});
+    if(qual.length) lines.push("👑 Gesamtführung: <b>"+qual[0].s.name+"</b> ("+qual[0].sc.total+" Pkt)");
+    window.GROUPS.forEach(function(g){ if(winners[g]){var nm=window.SHOPS.find(function(s){return s.id===winners[g];}).name; lines.push("🏆 Gruppe "+g+": <b>"+nm+"</b> vorn");}});
+    arr.forEach(function(a){ if(a.p.bb>=100) lines.push("🚀 <b>"+a.s.name+"</b> hat Breitband geknackt!"); if(a.p.tv>=100) lines.push("🚀 <b>"+a.s.name+"</b> hat MagentaTV geknackt!"); });
+    var today=new Date().toISOString().slice(0,10), mover=null;
+    arr.forEach(function(a){var d=sd[a.s.id]||{}; if(d.dayBaseline&&d.dayBaseline.date===today){var g=Math.round((a.sc.total-(d.dayBaseline.total||0))*10)/10; if(g>0&&(!mover||g>mover.g)) mover={n:a.s.name,g:g};}});
+    if(mover) lines.push("📈 Aufsteiger des Tages: <b>"+mover.n+"</b> (+"+mover.g+")");
+    var ch=arr.slice().sort(function(a,b){return b.cheers-a.cheers;});
+    if(ch.length&&ch[0].cheers>0) lines.push("👏 Am lautesten gefeiert: <b>"+ch[0].s.name+"</b> ("+ch[0].cheers+"×)");
+    var now=new Date(),start=new Date(window.EVENT.start),end=new Date(window.EVENT.end);
+    if(now<start){var d1=Math.ceil((start-now)/86400000); lines.push("⏱️ Anpfiff in "+d1+" Tag"+(d1===1?"":"en"));}
+    else if(now<=end){var d2=Math.ceil((end-now)/86400000); lines.push("⏱️ Noch "+d2+" Tag"+(d2===1?"":"e")+" im Rennen");}
+    var generic=["⚽ Jeder Abschluss zählt!","💪 Wer schnappt sich Platz 1?","🔥 Gebt Vollgas, Team!","🎯 Erst 100 %, dann Punkte sammeln!"];
+    var gi=0; while(lines.length<5){ lines.push(generic[gi%generic.length]); gi++; }
+    var half=lines.map(function(l){return "<span>"+l+"</span>";}).join("<span>•</span>")+"<span>•</span>";
+    track.innerHTML=half+half;
+  }
 
   function render(items){
     const root=document.getElementById("news");
@@ -133,6 +170,10 @@
       const items=[]; snap.forEach(function(d){ items.push(d.data()); });
       render(items);
     },function(err){ console.error(err); document.getElementById("news").innerHTML='<div class="empty">News konnten nicht geladen werden.</div>'; });
+    // Live-Hype-Ticker aus den Shop-Daten
+    onSnapshot(collection(db,"shops"),function(snap){
+      const sd={}; snap.forEach(function(d){ sd[d.id]=d.data(); }); buildTicker(sd);
+    },function(){});
   }catch(e){ console.error(e); document.getElementById("news").innerHTML='<div class="empty">Firebase nicht konfiguriert.</div>'; }
 </script>
 </body>

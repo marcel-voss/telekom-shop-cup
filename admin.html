@@ -298,7 +298,7 @@
           magentatvZiel: tvZiel, magentatvIst: tvIst,
           dayBaseline: dayBaseline,
           updatedAt: new Date().toISOString()
-        });
+        }, { merge: true });
         shopData[s.id] = Object.assign({}, existing, {breitbandZiel:bbZiel, breitbandIst:bbIst, magentatvZiel:tvZiel, magentatvIst:tvIst, dayBaseline: dayBaseline});
       }
       const now = new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
