@@ -131,8 +131,6 @@
     var today=new Date().toISOString().slice(0,10), mover=null;
     arr.forEach(function(a){var d=sd[a.s.id]||{}; if(d.dayBaseline&&d.dayBaseline.date===today){var g=Math.round((a.sc.total-(d.dayBaseline.total||0))*10)/10; if(g>0&&(!mover||g>mover.g)) mover={n:a.s.name,g:g};}});
     if(mover) lines.push("📈 Aufsteiger des Tages: <b>"+mover.n+"</b> (+"+mover.g+")");
-    var ch=arr.slice().sort(function(a,b){return b.cheers-a.cheers;});
-    if(ch.length&&ch[0].cheers>0) lines.push("👏 Am lautesten gefeiert: <b>"+ch[0].s.name+"</b> ("+ch[0].cheers+"×)");
     var now=new Date(),start=new Date(window.EVENT.start),end=new Date(window.EVENT.end);
     if(now<start){var d1=Math.ceil((start-now)/86400000); lines.push("⏱️ Anpfiff in "+d1+" Tag"+(d1===1?"":"en"));}
     else if(now<=end){var d2=Math.ceil((end-now)/86400000); lines.push("⏱️ Noch "+d2+" Tag"+(d2===1?"":"e")+" im Rennen");}

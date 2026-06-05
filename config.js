@@ -101,8 +101,8 @@ window.shopPercents = function (d) {
   return {
     bb: bb, tv: tv,
     bbZiel: bbZiel, bbIst: bbIst, tvZiel: tvZiel, tvIst: tvIst,
-    bbRest: Math.max(0, bbZiel - bbIst),
-    tvRest: Math.max(0, tvZiel - tvIst)
+    bbRest: Math.round(Math.max(0, bbZiel - bbIst) * 100) / 100,
+    tvRest: Math.round(Math.max(0, tvZiel - tvIst) * 100) / 100
   };
 };
 

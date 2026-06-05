@@ -75,12 +75,6 @@
   .pts{font-weight:900;color:var(--magenta);font-size:15px}
   .rem{font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:600}
   .rem.done{color:var(--pitch);font-weight:800}
-  td.fans{text-align:center}
-  .cheer{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:13px;font-weight:800;cursor:pointer;color:var(--magenta);transition:transform .08s ease}
-  .cheer:hover{background:#fdeaf4}
-  .cheer:active{transform:scale(.9)}
-  .cheer b{color:var(--ink);margin-left:2px}
-  .cheer:disabled{opacity:.6;cursor:default}
   .crown{margin-right:4px}
   .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
   .stat.q{background:#e3f6ec;color:var(--pitch-dk)}
@@ -209,8 +203,7 @@
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  let db=null;
+  import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   document.getElementById("event-name").textContent = window.EVENT.name;
 
@@ -274,7 +267,7 @@
       const winnerName=winnerId?window.SHOPS.find(s=>s.id===winnerId).name:"—";
       html+='<div class="gcard"><div class="ghead"><div class="gbadge">'+g+'</div>'
           +'<h2>Gruppe '+g+'</h2><div class="lead">Führend<b>'+winnerName+'</b></div></div>'
-          +'<table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitband</th><th>MagentaTV</th><th>Pkt</th><th>Status</th><th>Anfeuern</th></tr></thead><tbody>';
+          +'<table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitband</th><th>MagentaTV</th><th>Pkt</th><th>Status</th></tr></thead><tbody>';
       function cell(pct, rest, ziel){
         const hit = pct>=100;
         const rem = ziel<=0 ? '<div class="rem">–</div>'
@@ -292,8 +285,7 @@
             +cell(r.p.bb, r.p.bbRest, r.p.bbZiel)
             +cell(r.p.tv, r.p.tvRest, r.p.tvZiel)
             +'<td class="pts">'+(r.sc.qualified?r.sc.total:'–')+'</td>'
-            +'<td>'+badge+'</td>'
-            +'<td class="fans"><button class="cheer" data-id="'+r.shop.id+'">👏 <b>'+(((shopData[r.shop.id]||{}).cheers)||0)+'</b></button></td></tr>';
+            +'<td>'+badge+'</td></tr>';
       });
       html+='</tbody></table></div>';
     });
@@ -302,15 +294,7 @@
 
   try{
     const app=initializeApp(window.FIREBASE_CONFIG);
-    db=getFirestore(app);
-    // Anfeuern (Cheers) – Klick-Delegation
-    document.getElementById("groups").addEventListener("click",function(e){
-      const b=e.target.closest(".cheer"); if(!b||!db) return;
-      const id=b.dataset.id; b.disabled=true; setTimeout(function(){b.disabled=false;},500);
-      const bb=b.querySelector("b"); if(bb) bb.textContent=(parseInt(bb.textContent||"0",10)+1);
-      updateDoc(doc(db,"shops",id),{cheers:increment(1)}).catch(console.error);
-      if(typeof confetti==="function") confetti({particleCount:30,spread:50,startVelocity:25,origin:{y:0.8},colors:["#E20074","#fff","#f5c542"]});
-    });
+    const db=getFirestore(app);
     onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();updateDataStamp();checkMilestones();},
       err=>{console.error(err);document.getElementById("groups").innerHTML='<div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div>';});
     // Zeitstempel der letzten News
