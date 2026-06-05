@@ -124,6 +124,19 @@
   .pb-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.12) 50%,transparent 60%);transform:translateX(-100%);animation:pbshine 5s ease-in-out infinite;pointer-events:none}
   @keyframes pbshine{0%,60%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
   @media(max-width:640px){.prizebanner{gap:14px;padding:14px 16px}.pb-title{font-size:19px}.pb-art svg{width:50px;height:50px}.pb-ribbon{display:none}}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl-wrap table{min-width:430px}
+  @media(max-width:560px){
+    .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .navlinks{width:100%;flex-wrap:wrap;gap:6px}
+    .navlinks a{padding:7px 11px;font-size:13px}
+    .hero h1{font-size:28px}
+    .stats{gap:10px}.scard{padding:14px}.scard .val{font-size:24px}
+    .climber{padding:16px 18px}.climber .gain{font-size:24px}.climber .rk{font-size:30px}
+    thead th{padding:8px 7px;font-size:9.5px}
+    tbody td{padding:9px 7px;font-size:13px}
+    .barwrap{height:300px}
+  }
 </style>
 </head>
 <body>
@@ -300,7 +313,7 @@
   }
 
   function renderOverall(ranked){
-    let html='<table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitb.</th><th>MagentaTV</th><th>Punkte</th></tr></thead><tbody>';
+    let html='<div class="tbl-wrap"><table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitb.</th><th>MagentaTV</th><th>Punkte</th></tr></thead><tbody>';
     ranked.forEach((s,i)=>{
       const rc=s.qualified&&i<3?('r'+(i+1)):'';
       const qcls=s.qualified?'q':'';
@@ -315,20 +328,20 @@
         +'<td><span class="pct'+(s.tv>=100?' hit':'')+'">'+s.tv+'%</span></td>'
         +'<td class="pts">'+(s.qualified?s.total:'–')+'</td></tr>';
     });
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
     document.getElementById('overall').innerHTML=html;
   }
 
   function renderTop(elId,key){
     const list=[...enrich()].sort((a,b)=>b[key]-a[key]).slice(0,5);
     if(list.every(s=>s[key]===0)){document.getElementById(elId).innerHTML='<div class="empty">Noch keine Werte eingetragen.</div>';return;}
-    let html='<table><tbody>';
+    let html='<div class="tbl-wrap"><table><tbody>';
     list.forEach((s,i)=>{
       html+='<tr><td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
         +'<td class="team">'+s.name+'<span class="gtag '+s.group+'">'+s.group+'</span></td>'
         +'<td class="pts"><span class="pct'+(s[key]>=100?' hit':'')+'">'+s[key]+'%</span></td></tr>';
     });
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
     document.getElementById(elId).innerHTML=html;
   }
 
