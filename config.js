@@ -125,3 +125,127 @@ window.computeGroupWinners = function (shopData) {
   });
   return winners;
 };
+
+// ============================================================
+//  MAGENTA CUP CLASH  (zweites Incentive, eigener Reiter)
+// ============================================================
+// Mechanik (laut Portal-Post 4930):
+//  * Zwei KPI je Team:  BB Neu  und  PP Neu PK.
+//  * Drei Stufen (Pokale): Bronze / Silber / Gold.
+//      - BB Neu: absolute Monats-Staffel je Shop (Bronze=S1, Silber=S2, Gold=S3).
+//      - PP Neu PK: Prozent vom SOLL  (Bronze=100%, Silber=115%, Gold=130%).
+//  * Team-Trophäe = die SCHWÄCHERE der beiden KPI-Stufen
+//    (Beispiel: BB Gold + PP Silber  ->  Trophäe Silber).
+//  * Grundvoraussetzung (Gates, Betreiberebene je Shop):
+//      PP VVL >= 100 %,  MagentaTV >= 130 %,  TV AQ >= 90 %.
+//    Sind die Gates nicht erfüllt, ist die Trophäe (noch) gesperrt.
+window.CUPCLASH = {
+  name:  "Magenta Cup Clash",
+  start: "2026-05-13T00:00:00",
+  end:   "2026-07-19T23:59:59",
+  note:  "BB Neu = Monats-Staffel · PP Neu PK = SOLL des Monats",
+  ppSilberFaktor: 1.15,
+  ppGoldFaktor:   1.30,
+  gates: [
+    { key: "ppVvl", label: "PP VVL",    min: 100 },
+    { key: "mtv",   label: "MagentaTV", min: 130 },
+    { key: "tvAq",  label: "TV AQ",     min: 90  }
+  ]
+};
+
+// Teams = die 16 Shops mit Teamname + Zielen.
+//  bbB/bbS/bbG = BB-Neu-Staffel Bronze/Silber/Gold (absolute Stückzahl, Juni).
+//  ppSoll      = PP-Neu-PK SOLL (100%); Silber/Gold = SOLL * Faktor (oben).
+// Hinweis: Teamnamen für duelmen/emsdetten/greven/luedinghausen/werl stehen
+// noch aus -> vorerst Ortsname, im Backend editierbar.
+window.CC_TEAMS = [
+  { id: "ahlen",         team: "1. FC Funkloch",  bbB: 34, bbS: 37, bbG: 40, ppSoll: 39 },
+  { id: "bad-salzuflen", team: "Team Vielfalt",   bbB: 31, bbS: 35, bbG: 37, ppSoll: 37 },
+  { id: "beckum",        team: "CR7 Elite",       bbB: 43, bbS: 47, bbG: 50, ppSoll: 50 },
+  { id: "bramsche",      team: "Die Zauberer",    bbB: 25, bbS: 27, bbG: 29, ppSoll: 29 },
+  { id: "brilon",        team: "HSK",             bbB: 28, bbS: 31, bbG: 33, ppSoll: 39 },
+  { id: "cloppenburg",   team: "Aluhutträger",    bbB: 40, bbS: 44, bbG: 48, ppSoll: 47 },
+  { id: "duelmen",       team: "Dülmen",          bbB: 29, bbS: 32, bbG: 35, ppSoll: 34 },
+  { id: "emsdetten",     team: "Emsdetten",       bbB: 34, bbS: 37, bbG: 40, ppSoll: 39 },
+  { id: "greven",        team: "Greven",          bbB: 34, bbS: 37, bbG: 40, ppSoll: 39 },
+  { id: "hoexter",       team: "Die SIMulanten",  bbB: 29, bbS: 32, bbG: 35, ppSoll: 34 },
+  { id: "korbach",       team: "KB Turbine",      bbB: 28, bbS: 31, bbG: 33, ppSoll: 42 },
+  { id: "luedinghausen", team: "Lüdinghausen",    bbB: 31, bbS: 35, bbG: 37, ppSoll: 37 },
+  { id: "oelde",         team: "FC Schufa 04",    bbB: 27, bbS: 30, bbG: 32, ppSoll: 32 },
+  { id: "rheda",         team: "Schnappershop",   bbB: 31, bbS: 35, bbG: 37, ppSoll: 37 },
+  { id: "warendorf",     team: "Tele Champions",  bbB: 40, bbS: 44, bbG: 48, ppSoll: 47 },
+  { id: "werl",          team: "Werl",            bbB: 20, bbS: 22, bbG: 24, ppSoll: 24 }
+];
+
+window.CC_TIER_NAMES = ["—", "Bronze", "Silber", "Gold"];
+
+// Stufe für absolute Schwellen: 0=keine,1=Bronze,2=Silber,3=Gold.
+window.ccTier = function (ist, b, s, g) {
+  ist = Number(ist) || 0;
+  if (g > 0 && ist >= g) return 3;
+  if (s > 0 && ist >= s) return 2;
+  if (b > 0 && ist >= b) return 1;
+  return 0;
+};
+
+// PP-Schwellen (absolute Stückzahl) aus dem SOLL.
+window.ccPpThresholds = function (soll) {
+  soll = Number(soll) || 0;
+  return {
+    bronze: soll,
+    silber: Math.ceil(soll * window.CUPCLASH.ppSilberFaktor),
+    gold:   Math.ceil(soll * window.CUPCLASH.ppGoldFaktor)
+  };
+};
+
+// Liefert die effektiven Ziele eines Teams (config + evtl. Overrides aus Firestore).
+window.ccTargets = function (teamCfg, d) {
+  d = d || {};
+  const bbB = d.ccBbB != null ? Number(d.ccBbB) : teamCfg.bbB;
+  const bbS = d.ccBbS != null ? Number(d.ccBbS) : teamCfg.bbS;
+  const bbG = d.ccBbG != null ? Number(d.ccBbG) : teamCfg.bbG;
+  const ppSoll = d.ccPpSoll != null ? Number(d.ccPpSoll) : teamCfg.ppSoll;
+  const pp = window.ccPpThresholds(ppSoll);
+  return { bbB: bbB, bbS: bbS, bbG: bbG, ppSoll: ppSoll, ppB: pp.bronze, ppS: pp.silber, ppG: pp.gold };
+};
+
+// Komplettes Team-Ergebnis für Anzeige/Wertung.
+window.ccTeamResult = function (teamCfg, d) {
+  d = d || {};
+  const t = window.ccTargets(teamCfg, d);
+  const bbIst = Number(d.ccBbIst) || 0;
+  const ppIst = Number(d.ccPpIst) || 0;
+  const bbTier = window.ccTier(bbIst, t.bbB, t.bbS, t.bbG);
+  const ppTier = window.ccTier(ppIst, t.ppB, t.ppS, t.ppG);
+  const trophy = Math.min(bbTier, ppTier);          // schwächeres KPI entscheidet
+
+  // Gates
+  const gateVals = { ppVvl: Number(d.ccPpVvl) || 0, mtv: Number(d.ccMtv) || 0, tvAq: Number(d.ccTvAq) || 0 };
+  const gateStatus = window.CUPCLASH.gates.map(function (g) {
+    return { key: g.key, label: g.label, min: g.min, val: gateVals[g.key], ok: gateVals[g.key] >= g.min };
+  });
+  const gatesOk = gateStatus.every(function (g) { return g.ok; });
+  const trophyEffective = gatesOk ? trophy : 0;     // ohne Gates keine Wertung
+
+  return {
+    targets: t,
+    bbIst: bbIst, ppIst: ppIst,
+    bbTier: bbTier, ppTier: ppTier,
+    trophy: trophy, trophyEffective: trophyEffective,
+    bbPct: t.bbG > 0 ? Math.round(bbIst / t.bbG * 100) : 0,
+    ppPct: t.ppSoll > 0 ? Math.round(ppIst / t.ppSoll * 100) : 0,
+    gates: gateStatus, gatesOk: gatesOk,
+    // "noch X bis zur nächsten Stufe" je KPI
+    bbNext: window.ccNextNeed(bbIst, t.bbB, t.bbS, t.bbG),
+    ppNext: window.ccNextNeed(ppIst, t.ppB, t.ppS, t.ppG)
+  };
+};
+
+// Wie viele Zähler fehlen bis zur nächsten Stufe? null wenn schon Gold.
+window.ccNextNeed = function (ist, b, s, g) {
+  ist = Number(ist) || 0;
+  if (ist < b) return { tier: "Bronze", need: b - ist };
+  if (ist < s) return { tier: "Silber", need: s - ist };
+  if (ist < g) return { tier: "Gold",   need: g - ist };
+  return null;
+};

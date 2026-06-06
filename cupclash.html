@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Magenta Cup Clash – Pokaljagd</title>
+<style>
+  :root{
+    --magenta:#E20074; --magenta-deep:#8a0048;
+    --ink:#13131a; --ink-soft:#2a2a33;
+    --muted:#7a7a85; --line:#ededf0; --bg:#f3f3f6; --card:#fff;
+    --pitch:#0fa45a; --pitch-dk:#0b8048;
+    --gold:#f5c542; --silver:#b9bec9; --bronze:#cf8a51;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .brand{font-weight:800;letter-spacing:.3px}
+  .navlinks{display:flex;gap:8px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--magenta);color:#fff}
+  .navlinks a:not(.active):hover{background:#f3eef1}
+
+  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E20074 0%,#b3005c 55%,#8a0048 100%);color:#fff;padding:30px 20px 38px;text-align:center}
+  .hero .blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
+  .hero .b1{width:360px;height:360px;top:-160px;left:-120px}
+  .hero .b2{width:300px;height:300px;bottom:-160px;right:-80px;background:rgba(0,0,0,.10)}
+  .hero-inner{position:relative;z-index:2}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.9;font-weight:700}
+  .hero h1{font-size:38px;font-weight:900;margin:8px 0 2px;letter-spacing:-.5px;line-height:1.05}
+  .hero .sub{font-size:15px;opacity:.95}
+  .matchday{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(255,255,255,.16);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:700}
+  .matchday .live-dot{width:8px;height:8px;border-radius:50%;background:#3df08a;box-shadow:0 0 0 0 rgba(61,240,138,.7);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,240,138,.6)}70%{box-shadow:0 0 0 10px rgba(61,240,138,0)}100%{box-shadow:0 0 0 0 rgba(61,240,138,0)}}
+
+  /* Prize banner */
+  .prizebanner{position:relative;overflow:hidden;background:radial-gradient(circle at 18% 20%,#33333f,#14141a 72%);color:#fff;display:flex;align-items:center;gap:22px;padding:16px 26px;border-bottom:3px solid var(--gold)}
+  .pb-art svg{width:60px;height:60px;filter:drop-shadow(0 5px 10px rgba(0,0,0,.45))}
+  .pb-text{flex:1;min-width:0;z-index:2}
+  .pb-eyebrow{color:var(--gold);font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase}
+  .pb-title{font-size:24px;font-weight:900;line-height:1.05;margin:3px 0}
+  .pb-sub{font-size:13.5px;opacity:.85}
+  .pb-pills{display:flex;gap:8px;flex:none;z-index:2;flex-wrap:wrap;justify-content:flex-end}
+  .pb-pill{font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;color:#221c00}
+  .pb-pill.b{background:linear-gradient(135deg,#e6a76b,#cf8a51)}
+  .pb-pill.s{background:linear-gradient(135deg,#dfe3ea,#b9bec9)}
+  .pb-pill.g{background:linear-gradient(135deg,#ffe487,#f0c12e)}
+  @media(max-width:680px){.prizebanner{gap:14px;padding:14px 16px}.pb-title{font-size:18px}.pb-art svg{width:46px;height:46px}.pb-pills{display:none}}
+
+  .stampbar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;background:#fff;border-bottom:1px solid var(--line);padding:11px 16px;font-size:13px;color:var(--muted)}
+  .stampbar b{color:var(--ink);font-weight:700}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 16px 70px}
+  .loading{text-align:center;color:var(--muted);padding:50px;font-size:15px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;font-size:13px;color:var(--muted);margin-bottom:20px}
+  .legend .tier{display:inline-flex;align-items:center;gap:6px}
+  .dotpill{width:14px;height:14px;border-radius:4px;display:inline-block}
+  .dp-b{background:var(--bronze)} .dp-s{background:var(--silver)} .dp-g{background:var(--gold)}
+
+  .sectitle{font-size:13px;text-transform:uppercase;letter-spacing:2px;font-weight:800;color:var(--magenta);margin:6px 0 14px;text-align:center}
+
+  /* Pokal table */
+  .board{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,40,.06);border:1px solid var(--line)}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;min-width:680px}
+  thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;background:#fafafb}
+  thead th.c{text-align:center}
+  tbody td{padding:12px 10px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  td.pos{text-align:center;width:44px}
+  .ranknum{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#eceef2;color:#444;font-weight:800;font-size:13px}
+  tr.t-g .ranknum{background:var(--gold);color:#3a2b00}
+  tr.t-s .ranknum{background:var(--silver);color:#2a2f37}
+  tr.t-b .ranknum{background:var(--bronze);color:#fff}
+  td.team{font-weight:800}
+  td.team .shop{display:block;font-size:11px;color:var(--muted);font-weight:600}
+  .kpi{min-width:150px}
+  .kpi .ist{font-size:17px;font-weight:900;color:var(--ink)}
+  .kpi .ist .of{font-size:12px;font-weight:700;color:var(--muted)}
+  .ladder{display:flex;gap:4px;margin-top:5px}
+  .rung{flex:1;height:6px;border-radius:3px;background:#e9e9ee}
+  .rung.b.on{background:var(--bronze)} .rung.s.on{background:var(--silver)} .rung.g.on{background:var(--gold)}
+  .kpi .need{font-size:10.5px;color:var(--muted);margin-top:4px;font-weight:600}
+  .kpi .need.done{color:var(--pitch);font-weight:800}
+
+  .tierbadge{display:inline-flex;align-items:center;gap:6px;font-weight:900;font-size:13px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+  .tb-0{background:#f0f0f3;color:#9a9aa3}
+  .tb-1{background:linear-gradient(135deg,#e6a76b,#cf8a51);color:#fff}
+  .tb-2{background:linear-gradient(135deg,#dfe3ea,#b9bec9);color:#2a2f37}
+  .tb-3{background:linear-gradient(135deg,#ffe487,#f0c12e);color:#3a2b00}
+  td.pokal{text-align:center;width:130px}
+  .locked{display:block;font-size:9.5px;color:#d23;font-weight:800;margin-top:4px;letter-spacing:.3px}
+
+  td.gates{width:120px}
+  .gatewrap{display:flex;gap:5px;justify-content:flex-start}
+  .gate{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-size:8.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.2px}
+  .gate i{width:12px;height:12px;border-radius:50%;display:block}
+  .gate.ok i{background:var(--pitch)} .gate.no i{background:#e2536b}
+
+  /* Torschützenliste */
+  .scorers{background:var(--card);border-radius:18px;border:1px solid var(--line);box-shadow:0 4px 18px rgba(20,20,40,.06);margin-top:28px;overflow:hidden}
+  .scorers .sc-head{display:flex;align-items:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,#1b1b22,#2b2b35);color:#fff}
+  .scorers .sc-head h3{font-size:16px;font-weight:800;flex:1}
+  .scorers .sc-head .ball{font-size:20px}
+  .sc-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+  .sc-row:last-child{border-bottom:none}
+  .sc-rank{width:30px;height:30px;border-radius:50%;background:#eceef2;color:#444;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+  .sc-row:nth-child(2) .sc-rank{background:var(--gold);color:#3a2b00}
+  .sc-row:nth-child(3) .sc-rank{background:var(--silver);color:#2a2f37}
+  .sc-row:nth-child(4) .sc-rank{background:var(--bronze);color:#fff}
+  .sc-name{flex:1;font-weight:700;font-size:14px}
+  .sc-name .sc-team{display:block;font-size:11px;color:var(--muted);font-weight:600}
+  .sc-goals{font-weight:900;color:var(--magenta);font-size:16px;font-variant-numeric:tabular-nums}
+  .sc-goals small{font-size:11px;color:var(--muted);font-weight:700}
+  .sc-empty{padding:24px 18px;text-align:center;color:var(--muted);font-size:14px}
+  .sc-note{font-size:11px;color:var(--muted);padding:10px 18px;background:#fafafb}
+
+  .rules{background:var(--card);border-radius:18px;padding:22px 24px;margin-top:26px;border:1px solid var(--line)}
+  .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta)}
+  .rules p{font-size:14px;color:#333;margin-bottom:10px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
+
+  @media(max-width:560px){
+    .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .navlinks{width:100%;flex-wrap:wrap;gap:6px}
+    .navlinks a{padding:7px 11px;font-size:13px}
+    .hero{padding:24px 16px 28px}.hero h1{font-size:28px}
+    .wrap{padding:18px 10px 60px}
+    .stampbar{font-size:11.5px;gap:6px 16px;padding:10px 12px}
+  }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">Voss Telekom · Incentives</div>
+    <div class="navlinks">
+      <a href="index.html">Shop Cup</a>
+      <a href="cupclash.html" class="active">Cup Clash</a>
+      <a href="stats.html">Rankings</a>
+      <a href="news.html">News</a>
+      <a href="erklaer.html">So geht's</a>
+    </div>
+  </nav>
+
+  <div class="prizebanner">
+    <div class="pb-art">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><linearGradient id="gld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe487"/><stop offset="1" stop-color="#dca513"/></linearGradient></defs>
+        <path d="M14 14 H8 a8 8 0 0 0 9 12" fill="none" stroke="url(#gld)" stroke-width="4"/>
+        <path d="M50 14 H56 a8 8 0 0 1 -9 12" fill="none" stroke="url(#gld)" stroke-width="4"/>
+        <path d="M14 9 H50 V21 a18 18 0 0 1 -36 0 Z" fill="url(#gld)"/>
+        <rect x="29" y="38" width="6" height="9" fill="url(#gld)"/>
+        <rect x="20" y="46" width="24" height="5" rx="2" fill="url(#gld)"/>
+        <rect x="23" y="51" width="18" height="6" rx="2" fill="url(#gld)"/>
+      </svg>
+    </div>
+    <div class="pb-text">
+      <div class="pb-eyebrow">★ Drei Pokale – drei Prämienstufen ★</div>
+      <div class="pb-title">Bronze · Silber · Gold</div>
+      <div class="pb-sub">Pro Treffer ausgezahlt. Gold = <b>14 €/St Breitband Neu</b> &amp; <b>7 €/St PP Neu PK</b>. Es entscheidet das schwächere der beiden KPI.</div>
+    </div>
+    <div class="pb-pills">
+      <span class="pb-pill b">Bronze 100%</span>
+      <span class="pb-pill s">Silber 115%</span>
+      <span class="pb-pill g">Gold 130%</span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <span class="blob b1"></span><span class="blob b2"></span>
+    <div class="hero-inner">
+      <div class="eyebrow">Voss Telekom · Team-Wettbewerb</div>
+      <h1 id="event-name">Magenta Cup Clash</h1>
+      <div class="sub">Pokaljagd · <span id="event-dates">13. Mai – 19. Juli 2026</span></div>
+      <div class="matchday"><span class="live-dot"></span><span id="countdown">…</span></div>
+    </div>
+  </header>
+
+  <div class="stampbar">
+    <span>🕒 Letzte Aktualisierung: <b id="stamp-data">–</b></span>
+  </div>
+
+  <div class="wrap">
+    <div class="legend">
+      <span class="tier"><span class="dotpill dp-b"></span>Bronze = 100% Ziel</span>
+      <span class="tier"><span class="dotpill dp-s"></span>Silber = 115%</span>
+      <span class="tier"><span class="dotpill dp-g"></span>Gold = 130%</span>
+    </div>
+
+    <div class="sectitle">Pokal-Tabelle · 16 Teams</div>
+    <div class="board">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th class="c">#</th><th>Team</th>
+            <th>Breitband Neu</th><th>PP Neu PK</th>
+            <th class="c">Gates</th><th class="c">Pokal</th>
+          </tr></thead>
+          <tbody id="board-body"><tr><td colspan="6"><div class="loading">Lade Cup Clash …</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="scorers">
+      <div class="sc-head"><span class="ball">⚽</span><h3>Torschützenliste</h3></div>
+      <div id="scorers-body"><div class="sc-empty">Noch keine Torschützen eingetragen.</div></div>
+      <div class="sc-note" id="scorers-note"></div>
+    </div>
+
+    <div class="rules">
+      <h3>🏆 So funktioniert der Cup Clash</h3>
+      <p>Jedes Team kämpft in zwei KPI um drei Pokalstufen: <strong>Breitband Neu</strong> (Monats-Staffel je Shop) und <strong>PP Neu PK</strong> (100% / 115% / 130% vom Soll).</p>
+      <p>Die <strong>Team-Trophäe richtet sich nach dem schwächeren der beiden KPI</strong> – wer z. B. bei Breitband Gold, bei PP Neu PK aber nur Silber erreicht, holt Silber.</p>
+      <p>Grundvoraussetzung für die Wertung sind die <strong>Gates</strong>: PP VVL ≥ 100%, MagentaTV ≥ 130% und TV AQ ≥ 90%. Erst wenn alle drei grün sind, zählt die Trophäe.</p>
+    </div>
+  </div>
+
+  <footer>Voss Telekom · Magenta Cup Clash · keine Anmeldung erforderlich</footer>
+
+<script src="config.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const CC = window.CUPCLASH;
+  document.getElementById("event-name").textContent = CC.name;
+
+  function fmtStamp(ts){ return ts ? (new Date(ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" Uhr") : "–"; }
+  function updateCountdown(){
+    const now=new Date(), start=new Date(CC.start), end=new Date(CC.end);
+    const el=document.getElementById("countdown");
+    if(now<start){const d=Math.ceil((start-now)/86400000);el.textContent="Start in "+d+" Tag"+(d===1?"":"en");}
+    else if(now<=end){const d=Math.ceil((end-now)/86400000);el.textContent="Läuft · noch "+d+" Tag"+(d===1?"":"e");}
+    else el.textContent="Beendet · Endstand";
+  }
+  updateCountdown(); setInterval(updateCountdown,60000);
+
+  const TIER=["—","Bronze","Silber","Gold"];
+  let shopData={};
+
+  function shopName(id){ const s=window.SHOPS.find(x=>x.id===id); return s?s.name:id; }
+
+  function kpiCell(ist, b, s, g, next, soll, isPp){
+    const tierOn=(thr)=> ist>=thr && thr>0;
+    const of = isPp ? '<span class="of"> / '+soll+' Soll</span>' : '<span class="of"> / '+g+' (Gold)</span>';
+    let need;
+    if(next===null){ need='<div class="need done">Gold erreicht ✓</div>'; }
+    else { need='<div class="need">noch '+next.need+' bis '+next.tier+'</div>'; }
+    return '<td class="kpi"><span class="ist">'+ist+'</span>'+of
+      +'<div class="ladder">'
+      +'<span class="rung b'+(tierOn(b)?' on':'')+'"></span>'
+      +'<span class="rung s'+(tierOn(s)?' on':'')+'"></span>'
+      +'<span class="rung g'+(tierOn(g)?' on':'')+'"></span></div>'
+      +need+'</td>';
+  }
+
+  function gateCell(gates){
+    let h='<div class="gatewrap">';
+    gates.forEach(function(gt){
+      h+='<span class="gate '+(gt.ok?'ok':'no')+'" title="'+gt.label+': '+gt.val+'% (min '+gt.min+'%)"><i></i>'+gt.label.replace("MagentaTV","MTV")+'</span>';
+    });
+    return '<td class="gates">'+h+'</div></td>';
+  }
+
+  function render(){
+    const rows=window.CC_TEAMS.map(function(tc){
+      const d=shopData[tc.id]||{};
+      const team=d.teamName || tc.team;
+      const res=window.ccTeamResult(tc, d);
+      return {tc:tc, team:team, res:res};
+    }).sort(function(a,b){
+      if(b.res.trophyEffective!==a.res.trophyEffective) return b.res.trophyEffective-a.res.trophyEffective;
+      // sekundär: kombinierter Fortschritt
+      return (b.res.bbPct+b.res.ppPct)-(a.res.bbPct+a.res.ppPct);
+    });
+
+    let html="";
+    rows.forEach(function(r,i){
+      const t=r.res.targets, res=r.res;
+      const tcls = res.trophyEffective===3?"t-g":res.trophyEffective===2?"t-s":res.trophyEffective===1?"t-b":"";
+      const locked = (res.trophy>0 && !res.gatesOk);
+      html+='<tr class="'+tcls+'">'
+        +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
+        +'<td class="team">'+r.team+'<span class="shop">'+shopName(r.tc.id)+'</span></td>'
+        +kpiCell(res.bbIst, t.bbB, t.bbS, t.bbG, res.bbNext, t.bbG, false)
+        +kpiCell(res.ppIst, t.ppB, t.ppS, t.ppG, res.ppNext, t.ppSoll, true)
+        +gateCell(res.gates)
+        +'<td class="pokal"><span class="tierbadge tb-'+res.trophyEffective+'">'+(res.trophyEffective>0?'🏆 '+TIER[res.trophyEffective]:'—')+'</span>'
+        +(locked?'<span class="locked">Gates offen ('+TIER[res.trophy]+' möglich)</span>':'')+'</td>'
+        +'</tr>';
+    });
+    document.getElementById("board-body").innerHTML=html;
+
+    // Zeitstempel
+    let latest=null;
+    window.CC_TEAMS.forEach(function(tc){ const u=(shopData[tc.id]||{}).ccUpdatedAt||(shopData[tc.id]||{}).updatedAt; if(u && (!latest||u>latest)) latest=u; });
+    document.getElementById("stamp-data").textContent=fmtStamp(latest);
+
+    // Torschützenliste aus shops/_torjaeger
+    renderScorers(shopData["_torjaeger"]);
+  }
+
+  function renderScorers(doc){
+    const body=document.getElementById("scorers-body");
+    const note=document.getElementById("scorers-note");
+    const list=(doc&&Array.isArray(doc.scorers))?doc.scorers.slice():[];
+    list.sort(function(a,b){return (Number(b.goals)||0)-(Number(a.goals)||0);});
+    if(!list.length){ body.innerHTML='<div class="sc-empty">Noch keine Torschützen eingetragen.</div>'; note.textContent=''; return; }
+    let h="";
+    list.slice(0,15).forEach(function(s,i){
+      h+='<div class="sc-row"><span class="sc-rank">'+(i+1)+'</span>'
+        +'<span class="sc-name">'+(s.name||'—')+'<span class="sc-team">'+(s.team||'')+'</span></span>'
+        +'<span class="sc-goals">'+(Number(s.goals)||0)+' <small>Tore</small></span></div>';
+    });
+    body.innerHTML=h;
+    note.textContent = doc.note ? doc.note : "Tore = Breitband Neu + PP Neu PK im Wettbewerbszeitraum.";
+  }
+
+  try{
+    const app=initializeApp(window.FIREBASE_CONFIG);
+    const db=getFirestore(app);
+    onSnapshot(collection(db,"shops"),function(snap){
+      shopData={}; snap.forEach(function(d){ shopData[d.id]=d.data(); }); render();
+    }, function(err){ console.error(err); document.getElementById("board-body").innerHTML='<tr><td colspan="6"><div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div></td></tr>'; });
+  }catch(e){ console.error(e); document.getElementById("board-body").innerHTML='<tr><td colspan="6"><div class="loading">Firebase nicht konfiguriert.</div></td></tr>'; }
+</script>
+</body>
+</html>

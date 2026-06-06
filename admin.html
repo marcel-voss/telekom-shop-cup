@@ -8,6 +8,7 @@
   :root{
     --magenta:#E20074;--magenta-dark:#b3005c;--ink:#1a1a1a;--muted:#6b6b6b;
     --line:#ececec;--bg:#f5f5f7;--card:#fff;--green:#1d9d54;
+    --gold:#caa000;--silver:#8b909b;--bronze:#b9743c;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -65,6 +66,32 @@
   .news-item .ni-media{font-size:12px;color:var(--magenta);margin-top:3px}
   .del-btn{background:#fff;border:1px solid #e7b3b3;color:#c0392b;font-weight:700;font-size:13px;padding:7px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
   .del-btn:hover{background:#fdecec}
+  /* Cup-Clash-Block */
+  .cc-block{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:26px;overflow:hidden}
+  .cc-block > h2{background:linear-gradient(135deg,#1b1b22,#2b2b35);color:#fff;font-size:16px;padding:14px 18px;letter-spacing:.5px}
+  .cc-block .hint{font-size:13px;color:var(--muted);padding:12px 18px 4px}
+  .cc-scroll{overflow-x:auto}
+  #cc-table{width:100%;border-collapse:collapse;min-width:880px}
+  #cc-table th,#cc-table td{padding:8px 8px;white-space:nowrap;border-bottom:1px solid var(--line);text-align:center}
+  #cc-table th{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
+  #cc-table th.grp{background:#faf2f7;color:var(--magenta-dark)}
+  #cc-table td.tname{text-align:left}
+  input.cc-in{width:54px;padding:7px 6px;font-size:14px;border:1px solid var(--line);border-radius:7px;text-align:right;font-variant-numeric:tabular-nums}
+  input.cc-tgt{background:#fcfcfd;color:#555}
+  input.cc-team{width:128px;padding:7px 9px;font-size:14px;border:1px solid var(--line);border-radius:7px}
+  input.cc-in:focus,input.cc-team:focus{outline:none;border-color:var(--magenta)}
+  .cc-pokal{font-weight:800;font-size:13px}
+  .cc-pokal.t0{color:#aaa}.cc-pokal.t1{color:var(--bronze)}.cc-pokal.t2{color:var(--silver)}.cc-pokal.t3{color:var(--gold)}
+  .cc-pokal small{display:block;font-size:9px;color:#c0392b;font-weight:700}
+  .cc-scorers{padding:16px 18px;border-top:2px solid var(--line)}
+  .cc-scorers h3{font-size:15px;margin-bottom:4px}
+  .cc-scorers .hint{padding:0;margin-bottom:8px}
+  .cc-scorers textarea{width:100%;min-height:130px;padding:11px 13px;font-size:14px;border:1px solid var(--line);border-radius:10px;font-family:ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+  .cc-scorers input[type=text]{width:100%;padding:10px 12px;font-size:14px;border:1px solid var(--line);border-radius:10px;margin-top:8px}
+  .cc-scorers textarea:focus,.cc-scorers input:focus{outline:none;border-color:var(--magenta)}
+  .cc-bar{display:flex;gap:14px;align-items:center;padding:14px 18px;border-top:1px solid var(--line)}
+  .cc-savemsg{font-size:13px;color:var(--muted)}
+  .cc-savemsg.ok{color:var(--green);font-weight:600}
 </style>
 </head>
 <body>
@@ -86,9 +113,37 @@
 <div class="wrap hidden" id="app">
   <div class="topnav">
     <span>Pro Produkt <b>Ziel (Soll)</b> setzen und den <b>aktuellen Ist-Stand</b> eintragen – % &amp; Restwerte werden automatisch berechnet.</span>
-    <span><a href="index.html" target="_blank">Live-Tabelle ↗</a> &nbsp;·&nbsp; <a href="news.html" target="_blank">News-Seite ↗</a></span>
+    <span><a href="index.html" target="_blank">Shop Cup ↗</a> &nbsp;·&nbsp; <a href="cupclash.html" target="_blank">Cup Clash ↗</a> &nbsp;·&nbsp; <a href="news.html" target="_blank">News ↗</a></span>
   </div>
   <div id="forms"></div>
+
+  <!-- ===== Magenta Cup Clash ===== -->
+  <div class="cc-block">
+    <h2>🏆 Magenta Cup Clash</h2>
+    <div class="hint">Pro Team den <b>Ist-Stand</b> für Breitband Neu und PP Neu PK eintragen, dazu die drei <b>Gate-Werte</b> (PP VVL, MagentaTV, TV AQ) in %. Die Staffel-Ziele &amp; der PP-Soll sind vorbelegt, aber editierbar. Pokal = schwächeres KPI; ohne erfüllte Gates keine Wertung.</div>
+    <div class="cc-scroll">
+      <table id="cc-table">
+        <thead><tr>
+          <th class="tname" style="text-align:left">Team</th>
+          <th class="grp">BB Bronze</th><th class="grp">BB Silber</th><th class="grp">BB Gold</th><th>BB&nbsp;Ist</th>
+          <th class="grp">PP Soll</th><th>PP&nbsp;Ist</th>
+          <th>PP VVL %</th><th>MTV %</th><th>TV AQ %</th>
+          <th>Pokal</th>
+        </tr></thead>
+        <tbody id="cc-body"></tbody>
+      </table>
+    </div>
+    <div class="cc-scorers">
+      <h3>⚽ Torschützenliste</h3>
+      <div class="hint">Eine Zeile pro Person im Format <code>Name | Team | Tore</code> (z. B. <code>Benjamin Steimel | CR7 Elite | 17</code>). Tore = Breitband&nbsp;Neu&nbsp;+&nbsp;PP&nbsp;Neu&nbsp;PK aus der Verkäuferübersicht. Wird nach Toren sortiert angezeigt.</div>
+      <textarea id="cc-scorers-text" placeholder="Name | Team | Tore"></textarea>
+      <input type="text" id="cc-scorers-note" placeholder="Hinweis-Zeile (optional), z. B. Zeitraum: Juni 2026" />
+    </div>
+    <div class="cc-bar">
+      <button class="btn" id="cc-save">Cup Clash speichern</button>
+      <span class="cc-savemsg" id="cc-savemsg">Eigener Speicher-Button für den Cup Clash.</span>
+    </div>
+  </div>
 
   <div class="news-editor">
     <h2>📰 News verfassen</h2>
@@ -200,14 +255,110 @@
       shopData = {};
       snap.forEach(function(d){ shopData[d.id] = d.data(); });
       buildForms();
+      buildCcForms();
+      loadScorers();
       initNews();
     }catch(e){
       console.error(e);
       document.getElementById("forms").innerHTML =
         '<div class="group-block" style="padding:18px">Firebase-Verbindung fehlgeschlagen. Bitte config.js prüfen.</div>';
       buildForms();
+      buildCcForms();
     }
   }
+
+  // ===== Cup Clash =====
+  const CCTIER=["—","🥉 Bronze","🥈 Silber","🥇 Gold"];
+  function ccVal(d,key,fallback){ return (d[key]!=null && d[key]!=="") ? d[key] : fallback; }
+  function recalcCc(id){
+    const tc = window.CC_TEAMS.find(function(t){return t.id===id;});
+    const g=function(suf){ const el=document.getElementById("cc-"+id+"-"+suf); return el?el.value:""; };
+    const d={
+      ccBbB:g("bbB"), ccBbS:g("bbS"), ccBbG:g("bbG"), ccBbIst:g("bbIst"),
+      ccPpSoll:g("ppSoll"), ccPpIst:g("ppIst"),
+      ccPpVvl:g("ppVvl"), ccMtv:g("mtv"), ccTvAq:g("tvAq")
+    };
+    const res=window.ccTeamResult(tc,d);
+    const cell=document.getElementById("cc-pokal-"+id);
+    const locked = res.trophy>0 && !res.gatesOk;
+    cell.className="cc-pokal t"+res.trophyEffective;
+    cell.innerHTML = CCTIER[res.trophyEffective] + (locked?'<small>Gates offen</small>':'');
+  }
+  function buildCcForms(){
+    const root=document.getElementById("cc-body");
+    let html="";
+    window.CC_TEAMS.forEach(function(tc){
+      const d=shopData[tc.id]||{};
+      const shop=(window.SHOPS.find(function(s){return s.id===tc.id;})||{}).name||tc.id;
+      const team=ccVal(d,"teamName",tc.team);
+      function inp(suf,val,tgt){ return '<td><input class="cc-in'+(tgt?' cc-tgt':'')+'" type="number" min="0" step="1" id="cc-'+tc.id+'-'+suf+'" value="'+(val===""?"":val)+'"></td>'; }
+      html+='<tr><td class="tname"><input class="cc-team" type="text" id="cc-'+tc.id+'-team" value="'+String(team).replace(/"/g,"&quot;")+'"><div class="cc-grp" style="font-size:10px;color:#999">'+shop+'</div></td>'
+        + inp("bbB", ccVal(d,"ccBbB",tc.bbB), true)
+        + inp("bbS", ccVal(d,"ccBbS",tc.bbS), true)
+        + inp("bbG", ccVal(d,"ccBbG",tc.bbG), true)
+        + inp("bbIst", ccVal(d,"ccBbIst",""), false)
+        + inp("ppSoll", ccVal(d,"ccPpSoll",tc.ppSoll), true)
+        + inp("ppIst", ccVal(d,"ccPpIst",""), false)
+        + inp("ppVvl", ccVal(d,"ccPpVvl",""), false)
+        + inp("mtv", ccVal(d,"ccMtv",""), false)
+        + inp("tvAq", ccVal(d,"ccTvAq",""), false)
+        + '<td><span class="cc-pokal t0" id="cc-pokal-'+tc.id+'">—</span></td></tr>';
+    });
+    root.innerHTML=html;
+    window.CC_TEAMS.forEach(function(tc){
+      ["bbB","bbS","bbG","bbIst","ppSoll","ppIst","ppVvl","mtv","tvAq"].forEach(function(k){
+        const el=document.getElementById("cc-"+tc.id+"-"+k);
+        if(el) el.addEventListener("input",function(){ recalcCc(tc.id); });
+      });
+      recalcCc(tc.id);
+    });
+  }
+  function loadScorers(){
+    const d=shopData["_torjaeger"]||{};
+    const list=Array.isArray(d.scorers)?d.scorers:[];
+    const lines=list.map(function(s){ return (s.name||"")+" | "+(s.team||"")+" | "+(Number(s.goals)||0); });
+    document.getElementById("cc-scorers-text").value=lines.join("\n");
+    document.getElementById("cc-scorers-note").value=d.note||"";
+  }
+  function parseScorers(){
+    const txt=document.getElementById("cc-scorers-text").value;
+    const out=[];
+    txt.split(/\n/).forEach(function(line){
+      line=line.trim(); if(!line) return;
+      const parts=line.split("|").map(function(x){return x.trim();});
+      const name=parts[0]||""; const team=parts[1]||""; const goals=Number(parts[2])||0;
+      if(name) out.push({name:name, team:team, goals:goals});
+    });
+    return out;
+  }
+  document.getElementById("cc-save").addEventListener("click", async function(){
+    const btn=this, msg=document.getElementById("cc-savemsg");
+    if(!db){ msg.textContent="Keine Datenbankverbindung."; return; }
+    btn.disabled=true; msg.className="cc-savemsg"; msg.textContent="Speichere …";
+    try{
+      const num=function(id){ const el=document.getElementById(id); return el? (Number(el.value)||0):0; };
+      const now=new Date().toISOString();
+      for(const tc of window.CC_TEAMS){
+        const teamEl=document.getElementById("cc-"+tc.id+"-team");
+        await setDoc(doc(db,"shops",tc.id), {
+          teamName: teamEl?teamEl.value.trim():tc.team,
+          ccBbB:num("cc-"+tc.id+"-bbB"), ccBbS:num("cc-"+tc.id+"-bbS"), ccBbG:num("cc-"+tc.id+"-bbG"),
+          ccBbIst:num("cc-"+tc.id+"-bbIst"),
+          ccPpSoll:num("cc-"+tc.id+"-ppSoll"), ccPpIst:num("cc-"+tc.id+"-ppIst"),
+          ccPpVvl:num("cc-"+tc.id+"-ppVvl"), ccMtv:num("cc-"+tc.id+"-mtv"), ccTvAq:num("cc-"+tc.id+"-tvAq"),
+          ccUpdatedAt: now
+        }, { merge:true });
+      }
+      await setDoc(doc(db,"shops","_torjaeger"), {
+        scorers: parseScorers(),
+        note: document.getElementById("cc-scorers-note").value.trim(),
+        ccUpdatedAt: now
+      }, { merge:true });
+      const t=new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+      msg.className="cc-savemsg ok"; msg.textContent="Cup Clash gespeichert um "+t+" ✓";
+    }catch(e){ console.error(e); msg.className="cc-savemsg"; msg.textContent="Fehler beim Speichern – siehe Konsole."; }
+    finally{ btn.disabled=false; }
+  });
 
   // --- News ---
   function fmtNews(ts){ return new Date(ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
