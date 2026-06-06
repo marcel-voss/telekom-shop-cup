@@ -120,7 +120,7 @@
   <!-- ===== Magenta Cup Clash ===== -->
   <div class="cc-block">
     <h2>🏆 Magenta Cup Clash</h2>
-    <div class="hint">Pro Team den <b>Ist-Stand</b> für Breitband Neu und PP Neu PK eintragen, dazu die drei <b>Gate-Werte</b> (PP VVL, MagentaTV, TV AQ) in %. Die Staffel-Ziele &amp; der PP-Soll sind vorbelegt, aber editierbar. Pokal = schwächeres KPI; ohne erfüllte Gates keine Wertung.</div>
+    <div class="hint">Pro Team den <b>Ist-Stand</b> für Breitband Neu und PP Neu PK eintragen, dazu das <b>Gate MagentaTV AQ</b> in %. Die Staffel-Ziele &amp; der PP-Soll sind vorbelegt, aber editierbar. Pokal = schwächeres KPI; ohne erfülltes Gate keine Wertung.</div>
     <div class="cc-scroll">
       <table id="cc-table">
         <thead><tr>
@@ -402,7 +402,7 @@
     document.getElementById("cc-scorers-note").value="Zeitraum: "+monthLabel(now)+" · Stand: "+now.toLocaleDateString("de-DE")+" "+now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr";
     const totalPersons=res.persons.length;
     msg.className="cc-savemsg ok";
-    msg.textContent="Übernommen: "+filled+" Teams, "+totalPersons+" Verkäufer. Jetzt „Cup Clash speichern".";
+    msg.textContent="Übernommen: "+filled+" Teams, "+totalPersons+" Verkäufer – jetzt unten Cup Clash speichern.";
   });
 
   document.getElementById("cc-save").addEventListener("click", async function(){
