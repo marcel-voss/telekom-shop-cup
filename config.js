@@ -141,15 +141,13 @@ window.computeGroupWinners = function (shopData) {
 //    Sind die Gates nicht erfüllt, ist die Trophäe (noch) gesperrt.
 window.CUPCLASH = {
   name:  "Magenta Cup Clash",
-  start: "2026-05-13T00:00:00",
-  end:   "2026-07-19T23:59:59",
-  note:  "BB Neu = Monats-Staffel · PP Neu PK = SOLL des Monats",
+  start: "2026-06-01T00:00:00",
+  end:   "2026-06-30T23:59:59",
+  note:  "Runde Juni · danach geht es in die nächste Runde",
   ppSilberFaktor: 1.15,
   ppGoldFaktor:   1.30,
   gates: [
-    { key: "ppVvl", label: "PP VVL",    min: 100 },
-    { key: "mtv",   label: "MagentaTV", min: 130 },
-    { key: "tvAq",  label: "TV AQ",     min: 90  }
+    { key: "tvAq",  label: "MagentaTV AQ", min: 90 }
   ]
 };
 

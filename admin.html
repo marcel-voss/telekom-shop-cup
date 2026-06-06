@@ -127,12 +127,22 @@
           <th class="tname" style="text-align:left">Team</th>
           <th class="grp">BB Bronze</th><th class="grp">BB Silber</th><th class="grp">BB Gold</th><th>BB&nbsp;Ist</th>
           <th class="grp">PP Soll</th><th>PP&nbsp;Ist</th>
-          <th>PP VVL %</th><th>MTV %</th><th>TV AQ %</th>
+          <th>MagentaTV AQ %</th>
           <th>Pokal</th>
         </tr></thead>
         <tbody id="cc-body"></tbody>
       </table>
     </div>
+    <div class="cc-scorers" style="border-top:2px solid var(--line)">
+      <h3>📥 Portal-Import (Verkäuferübersicht)</h3>
+      <div class="hint">Die komplette Verkäuferübersicht (alle Seiten) aus dem Portal hier einfügen und „Daten übernehmen" klicken. Es werden je Team <b>BB-Neu- &amp; PP-Neu-PK-Ist</b> (Summe der Verkäufer) und die <b>Torschützenliste</b> automatisch gefüllt. Danach noch „Cup Clash speichern".</div>
+      <textarea id="cc-import-text" placeholder="Verkäuferübersicht hier einfügen … (Name / Shop, / Rolle  Umsatz €  Stunden  …)"></textarea>
+      <div style="margin-top:8px;display:flex;gap:12px;align-items:center">
+        <button class="btn" id="cc-import-btn">Daten übernehmen</button>
+        <span class="cc-savemsg" id="cc-import-msg"></span>
+      </div>
+    </div>
+
     <div class="cc-scorers">
       <h3>⚽ Torschützenliste</h3>
       <div class="hint">Eine Zeile pro Person im Format <code>Name | Team | Tore</code> (z. B. <code>Benjamin Steimel | CR7 Elite | 17</code>). Tore = Breitband&nbsp;Neu&nbsp;+&nbsp;PP&nbsp;Neu&nbsp;PK aus der Verkäuferübersicht. Wird nach Toren sortiert angezeigt.</div>
@@ -299,14 +309,12 @@
         + inp("bbIst", ccVal(d,"ccBbIst",""), false)
         + inp("ppSoll", ccVal(d,"ccPpSoll",tc.ppSoll), true)
         + inp("ppIst", ccVal(d,"ccPpIst",""), false)
-        + inp("ppVvl", ccVal(d,"ccPpVvl",""), false)
-        + inp("mtv", ccVal(d,"ccMtv",""), false)
         + inp("tvAq", ccVal(d,"ccTvAq",""), false)
         + '<td><span class="cc-pokal t0" id="cc-pokal-'+tc.id+'">—</span></td></tr>';
     });
     root.innerHTML=html;
     window.CC_TEAMS.forEach(function(tc){
-      ["bbB","bbS","bbG","bbIst","ppSoll","ppIst","ppVvl","mtv","tvAq"].forEach(function(k){
+      ["bbB","bbS","bbG","bbIst","ppSoll","ppIst","tvAq"].forEach(function(k){
         const el=document.getElementById("cc-"+tc.id+"-"+k);
         if(el) el.addEventListener("input",function(){ recalcCc(tc.id); });
       });
@@ -331,6 +339,72 @@
     });
     return out;
   }
+  // --- Portal-Import: Verkäuferübersicht parsen, je Shop summieren ---
+  function shopIdByName(name){
+    const s=window.SHOPS.find(function(x){ return x.name===name; });
+    return s?s.id:null;
+  }
+  function parseVerkaeuferText(txt){
+    // Liefert { teams:{id:{bb,pp}}, persons:[{name,shopId,goals}] }
+    const teams={}; const persons=[];
+    window.SHOPS.forEach(function(s){ teams[s.id]={bb:0,pp:0}; });
+    txt.split(/\n/).forEach(function(line){
+      line=line.trim();
+      if(!line || line.indexOf(" € ")<0) return;            // nur Datenzeilen
+      // Shop = zwischen "/ " und ","
+      const shopM=line.match(/\/\s*([^,\/]+?),\s*\//);
+      if(!shopM) return;
+      const shopId=shopIdByName(shopM[1].trim());
+      // Name = vor dem ersten " / "
+      const name=line.split(" / ")[0].trim();
+      // alle "n / mh"-Paare in Reihenfolge der Spalten
+      const pairs=[...line.matchAll(/(\d+)\s*\/\s*(\d+)h/g)].map(function(m){ return Number(m[1]); });
+      if(pairs.length<7) return;
+      const ppPk=pairs[4]||0;   // Spalte 5: PP NEU PK
+      const bbNeu=pairs[6]||0;  // Spalte 7: BB NEU
+      if(shopId){
+        teams[shopId].pp+=ppPk; teams[shopId].bb+=bbNeu;
+        const goals=ppPk+bbNeu;
+        if(goals>0) persons.push({name:name, shopId:shopId, goals:goals});
+      }
+    });
+    return { teams:teams, persons:persons };
+  }
+  function monthLabel(d){
+    const m=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+    return m[d.getMonth()]+" "+d.getFullYear();
+  }
+  document.getElementById("cc-import-btn").addEventListener("click", function(){
+    const msg=document.getElementById("cc-import-msg");
+    const txt=document.getElementById("cc-import-text").value;
+    if(!txt.trim()){ msg.className="cc-savemsg"; msg.textContent="Bitte zuerst die Verkäuferübersicht einfügen."; return; }
+    const res=parseVerkaeuferText(txt);
+    // Team-Ist in die Felder schreiben
+    let filled=0;
+    window.CC_TEAMS.forEach(function(tc){
+      const t=res.teams[tc.id]; if(!t) return;
+      const bbEl=document.getElementById("cc-"+tc.id+"-bbIst");
+      const ppEl=document.getElementById("cc-"+tc.id+"-ppIst");
+      if(bbEl){ bbEl.value=t.bb; } if(ppEl){ ppEl.value=t.pp; }
+      recalcCc(tc.id); filled++;
+    });
+    // Torschützen: top 15 nach Toren, Teamname aus CC_TEAMS bzw. aktuellem Feld
+    res.persons.sort(function(a,b){ return b.goals-a.goals; });
+    const teamNameById=function(id){
+      const el=document.getElementById("cc-"+id+"-team");
+      if(el && el.value.trim()) return el.value.trim();
+      const tc=window.CC_TEAMS.find(function(x){return x.id===id;});
+      return tc?tc.team:id;
+    };
+    const lines=res.persons.slice(0,15).map(function(p){ return p.name+" | "+teamNameById(p.shopId)+" | "+p.goals; });
+    document.getElementById("cc-scorers-text").value=lines.join("\n");
+    const now=new Date();
+    document.getElementById("cc-scorers-note").value="Zeitraum: "+monthLabel(now)+" · Stand: "+now.toLocaleDateString("de-DE")+" "+now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr";
+    const totalPersons=res.persons.length;
+    msg.className="cc-savemsg ok";
+    msg.textContent="Übernommen: "+filled+" Teams, "+totalPersons+" Verkäufer. Jetzt „Cup Clash speichern".";
+  });
+
   document.getElementById("cc-save").addEventListener("click", async function(){
     const btn=this, msg=document.getElementById("cc-savemsg");
     if(!db){ msg.textContent="Keine Datenbankverbindung."; return; }
@@ -345,7 +419,7 @@
           ccBbB:num("cc-"+tc.id+"-bbB"), ccBbS:num("cc-"+tc.id+"-bbS"), ccBbG:num("cc-"+tc.id+"-bbG"),
           ccBbIst:num("cc-"+tc.id+"-bbIst"),
           ccPpSoll:num("cc-"+tc.id+"-ppSoll"), ccPpIst:num("cc-"+tc.id+"-ppIst"),
-          ccPpVvl:num("cc-"+tc.id+"-ppVvl"), ccMtv:num("cc-"+tc.id+"-mtv"), ccTvAq:num("cc-"+tc.id+"-tvAq"),
+          ccTvAq:num("cc-"+tc.id+"-tvAq"),
           ccUpdatedAt: now
         }, { merge:true });
       }

@@ -21,6 +21,7 @@
   .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
   .navlinks a.active{background:var(--magenta);color:#fff}
   .navlinks a:not(.active):hover{background:#f3eef1}
+  .navlinks a.hot{background:var(--gold)!important;color:#3a2b00!important;box-shadow:0 2px 10px rgba(245,197,66,.55)}
 
   .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E20074 0%,#b3005c 55%,#8a0048 100%);color:#fff;padding:30px 20px 38px;text-align:center}
   .hero .blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
@@ -137,10 +138,10 @@
     <div class="brand">Voss Telekom · Incentives</div>
     <div class="navlinks">
       <a href="index.html">Shop Cup</a>
-      <a href="cupclash.html" class="active">Cup Clash</a>
       <a href="stats.html">Rankings</a>
       <a href="news.html">News</a>
       <a href="erklaer.html">So geht's</a>
+      <a href="cupclash.html" class="active hot">🏆 Cup Clash</a>
     </div>
   </nav>
 
@@ -159,7 +160,6 @@
     <div class="pb-text">
       <div class="pb-eyebrow">★ Drei Pokale – drei Prämienstufen ★</div>
       <div class="pb-title">Bronze · Silber · Gold</div>
-      <div class="pb-sub">Pro Treffer ausgezahlt. Gold = <b>14 €/St Breitband Neu</b> &amp; <b>7 €/St PP Neu PK</b>. Es entscheidet das schwächere der beiden KPI.</div>
     </div>
     <div class="pb-pills">
       <span class="pb-pill b">Bronze 100%</span>
@@ -173,7 +173,7 @@
     <div class="hero-inner">
       <div class="eyebrow">Voss Telekom · Team-Wettbewerb</div>
       <h1 id="event-name">Magenta Cup Clash</h1>
-      <div class="sub">Pokaljagd · <span id="event-dates">13. Mai – 19. Juli 2026</span></div>
+      <div class="sub">Runde Juni · <span id="event-dates">1. – 30. Juni 2026</span></div>
       <div class="matchday"><span class="live-dot"></span><span id="countdown">…</span></div>
     </div>
   </header>
@@ -183,12 +183,6 @@
   </div>
 
   <div class="wrap">
-    <div class="legend">
-      <span class="tier"><span class="dotpill dp-b"></span>Bronze = 100% Ziel</span>
-      <span class="tier"><span class="dotpill dp-s"></span>Silber = 115%</span>
-      <span class="tier"><span class="dotpill dp-g"></span>Gold = 130%</span>
-    </div>
-
     <div class="sectitle">Pokal-Tabelle · 16 Teams</div>
     <div class="board">
       <div class="tbl-wrap">
@@ -213,7 +207,7 @@
       <h3>🏆 So funktioniert der Cup Clash</h3>
       <p>Jedes Team kämpft in zwei KPI um drei Pokalstufen: <strong>Breitband Neu</strong> (Monats-Staffel je Shop) und <strong>PP Neu PK</strong> (100% / 115% / 130% vom Soll).</p>
       <p>Die <strong>Team-Trophäe richtet sich nach dem schwächeren der beiden KPI</strong> – wer z. B. bei Breitband Gold, bei PP Neu PK aber nur Silber erreicht, holt Silber.</p>
-      <p>Grundvoraussetzung für die Wertung sind die <strong>Gates</strong>: PP VVL ≥ 100%, MagentaTV ≥ 130% und TV AQ ≥ 90%. Erst wenn alle drei grün sind, zählt die Trophäe.</p>
+      <p>Grundvoraussetzung für die Wertung ist das <strong>Gate MagentaTV AQ ≥ 90%</strong>. Erst wenn es grün ist, zählt die Trophäe.</p>
     </div>
   </div>
 
@@ -244,11 +238,10 @@
 
   function kpiCell(ist, b, s, g, next, soll, isPp){
     const tierOn=(thr)=> ist>=thr && thr>0;
-    const of = isPp ? '<span class="of"> / '+soll+' Soll</span>' : '<span class="of"> / '+g+' (Gold)</span>';
     let need;
     if(next===null){ need='<div class="need done">Gold erreicht ✓</div>'; }
     else { need='<div class="need">noch '+next.need+' bis '+next.tier+'</div>'; }
-    return '<td class="kpi"><span class="ist">'+ist+'</span>'+of
+    return '<td class="kpi"><span class="ist">'+ist+'</span>'
       +'<div class="ladder">'
       +'<span class="rung b'+(tierOn(b)?' on':'')+'"></span>'
       +'<span class="rung s'+(tierOn(s)?' on':'')+'"></span>'
