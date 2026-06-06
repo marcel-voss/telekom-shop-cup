@@ -190,9 +190,6 @@
     <div class="sectit">🏆 Das Podium</div>
     <div class="podium" id="podium"></div>
 
-    <div class="sectit">📊 Top 10 nach Punkten</div>
-    <div class="chartbox"><div class="barwrap"><canvas id="bar"></canvas></div></div>
-
     <div class="sectit">📋 Gesamttabelle · alle 16 Shops</div>
     <div class="panel"><div id="overall"></div></div>
 
@@ -361,7 +358,7 @@
     const list=enrich(), ranked=rankOverall(list);
     topMover=renderClimber(list);
     renderStats(list); renderPodium(ranked); renderOverall(ranked);
-    renderTop('topBB','bb'); renderTop('topTV','tv'); renderChart(ranked);
+    renderTop('topBB','bb'); renderTop('topTV','tv');
   }
 
   try{
