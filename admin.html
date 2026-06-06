@@ -92,6 +92,20 @@
   .cc-bar{display:flex;gap:14px;align-items:center;padding:14px 18px;border-top:1px solid var(--line)}
   .cc-savemsg{font-size:13px;color:var(--muted)}
   .cc-savemsg.ok{color:var(--green);font-weight:600}
+  /* Cup-Clash: schlanke Haupttabelle */
+  #cc-table input.cc-in{width:70px}
+  #cc-table td,#cc-table th{padding:10px 10px}
+  /* Aufklappbereich Staffeln & Ziele */
+  .cc-acc{border-top:1px solid var(--line);background:#fcfcfd}
+  .cc-acc>summary{cursor:pointer;padding:13px 18px;font-weight:700;font-size:14px;color:var(--magenta-dark);list-style:none;user-select:none}
+  .cc-acc>summary::-webkit-details-marker{display:none}
+  .cc-acc>summary::before{content:"▸ ";font-size:12px}
+  .cc-acc[open]>summary::before{content:"▾ "}
+  .cc-acc>summary:hover{background:#faf2f7}
+  #cc-table-tgt{width:100%;border-collapse:collapse;min-width:760px}
+  #cc-table-tgt th,#cc-table-tgt td{padding:8px 8px;white-space:nowrap;border-bottom:1px solid var(--line);text-align:center}
+  #cc-table-tgt th{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
+  #cc-table-tgt td.tname{text-align:left}
 </style>
 </head>
 <body>
@@ -115,24 +129,54 @@
     <span>Pro Produkt <b>Ziel (Soll)</b> setzen und den <b>aktuellen Ist-Stand</b> eintragen – % &amp; Restwerte werden automatisch berechnet.</span>
     <span><a href="index.html" target="_blank">Shop Cup ↗</a> &nbsp;·&nbsp; <a href="cupclash.html" target="_blank">Cup Clash ↗</a> &nbsp;·&nbsp; <a href="news.html" target="_blank">News ↗</a></span>
   </div>
+  <div class="news-editor">
+    <h2>📰 News verfassen</h2>
+    <div class="hint">Wird sofort auf der öffentlichen News-Seite angezeigt. Bilder & Videos werden direkt hochgeladen und dort abgespielt.</div>
+    <label for="news-title">Überschrift</label>
+    <input type="text" id="news-title" placeholder="z. B. Anpfiff zum Shop Cup!" />
+    <label for="news-text">Text (optional)</label>
+    <textarea id="news-text" placeholder="Dein Text …"></textarea>
+    <label for="news-files">Bilder / Videos (optional, mehrere möglich)</label>
+    <input type="file" id="news-files" class="file-row" multiple accept="image/*,video/*" />
+    <div class="upstatus" id="news-upstatus"></div>
+    <button class="btn" id="news-publish">News veröffentlichen</button>
+
+    <h3 style="margin-top:22px;font-size:15px">Veröffentlichte News</h3>
+    <div class="news-list" id="news-list"><div class="ni-meta">Lade …</div></div>
+  </div>
+
   <div id="forms"></div>
 
   <!-- ===== Magenta Cup Clash ===== -->
   <div class="cc-block">
     <h2>🏆 Magenta Cup Clash</h2>
-    <div class="hint">Pro Team den <b>Ist-Stand</b> für Breitband Neu und PP Neu PK eintragen, dazu das <b>Gate MagentaTV AQ</b> in %. Die Staffel-Ziele &amp; der PP-Soll sind vorbelegt, aber editierbar. Pokal = schwächeres KPI; ohne erfülltes Gate keine Wertung.</div>
+    <div class="hint">Täglich nur die <b>Ist-Werte</b> (BB Neu, PP Neu PK) und das <b>Gate MagentaTV AQ %</b> eintragen – am schnellsten per Portal-Import weiter unten. Die Bronze/Silber/Gold-Staffeln ändern sich selten und liegen im aufklappbaren Bereich „Staffeln &amp; Ziele". Pokal = schwächeres KPI; ohne erfülltes Gate keine Wertung.</div>
     <div class="cc-scroll">
       <table id="cc-table">
         <thead><tr>
           <th class="tname" style="text-align:left">Team</th>
-          <th class="grp">BB Bronze</th><th class="grp">BB Silber</th><th class="grp">BB Gold</th><th>BB&nbsp;Ist</th>
-          <th class="grp">PP Soll</th><th>PP&nbsp;Ist</th>
+          <th>BB&nbsp;Neu Ist</th>
+          <th>PP&nbsp;Neu&nbsp;PK Ist</th>
           <th>MagentaTV AQ %</th>
           <th>Pokal</th>
         </tr></thead>
         <tbody id="cc-body"></tbody>
       </table>
     </div>
+
+    <details class="cc-acc">
+      <summary>🎯 Staffeln &amp; Ziele (Bronze/Silber/Gold – nur selten ändern)</summary>
+      <div class="cc-scroll">
+        <table id="cc-table-tgt">
+          <thead><tr>
+            <th class="tname" style="text-align:left">Team (Name editierbar)</th>
+            <th>BB Bronze</th><th>BB Silber</th><th>BB Gold</th>
+            <th>PP Bronze</th><th>PP Silber</th><th>PP Gold</th>
+          </tr></thead>
+          <tbody id="cc-tgt-body"></tbody>
+        </table>
+      </div>
+    </details>
     <div class="cc-scorers" style="border-top:2px solid var(--line)">
       <h3>📥 Portal-Import (Verkäuferübersicht)</h3>
       <div class="hint">Die komplette Verkäuferübersicht (alle Seiten) aus dem Portal hier einfügen und „Daten übernehmen" klicken. Es werden je Team <b>BB-Neu- &amp; PP-Neu-PK-Ist</b> (Summe der Verkäufer) und die <b>Torschützenliste</b> automatisch gefüllt. Danach noch „Cup Clash speichern".</div>
@@ -153,22 +197,6 @@
       <button class="btn" id="cc-save">Cup Clash speichern</button>
       <span class="cc-savemsg" id="cc-savemsg">Eigener Speicher-Button für den Cup Clash.</span>
     </div>
-  </div>
-
-  <div class="news-editor">
-    <h2>📰 News verfassen</h2>
-    <div class="hint">Wird sofort auf der öffentlichen News-Seite angezeigt. Bilder & Videos werden direkt hochgeladen und dort abgespielt.</div>
-    <label for="news-title">Überschrift</label>
-    <input type="text" id="news-title" placeholder="z. B. Anpfiff zum Shop Cup!" />
-    <label for="news-text">Text (optional)</label>
-    <textarea id="news-text" placeholder="Dein Text …"></textarea>
-    <label for="news-files">Bilder / Videos (optional, mehrere möglich)</label>
-    <input type="file" id="news-files" class="file-row" multiple accept="image/*,video/*" />
-    <div class="upstatus" id="news-upstatus"></div>
-    <button class="btn" id="news-publish">News veröffentlichen</button>
-
-    <h3 style="margin-top:22px;font-size:15px">Veröffentlichte News</h3>
-    <div class="news-list" id="news-list"><div class="ni-meta">Lade …</div></div>
   </div>
 </div>
 
@@ -285,8 +313,8 @@
     const g=function(suf){ const el=document.getElementById("cc-"+id+"-"+suf); return el?el.value:""; };
     const d={
       ccBbB:g("bbB"), ccBbS:g("bbS"), ccBbG:g("bbG"), ccBbIst:g("bbIst"),
-      ccPpSoll:g("ppSoll"), ccPpIst:g("ppIst"),
-      ccPpVvl:g("ppVvl"), ccMtv:g("mtv"), ccTvAq:g("tvAq")
+      ccPpB:g("ppB"), ccPpS:g("ppS"), ccPpG:g("ppG"), ccPpIst:g("ppIst"),
+      ccTvAq:g("tvAq")
     };
     const res=window.ccTeamResult(tc,d);
     const cell=document.getElementById("cc-pokal-"+id);
@@ -296,25 +324,29 @@
   }
   function buildCcForms(){
     const root=document.getElementById("cc-body");
-    let html="";
+    const tgt=document.getElementById("cc-tgt-body");
+    let main="", tg="";
+    function inpFor(id,suf,val){ return '<td><input class="cc-in" type="number" min="0" step="1" id="cc-'+id+'-'+suf+'" value="'+(val===""||val==null?"":val)+'"></td>'; }
     window.CC_TEAMS.forEach(function(tc){
       const d=shopData[tc.id]||{};
       const shop=(window.SHOPS.find(function(s){return s.id===tc.id;})||{}).name||tc.id;
       const team=ccVal(d,"teamName",tc.team);
-      function inp(suf,val,tgt){ return '<td><input class="cc-in'+(tgt?' cc-tgt':'')+'" type="number" min="0" step="1" id="cc-'+tc.id+'-'+suf+'" value="'+(val===""?"":val)+'"></td>'; }
-      html+='<tr><td class="tname"><input class="cc-team" type="text" id="cc-'+tc.id+'-team" value="'+String(team).replace(/"/g,"&quot;")+'"><div class="cc-grp" style="font-size:10px;color:#999">'+shop+'</div></td>'
-        + inp("bbB", ccVal(d,"ccBbB",tc.bbB), true)
-        + inp("bbS", ccVal(d,"ccBbS",tc.bbS), true)
-        + inp("bbG", ccVal(d,"ccBbG",tc.bbG), true)
-        + inp("bbIst", ccVal(d,"ccBbIst",""), false)
-        + inp("ppSoll", ccVal(d,"ccPpSoll",tc.ppSoll), true)
-        + inp("ppIst", ccVal(d,"ccPpIst",""), false)
-        + inp("tvAq", ccVal(d,"ccTvAq",""), false)
+      const T=window.ccTargets(tc,d);
+      // Haupttabelle: nur Ist + Gate + Pokal (täglich)
+      main+='<tr><td class="tname">'+String(team).replace(/</g,"&lt;")+'<div class="cc-grp" style="font-size:10px;color:#999">'+shop+'</div></td>'
+        + inpFor(tc.id,"bbIst", ccVal(d,"ccBbIst",""))
+        + inpFor(tc.id,"ppIst", ccVal(d,"ccPpIst",""))
+        + inpFor(tc.id,"tvAq", ccVal(d,"ccTvAq",""))
         + '<td><span class="cc-pokal t0" id="cc-pokal-'+tc.id+'">—</span></td></tr>';
+      // Aufklappbar: Staffeln/Ziele + editierbarer Teamname
+      tg+='<tr><td class="tname"><input class="cc-team" type="text" id="cc-'+tc.id+'-team" value="'+String(team).replace(/"/g,"&quot;")+'"></td>'
+        + inpFor(tc.id,"bbB", T.bbB) + inpFor(tc.id,"bbS", T.bbS) + inpFor(tc.id,"bbG", T.bbG)
+        + inpFor(tc.id,"ppB", T.ppB) + inpFor(tc.id,"ppS", T.ppS) + inpFor(tc.id,"ppG", T.ppG)
+        + '</tr>';
     });
-    root.innerHTML=html;
+    root.innerHTML=main; tgt.innerHTML=tg;
     window.CC_TEAMS.forEach(function(tc){
-      ["bbB","bbS","bbG","bbIst","ppSoll","ppIst","tvAq"].forEach(function(k){
+      ["bbIst","ppIst","tvAq","team","bbB","bbS","bbG","ppB","ppS","ppG"].forEach(function(k){
         const el=document.getElementById("cc-"+tc.id+"-"+k);
         if(el) el.addEventListener("input",function(){ recalcCc(tc.id); });
       });
@@ -418,7 +450,8 @@
           teamName: teamEl?teamEl.value.trim():tc.team,
           ccBbB:num("cc-"+tc.id+"-bbB"), ccBbS:num("cc-"+tc.id+"-bbS"), ccBbG:num("cc-"+tc.id+"-bbG"),
           ccBbIst:num("cc-"+tc.id+"-bbIst"),
-          ccPpSoll:num("cc-"+tc.id+"-ppSoll"), ccPpIst:num("cc-"+tc.id+"-ppIst"),
+          ccPpB:num("cc-"+tc.id+"-ppB"), ccPpS:num("cc-"+tc.id+"-ppS"), ccPpG:num("cc-"+tc.id+"-ppG"),
+          ccPpIst:num("cc-"+tc.id+"-ppIst"),
           ccTvAq:num("cc-"+tc.id+"-tvAq"),
           ccUpdatedAt: now
         }, { merge:true });

@@ -203,8 +203,12 @@ window.ccTargets = function (teamCfg, d) {
   const bbS = d.ccBbS != null ? Number(d.ccBbS) : teamCfg.bbS;
   const bbG = d.ccBbG != null ? Number(d.ccBbG) : teamCfg.bbG;
   const ppSoll = d.ccPpSoll != null ? Number(d.ccPpSoll) : teamCfg.ppSoll;
-  const pp = window.ccPpThresholds(ppSoll);
-  return { bbB: bbB, bbS: bbS, bbG: bbG, ppSoll: ppSoll, ppB: pp.bronze, ppS: pp.silber, ppG: pp.gold };
+  const def = window.ccPpThresholds(ppSoll);
+  // PP hat eigene Bronze/Silber/Gold-Schwellen (vorbelegt aus dem Soll, editierbar).
+  const ppB = d.ccPpB != null ? Number(d.ccPpB) : def.bronze;
+  const ppS = d.ccPpS != null ? Number(d.ccPpS) : def.silber;
+  const ppG = d.ccPpG != null ? Number(d.ccPpG) : def.gold;
+  return { bbB: bbB, bbS: bbS, bbG: bbG, ppSoll: ppSoll, ppB: ppB, ppS: ppS, ppG: ppG };
 };
 
 // Komplettes Team-Ergebnis für Anzeige/Wertung.
@@ -231,7 +235,7 @@ window.ccTeamResult = function (teamCfg, d) {
     bbTier: bbTier, ppTier: ppTier,
     trophy: trophy, trophyEffective: trophyEffective,
     bbPct: t.bbG > 0 ? Math.round(bbIst / t.bbG * 100) : 0,
-    ppPct: t.ppSoll > 0 ? Math.round(ppIst / t.ppSoll * 100) : 0,
+    ppPct: t.ppB > 0 ? Math.round(ppIst / t.ppB * 100) : 0,
     gates: gateStatus, gatesOk: gatesOk,
     // "noch X bis zur nächsten Stufe" je KPI
     bbNext: window.ccNextNeed(bbIst, t.bbB, t.bbS, t.bbG),
