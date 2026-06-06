@@ -123,6 +123,22 @@
   .rules p{font-size:14px;color:#333;margin-bottom:10px}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
 
+  /* Mobile: Pokal-Tabelle als Karten statt Querscrollen */
+  @media(max-width:640px){
+    .board .tbl-wrap{overflow-x:visible}
+    .board table{min-width:0;table-layout:fixed;width:100%}
+    .board thead{display:none}
+    .board tbody tr{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:14px 14px;border-bottom:8px solid var(--bg)}
+    .board td{border:none!important;padding:5px 0;width:auto!important}
+    .board td.pos{grid-column:1;grid-row:1;align-self:center}
+    .board td.team{grid-column:2;grid-row:1;align-self:center}
+    .board td.kpi,.board td.gates,.board td.pokal{grid-column:1 / -1}
+    .board td.kpi::before,.board td.gates::before,.board td.pokal::before{content:attr(data-l);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .board td.kpi .ladder{max-width:260px}
+    .board td.pokal{text-align:left}
+    .board .gatewrap{justify-content:flex-start}
+    .board .locked{margin-top:6px}
+  }
   @media(max-width:560px){
     .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
     .navlinks{width:100%;flex-wrap:wrap;gap:6px}
@@ -236,12 +252,12 @@
 
   function shopName(id){ const s=window.SHOPS.find(x=>x.id===id); return s?s.name:id; }
 
-  function kpiCell(ist, b, s, g, next, soll, isPp){
+  function kpiCell(ist, b, s, g, next, lbl){
     const tierOn=(thr)=> ist>=thr && thr>0;
     let need;
     if(next===null){ need='<div class="need done">Gold erreicht ✓</div>'; }
     else { need='<div class="need">noch '+next.need+' bis '+next.tier+'</div>'; }
-    return '<td class="kpi"><span class="ist">'+ist+'</span>'
+    return '<td class="kpi" data-l="'+lbl+'"><span class="ist">'+ist+'</span>'
       +'<div class="ladder">'
       +'<span class="rung b'+(tierOn(b)?' on':'')+'"></span>'
       +'<span class="rung s'+(tierOn(s)?' on':'')+'"></span>'
@@ -254,7 +270,7 @@
     gates.forEach(function(gt){
       h+='<span class="gate '+(gt.ok?'ok':'no')+'" title="'+gt.label+': '+gt.val+'% (min '+gt.min+'%)"><i></i>'+gt.label.replace("MagentaTV","MTV")+'</span>';
     });
-    return '<td class="gates">'+h+'</div></td>';
+    return '<td class="gates" data-l="Gate">'+h+'</div></td>';
   }
 
   function render(){
@@ -277,10 +293,10 @@
       html+='<tr class="'+tcls+'">'
         +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
         +'<td class="team">'+r.team+'<span class="shop">'+shopName(r.tc.id)+'</span></td>'
-        +kpiCell(res.bbIst, t.bbB, t.bbS, t.bbG, res.bbNext, t.bbG, false)
-        +kpiCell(res.ppIst, t.ppB, t.ppS, t.ppG, res.ppNext, t.ppSoll, true)
+        +kpiCell(res.bbIst, t.bbB, t.bbS, t.bbG, res.bbNext, 'Breitband Neu')
+        +kpiCell(res.ppIst, t.ppB, t.ppS, t.ppG, res.ppNext, 'PP Neu PK')
         +gateCell(res.gates)
-        +'<td class="pokal"><span class="tierbadge tb-'+res.trophyEffective+'">'+(res.trophyEffective>0?'🏆 '+TIER[res.trophyEffective]:'—')+'</span>'
+        +'<td class="pokal" data-l="Pokal"><span class="tierbadge tb-'+res.trophyEffective+'">'+(res.trophyEffective>0?'🏆 '+TIER[res.trophyEffective]:'—')+'</span>'
         +(locked?'<span class="locked">Gates offen ('+TIER[res.trophy]+' möglich)</span>':'')+'</td>'
         +'</tr>';
     });
