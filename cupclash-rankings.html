@@ -56,6 +56,14 @@
     .navlinks{width:100%;flex-wrap:wrap;gap:6px}.navlinks a{padding:7px 11px;font-size:13px}
     .pod{width:46%}.pod.p1{transform:none}
   }
+  .gewinnbanner{background:linear-gradient(100deg,#1b1b22,#2b2b35);border-bottom:3px solid var(--gold)}
+  .gb-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:13px;padding:11px 18px}
+  .gb-medal{font-size:26px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+  .gb-txt{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+  .gb-eyebrow{color:var(--gold);font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+  .gb-title{color:#fff;font-weight:800;font-size:clamp(14px,3.6vw,18px)}
+  .gb-title em{font-style:normal;font-weight:600;color:#b9b9c4;font-size:.9em}
+  @media(max-width:560px){.gb-inner{padding:10px 14px;gap:10px}.gb-medal{font-size:22px}}
 </style>
 </head>
 <body>
@@ -68,6 +76,13 @@
       <a href="cupclash-erklaer.html">So geht's</a>
     </div>
   </nav>
+
+  <div class="gewinnbanner">
+    <div class="gb-inner">
+      <span class="gb-medal">🏆</span>
+      <div class="gb-txt"><span class="gb-eyebrow">Die Prämie</span><span class="gb-title">Bronze · Silber · Gold <em>· pro Stück ausgezahlt</em></span></div>
+    </div>
+  </div>
 
   <header class="hero">
     <div class="eyebrow">Magenta Cup Clash</div>

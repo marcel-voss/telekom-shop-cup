@@ -53,7 +53,14 @@
   .pb-pill.b{background:linear-gradient(135deg,#e6a76b,#cf8a51)}
   .pb-pill.s{background:linear-gradient(135deg,#dfe3ea,#b9bec9)}
   .pb-pill.g{background:linear-gradient(135deg,#ffe487,#f0c12e)}
-  @media(max-width:680px){.prizebanner{gap:14px;padding:14px 16px}.pb-title{font-size:18px}.pb-art svg{width:46px;height:46px}.pb-pills{display:none}}
+  .gewinnbanner{background:linear-gradient(100deg,#1b1b22,#2b2b35);border-bottom:3px solid var(--gold)}
+  .gb-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:13px;padding:11px 18px}
+  .gb-medal{font-size:26px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+  .gb-txt{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+  .gb-eyebrow{color:var(--gold);font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+  .gb-title{color:#fff;font-weight:800;font-size:clamp(14px,3.6vw,18px)}
+  .gb-title em{font-style:normal;font-weight:600;color:#b9b9c4;font-size:.9em}
+  @media(max-width:560px){.gb-inner{padding:10px 14px;gap:10px}.gb-medal{font-size:22px}}
 
   .stampbar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;background:#fff;border-bottom:1px solid var(--line);padding:11px 16px;font-size:13px;color:var(--muted)}
   .stampbar b{color:var(--ink);font-weight:700}
@@ -192,26 +199,10 @@
     </div>
   </nav>
 
-  <div class="prizebanner">
-    <div class="pb-art">
-      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs><linearGradient id="gld" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe487"/><stop offset="1" stop-color="#dca513"/></linearGradient></defs>
-        <path d="M14 14 H8 a8 8 0 0 0 9 12" fill="none" stroke="url(#gld)" stroke-width="4"/>
-        <path d="M50 14 H56 a8 8 0 0 1 -9 12" fill="none" stroke="url(#gld)" stroke-width="4"/>
-        <path d="M14 9 H50 V21 a18 18 0 0 1 -36 0 Z" fill="url(#gld)"/>
-        <rect x="29" y="38" width="6" height="9" fill="url(#gld)"/>
-        <rect x="20" y="46" width="24" height="5" rx="2" fill="url(#gld)"/>
-        <rect x="23" y="51" width="18" height="6" rx="2" fill="url(#gld)"/>
-      </svg>
-    </div>
-    <div class="pb-text">
-      <div class="pb-eyebrow">★ Drei Pokale – drei Prämienstufen ★</div>
-      <div class="pb-title">Bronze · Silber · Gold</div>
-    </div>
-    <div class="pb-pills">
-      <span class="pb-pill b">Bronze 100%</span>
-      <span class="pb-pill s">Silber 115%</span>
-      <span class="pb-pill g">Gold 130%</span>
+  <div class="gewinnbanner">
+    <div class="gb-inner">
+      <span class="gb-medal">🏆</span>
+      <div class="gb-txt"><span class="gb-eyebrow">Die Prämie</span><span class="gb-title">Bronze · Silber · Gold <em>· pro Stück ausgezahlt</em></span></div>
     </div>
   </div>
 
