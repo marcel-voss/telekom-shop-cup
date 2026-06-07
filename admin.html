@@ -401,7 +401,7 @@
       if(shopId){
         teams[shopId].pp+=ppPk; teams[shopId].bb+=bbNeu;
         const goals=ppPk+bbNeu;
-        persons.push({name:name, shopId:shopId, goals:goals, umsatz:umsatz});
+        persons.push({name:name, shopId:shopId, goals:goals, umsatz:umsatz, bb:bbNeu, pp:ppPk});
       }
     });
     return { teams:teams, persons:persons };
@@ -425,7 +425,7 @@
       recalcCc(tc.id); filled++;
     });
     // Spieler-Daten (Umsatz + Tore je Mitarbeiter) für die Seite merken
-    ccPlayers = res.persons.map(function(p){ return {name:p.name, shopId:p.shopId, umsatz:p.umsatz||0, goals:p.goals||0}; });
+    ccPlayers = res.persons.map(function(p){ return {name:p.name, shopId:p.shopId, umsatz:p.umsatz||0, goals:p.goals||0, bb:p.bb||0, pp:p.pp||0}; });
     // Torschützen: top 15 nach Toren, Teamname aus CC_TEAMS bzw. aktuellem Feld
     res.persons.sort(function(a,b){ return b.goals-a.goals; });
     const teamNameById=function(id){

@@ -251,3 +251,18 @@ window.ccNextNeed = function (ist, b, s, g) {
   if (ist < g) return { tier: "Gold",   need: g - ist };
   return null;
 };
+
+// --- Auszahlung (€ pro Stück, je nach erreichter Pokalstufe) ----
+//  Stufe 1=Bronze, 2=Silber, 3=Gold.
+window.CC_PAYOUT = {
+  1: { bb: 5,  pp: 2.5 },
+  2: { bb: 7,  pp: 3.5 },
+  3: { bb: 14, pp: 7   }
+};
+// €-Verdienst eines Mitarbeiters: Stückzahl BB/PP * Satz der Team-Stufe.
+// tier 0 (oder Gate nicht erfüllt) -> 0 €.
+window.ccEarning = function (bb, pp, tier) {
+  const r = window.CC_PAYOUT[tier];
+  if (!r) return 0;
+  return (Number(bb) || 0) * r.bb + (Number(pp) || 0) * r.pp;
+};

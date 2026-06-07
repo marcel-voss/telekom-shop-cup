@@ -129,7 +129,8 @@
   .sd-shop{font-size:11px;color:var(--muted);font-weight:600;flex:1}
   .sd-total{font-weight:900;color:var(--magenta);font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
   .emp-row{display:flex;justify-content:space-between;gap:12px;padding:9px 18px 9px 40px;border-top:1px solid var(--line);background:#fcfcfd;font-size:14px}
-  .emp-name{font-weight:600}
+  .emp-name{font-weight:600;display:flex;flex-direction:column;gap:1px}
+  .emp-kpi{font-size:11px;color:var(--muted);font-weight:600}
   .emp-eur{font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink-soft);white-space:nowrap}
 
   .rules{background:var(--card);border-radius:18px;padding:22px 24px;margin-top:26px;border:1px solid var(--line)}
@@ -228,7 +229,7 @@
     </div>
 
     <div class="scorers">
-      <div class="sc-head"><span class="ball">💶</span><h3>Wer macht wie viel Umsatz?</h3></div>
+      <div class="sc-head"><span class="ball">💶</span><h3>Wer verdient wie viel? (pro Shop)</h3></div>
       <div id="earn-body"><div class="sc-empty">Noch keine Daten – wird beim nächsten Daten-Import gefüllt.</div></div>
       <div class="sc-note" id="earn-note"></div>
     </div>
@@ -269,6 +270,7 @@
 
   const TIER=["—","Bronze","Silber","Gold"];
   let shopData={};
+  let teamTierMap={};
 
   function shopName(id){ const s=window.SHOPS.find(x=>x.id===id); return s?s.name:id; }
 
@@ -294,10 +296,12 @@
   }
 
   function render(){
+    teamTierMap={};
     const rows=window.CC_TEAMS.map(function(tc){
       const d=shopData[tc.id]||{};
       const team=d.teamName || tc.team;
       const res=window.ccTeamResult(tc, d);
+      teamTierMap[tc.id]=res.trophyEffective;
       return {tc:tc, team:team, res:res};
     }).sort(function(a,b){
       if(b.res.trophyEffective!==a.res.trophyEffective) return b.res.trophyEffective-a.res.trophyEffective;
@@ -331,7 +335,7 @@
     renderTorjaeger(shopData["_torjaeger"]);
   }
 
-  function fmtEur(v){ v=Number(v)||0; return Math.round(v).toLocaleString("de-DE")+" €"; }
+  function fmtEur(v){ v=Number(v)||0; return v.toLocaleString("de-DE",{minimumFractionDigits:0,maximumFractionDigits:2})+" €"; }
   function teamNameOf(id){
     if(shopData[id]&&shopData[id].teamName) return shopData[id].teamName;
     const tc=window.CC_TEAMS.find(function(t){return t.id===id;});
@@ -345,28 +349,32 @@
     const enote=document.getElementById("earn-note");
 
     // --- Umsatz pro Shop (aufklappbar) ---
+    function earnOf(p){ return window.ccEarning(p.bb, p.pp, teamTierMap[p.shopId||p.shop]||0); }
     if(!players.length){
       eb.innerHTML='<div class="sc-empty">Noch keine Daten – wird beim nächsten Daten-Import gefüllt.</div>'; enote.textContent="";
     } else {
       const byShop={};
       players.forEach(function(p){ const id=p.shopId||p.shop; if(!id) return; (byShop[id]=byShop[id]||[]).push(p); });
       const shops=Object.keys(byShop).map(function(id){
-        const arr=byShop[id]; const total=arr.reduce(function(s,p){return s+(Number(p.umsatz)||0);},0);
+        const arr=byShop[id]; const total=arr.reduce(function(s,p){return s+earnOf(p);},0);
         return {id:id, arr:arr, total:total};
       }).sort(function(a,b){return b.total-a.total;});
       let h="";
       shops.forEach(function(sh){
-        sh.arr.sort(function(a,b){return (Number(b.umsatz)||0)-(Number(a.umsatz)||0);});
+        const tier=teamTierMap[sh.id]||0;
+        sh.arr.sort(function(a,b){return earnOf(b)-earnOf(a);});
         h+='<details class="shopdet"><summary><span class="sd-team">'+teamNameOf(sh.id)+'</span>'
-          +'<span class="sd-shop">'+shopName(sh.id)+' · '+sh.arr.length+'</span>'
+          +'<span class="sd-shop">'+shopName(sh.id)+' · '+TIER[tier]+'</span>'
           +'<span class="sd-total">'+fmtEur(sh.total)+'</span></summary>';
         sh.arr.forEach(function(p){
-          h+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")+'</span><span class="emp-eur">'+fmtEur(p.umsatz)+'</span></div>';
+          h+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")
+            +'<small class="emp-kpi">'+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span>'
+            +'<span class="emp-eur">'+fmtEur(earnOf(p))+'</span></div>';
         });
         h+='</details>';
       });
       eb.innerHTML=h;
-      enote.textContent = doc.note ? doc.note : "";
+      enote.textContent = "Verdienst = Stückzahl × Satz der erreichten Stufe (Bronze 5/2,50 · Silber 7/3,50 · Gold 14/7 € je BB/PP). Ohne erfülltes Gate 0 €." + (doc.note?(" · "+doc.note):"");
     }
 
     // --- Torschützenliste (Tore = BB Neu + PP Neu PK) ---
