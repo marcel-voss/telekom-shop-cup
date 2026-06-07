@@ -24,6 +24,8 @@
   .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
   .navlinks a.active{background:var(--magenta);color:#fff}
   .navlinks a:not(.active):hover{background:#f3eef1}
+  .cupswitch{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:#0a9d57;color:#fff;box-shadow:0 2px 10px rgba(10,157,87,.4)}
+  .cupswitch:hover{filter:brightness(1.05)}
 
   /* ---- Hero / scoreboard ---- */
   .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E20074 0%,#b3005c 55%,#8a0048 100%);color:#fff;padding:30px 20px 38px;text-align:center}
@@ -154,13 +156,12 @@
 </head>
 <body>
   <nav class="nav">
-    <div class="brand">Telekom Shop Cup</div>
+    <a class="cupswitch to-clash" href="cupclash.html">Cup Clash →</a>
     <div class="navlinks">
       <a href="index.html" class="active">Tabelle</a>
       <a href="stats.html">Rankings</a>
-      <a href="news.html">News</a>
+      <a href="news.html?cup=shop">News</a>
       <a href="erklaer.html">So geht's</a>
-      <a href="cupclash.html" style="background:#f5c542;color:#3a2b00;box-shadow:0 2px 10px rgba(245,197,66,.55)">🏆 Cup Clash</a>
     </div>
   </nav>
 

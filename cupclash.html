@@ -6,7 +6,9 @@
 <title>Magenta Cup Clash – Pokaljagd</title>
 <style>
   :root{
-    --magenta:#E20074; --magenta-deep:#8a0048;
+    /* Cup Clash = grüne Welt */
+    --magenta:#0a9d57; --magenta-deep:#076b3b;
+    --shop:#E20074;
     --ink:#13131a; --ink-soft:#2a2a33;
     --muted:#7a7a85; --line:#ededf0; --bg:#f3f3f6; --card:#fff;
     --pitch:#0fa45a; --pitch-dk:#0b8048;
@@ -22,8 +24,12 @@
   .navlinks a.active{background:var(--magenta);color:#fff}
   .navlinks a:not(.active):hover{background:#f3eef1}
   .navlinks a.hot{background:var(--gold)!important;color:#3a2b00!important;box-shadow:0 2px 10px rgba(245,197,66,.55)}
+  .cupswitch{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap}
+  .cupswitch.to-shop{background:var(--shop);color:#fff;box-shadow:0 2px 10px rgba(226,0,116,.4)}
+  .cupswitch.to-clash{background:var(--magenta);color:#fff;box-shadow:0 2px 10px rgba(10,157,87,.4)}
+  .cupswitch:hover{filter:brightness(1.05)}
 
-  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E20074 0%,#b3005c 55%,#8a0048 100%);color:#fff;padding:30px 20px 38px;text-align:center}
+  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#10a85e 0%,#0a8f4c 55%,#076b3b 100%);color:#fff;padding:30px 20px 38px;text-align:center}
   .hero .blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
   .hero .b1{width:360px;height:360px;top:-160px;left:-120px}
   .hero .b2{width:300px;height:300px;bottom:-160px;right:-80px;background:rgba(0,0,0,.10)}
@@ -177,13 +183,12 @@
 </head>
 <body>
   <nav class="nav">
-    <div class="brand">Voss Telekom · Incentives</div>
+    <a class="cupswitch to-shop" href="index.html">← Shop Cup</a>
     <div class="navlinks">
-      <a href="index.html">Shop Cup</a>
-      <a href="stats.html">Rankings</a>
-      <a href="news.html">News</a>
-      <a href="erklaer.html">So geht's</a>
-      <a href="cupclash.html" class="active hot">🏆 Cup Clash</a>
+      <a href="cupclash.html" class="active">Tabelle</a>
+      <a href="cupclash-rankings.html">Rankings</a>
+      <a href="news.html?cup=clash">News</a>
+      <a href="cupclash-erklaer.html">So geht's</a>
     </div>
   </nav>
 

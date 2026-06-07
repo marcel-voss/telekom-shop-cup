@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Magenta Cup Clash – Rankings</title>
+<style>
+  :root{
+    --green:#0a9d57;--green-deep:#076b3b;--shop:#E20074;
+    --ink:#13131a;--ink-soft:#2a2a33;--muted:#7a7a85;--line:#ededf0;--bg:#f3f3f6;--card:#fff;
+    --gold:#f5c542;--silver:#b9bec9;--bronze:#cf8a51;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .navlinks{display:flex;gap:6px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--green);color:#fff}
+  .navlinks a:not(.active):hover{background:#eef7f1}
+  .cupswitch{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:var(--shop);color:#fff;box-shadow:0 2px 10px rgba(226,0,116,.4)}
+  .cupswitch:hover{filter:brightness(1.05)}
+  .hero{background:linear-gradient(135deg,#10a85e,#0a8f4c 55%,#076b3b);color:#fff;padding:28px 20px 34px;text-align:center}
+  .hero .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.9;font-weight:700}
+  .hero h1{font-size:34px;font-weight:900;margin:6px 0 2px}
+  .hero .sub{font-size:15px;opacity:.95}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 70px}
+  .sectit{font-size:13px;text-transform:uppercase;letter-spacing:2px;font-weight:800;color:var(--green);margin:26px 0 14px;text-align:center}
+  .loading{text-align:center;color:var(--muted);padding:40px;font-size:15px}
+  /* Podium */
+  .podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .pod{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 16px rgba(20,20,40,.06);padding:18px 16px;width:210px;text-align:center}
+  .pod .medal{font-size:30px}
+  .pod .pteam{font-weight:900;font-size:17px;margin-top:4px}
+  .pod .pshop{font-size:12px;color:var(--muted)}
+  .pod .ptro{margin-top:8px;font-weight:800;font-size:13px;padding:5px 12px;border-radius:999px;display:inline-block}
+  .pod.p1{transform:translateY(-10px);border-color:var(--gold)}
+  .tb-0{background:#f0f0f3;color:#9a9aa3}.tb-1{background:linear-gradient(135deg,#e6a76b,#cf8a51);color:#fff}
+  .tb-2{background:linear-gradient(135deg,#dfe3ea,#b9bec9);color:#2a2f37}.tb-3{background:linear-gradient(135deg,#ffe487,#f0c12e);color:#3a2b00}
+  .pod .pprog{font-size:12px;color:var(--muted);margin-top:8px}
+  /* Listen */
+  .listbox{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 4px 16px rgba(20,20,40,.06);overflow:hidden;max-width:620px;margin:0 auto}
+  .lrow{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+  .lrow:last-child{border-bottom:none}
+  .lrank{width:28px;height:28px;border-radius:50%;background:#eceef2;color:#444;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+  .lrow:nth-child(1) .lrank{background:var(--gold);color:#3a2b00}
+  .lrow:nth-child(2) .lrank{background:var(--silver);color:#2a2f37}
+  .lrow:nth-child(3) .lrank{background:var(--bronze);color:#fff}
+  .lname{flex:1;font-weight:700;font-size:14px}
+  .lname small{display:block;font-size:11px;color:var(--muted);font-weight:600}
+  .lval{font-weight:900;color:var(--green);font-size:15px;font-variant-numeric:tabular-nums}
+  .lval small{font-size:11px;color:var(--muted);font-weight:700}
+  .empty{padding:24px;text-align:center;color:var(--muted);font-size:14px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+  @media(max-width:600px){
+    .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .navlinks{width:100%;flex-wrap:wrap;gap:6px}.navlinks a{padding:7px 11px;font-size:13px}
+    .pod{width:46%}.pod.p1{transform:none}
+  }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="cupswitch" href="index.html">← Shop Cup</a>
+    <div class="navlinks">
+      <a href="cupclash.html">Tabelle</a>
+      <a href="cupclash-rankings.html" class="active">Rankings</a>
+      <a href="news.html?cup=clash">News</a>
+      <a href="cupclash-erklaer.html">So geht's</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="eyebrow">Magenta Cup Clash</div>
+    <h1>Rankings</h1>
+    <div class="sub">Top-Teams · Top-Verdiener · Torschützen</div>
+  </header>
+
+  <div class="wrap">
+    <div class="sectit">🏆 Top-Teams</div>
+    <div class="podium" id="podium"><div class="loading">Lade …</div></div>
+
+    <div class="sectit">💶 Top-Verdiener</div>
+    <div class="listbox" id="earners"><div class="empty">Noch keine Daten.</div></div>
+
+    <div class="sectit">⚽ Torschützenliste</div>
+    <div class="listbox" id="scorers"><div class="empty">Noch keine Daten.</div></div>
+  </div>
+
+  <footer>Voss Telekom · Magenta Cup Clash</footer>
+
+<script src="config.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  const TIER=["—","Bronze","Silber","Gold"];
+  let shopData={}, teamTierMap={};
+  function shopName(id){ const s=window.SHOPS.find(x=>x.id===id); return s?s.name:id; }
+  function teamNameOf(id){ if(shopData[id]&&shopData[id].teamName) return shopData[id].teamName; const tc=window.CC_TEAMS.find(t=>t.id===id); return tc?tc.team:id; }
+  function fmtEur(v){ v=Number(v)||0; return v.toLocaleString("de-DE",{minimumFractionDigits:0,maximumFractionDigits:2})+" €"; }
+
+  function render(){
+    teamTierMap={};
+    const teams=window.CC_TEAMS.map(function(tc){
+      const res=window.ccTeamResult(tc, shopData[tc.id]||{});
+      teamTierMap[tc.id]=res.trophyEffective;
+      return {id:tc.id, team:(shopData[tc.id]||{}).teamName||tc.team, res:res};
+    }).sort(function(a,b){
+      if(b.res.trophyEffective!==a.res.trophyEffective) return b.res.trophyEffective-a.res.trophyEffective;
+      return (b.res.bbPct+b.res.ppPct)-(a.res.bbPct+a.res.ppPct);
+    });
+    // Podium top 3 (Reihenfolge 2-1-3 für Optik)
+    const top=teams.slice(0,3);
+    const order=[1,0,2];
+    let ph="";
+    order.forEach(function(idx){
+      const t=top[idx]; if(!t) return;
+      const medal=idx===0?"🥇":idx===1?"🥈":"🥉";
+      ph+='<div class="pod '+(idx===0?'p1':'')+'"><div class="medal">'+medal+'</div>'
+        +'<div class="pteam">'+t.team+'</div><div class="pshop">'+shopName(t.id)+'</div>'
+        +'<div class="ptro tb-'+t.res.trophyEffective+'">'+(t.res.trophyEffective>0?'🏆 '+TIER[t.res.trophyEffective]:'noch keine Stufe')+'</div>'
+        +'<div class="pprog">BB '+t.res.bbIst+' · PP '+t.res.ppIst+'</div></div>';
+    });
+    document.getElementById("podium").innerHTML=ph||'<div class="loading">Noch keine Teams.</div>';
+
+    // Spieler
+    const tj=shopData["_torjaeger"]||{};
+    const players=Array.isArray(tj.players)?tj.players:[];
+    function earnOf(p){ return window.ccEarning(p.bb, p.pp, teamTierMap[p.shopId||p.shop]||0); }
+    // Top-Verdiener
+    const earners=players.slice().sort(function(a,b){return earnOf(b)-earnOf(a);}).slice(0,10);
+    const eb=document.getElementById("earners");
+    if(!players.length){ eb.innerHTML='<div class="empty">Noch keine Daten – wird beim nächsten Import gefüllt.</div>'; }
+    else{
+      let h=""; earners.forEach(function(p,i){
+        h+='<div class="lrow"><span class="lrank">'+(i+1)+'</span><span class="lname">'+(p.name||"—")+'<small>'+teamNameOf(p.shopId||p.shop)+' · '+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span><span class="lval">'+fmtEur(earnOf(p))+'</span></div>';
+      });
+      eb.innerHTML=h;
+    }
+    // Torschützen
+    const scorers=players.slice().sort(function(a,b){return (Number(b.goals)||0)-(Number(a.goals)||0);}).filter(function(p){return (Number(p.goals)||0)>0;}).slice(0,10);
+    const sb=document.getElementById("scorers");
+    if(!scorers.length){ sb.innerHTML='<div class="empty">Noch keine Torschützen.</div>'; }
+    else{
+      let h=""; scorers.forEach(function(p,i){
+        h+='<div class="lrow"><span class="lrank">'+(i+1)+'</span><span class="lname">'+(p.name||"—")+'<small>'+teamNameOf(p.shopId||p.shop)+'</small></span><span class="lval">'+(Number(p.goals)||0)+' <small>Tore</small></span></div>';
+      });
+      sb.innerHTML=h;
+    }
+  }
+
+  try{
+    const app=initializeApp(window.FIREBASE_CONFIG);
+    const db=getFirestore(app);
+    onSnapshot(collection(db,"shops"),function(snap){ shopData={}; snap.forEach(function(d){ shopData[d.id]=d.data(); }); render(); },
+      function(err){ console.error(err); document.getElementById("podium").innerHTML='<div class="loading">Verbindung fehlgeschlagen.</div>'; });
+  }catch(e){ console.error(e); document.getElementById("podium").innerHTML='<div class="loading">Firebase nicht konfiguriert.</div>'; }
+</script>
+</body>
+</html>

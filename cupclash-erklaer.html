@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Magenta Cup Clash – So funktioniert's</title>
+<style>
+  :root{
+    --green:#0a9d57;--green-deep:#076b3b;--shop:#E20074;
+    --ink:#13131a;--ink2:#2a2a33;--muted:#8a8a95;--line:#ededf0;--bg:#f3f3f6;--card:#fff;
+    --gold:#f5c542;--silver:#b9bec9;--bronze:#cf8a51;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .navlinks{display:flex;gap:6px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink2);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--green);color:#fff}
+  .navlinks a:not(.active):hover{background:#eef7f1}
+  .cupswitch{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:var(--shop);color:#fff;box-shadow:0 2px 10px rgba(226,0,116,.4)}
+  .cupswitch:hover{filter:brightness(1.05)}
+  @media(max-width:600px){
+    .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .navlinks{width:100%;flex-wrap:wrap;gap:6px}
+    .navlinks a{padding:7px 11px;font-size:13px}
+    section{padding:58px 18px}
+  }
+  section{padding:84px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:800;opacity:.85}
+  h1{font-size:clamp(34px,7vw,64px);font-weight:900;line-height:1.02;letter-spacing:-1px}
+  h2{font-size:clamp(24px,4.5vw,40px);font-weight:900;margin-bottom:10px}
+  p.lead{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:640px;margin-top:8px}
+  .green{background:linear-gradient(135deg,#10a85e,#0a8f4c 55%,#076b3b);color:#fff}
+  .green .eyebrow{color:#fff} .green p.lead{color:rgba(255,255,255,.9)}
+  .dark{background:linear-gradient(135deg,#23232c,#13131a);color:#fff}
+  .dark p.lead{color:#b9b9c4}
+  .step{font-size:13px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+  .dark .step{color:#6ce0a0}
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+  .cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+  .pcard{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:24px 26px;width:300px;text-align:left}
+  .pcard h3{font-size:22px;font-weight:800}
+  .pcard span{color:#cfeede;font-size:14px}
+  .pcard .dot{width:30px;height:30px;border-radius:50%;display:inline-block;margin-bottom:12px}
+  .tiers{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+  .tier{border-radius:18px;padding:22px 26px;width:210px;color:#222;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+  .tier h3{font-size:22px;font-weight:900;margin-bottom:8px}
+  .tier .rate{font-size:14px;font-weight:700;opacity:.85}
+  .tier.b{background:linear-gradient(135deg,#e6a76b,#cf8a51)}
+  .tier.s{background:linear-gradient(135deg,#dfe3ea,#b9bec9)}
+  .tier.g{background:linear-gradient(135deg,#ffe487,#f0c12e)}
+  .ex{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:18px 22px;margin-top:18px;width:min(720px,92%);font-size:clamp(15px,2.3vw,19px);font-weight:800}
+  .ex .good{color:#6ce0a0}.ex .res{color:var(--gold)}
+  .note{color:#cfeede;font-size:15px;margin-top:16px;font-weight:600;max-width:620px}
+  .gatebox{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:22px 26px;margin-top:24px;max-width:560px}
+  .gatebox b{color:#6ce0a0}
+  .cta a{display:inline-block;margin-top:26px;background:#fff;color:var(--green-deep);text-decoration:none;font-weight:900;font-size:18px;padding:16px 30px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="cupswitch" href="index.html">← Shop Cup</a>
+    <div class="navlinks">
+      <a href="cupclash.html">Tabelle</a>
+      <a href="cupclash-rankings.html">Rankings</a>
+      <a href="news.html?cup=clash">News</a>
+      <a href="cupclash-erklaer.html" class="active">So geht's</a>
+    </div>
+  </nav>
+
+  <section class="green">
+    <div class="eyebrow reveal">Voss Telekom · Team-Wettbewerb</div>
+    <h1 class="reveal d1">MAGENTA<br>CUP CLASH</h1>
+    <p class="lead reveal d2">So funktioniert der Cup Clash – in 5 Schritten.</p>
+    <p class="lead reveal d3" style="margin-top:14px;font-weight:800;color:#fff">Runde Juni · 1. – 30. Juni 2026</p>
+  </section>
+
+  <section class="dark">
+    <div class="step reveal">Schritt 1</div>
+    <h2 class="reveal d1">16 Teams · zwei KPI</h2>
+    <p class="lead reveal d2">Jeder Shop ist ein Team. Gewertet werden zwei Produkte:</p>
+    <div class="cards">
+      <div class="pcard reveal d2"><span class="dot" style="background:#3c78f0"></span><h3>Breitband Neu</h3><span>Monats-Staffel je Shop</span></div>
+      <div class="pcard reveal d3"><span class="dot" style="background:#6ce0a0"></span><h3>PP Neu PK</h3><span>Postpaid Privatkunden neu</span></div>
+    </div>
+  </section>
+
+  <section class="green">
+    <div class="step reveal" style="color:#fff">Schritt 2</div>
+    <h2 class="reveal d1">Drei Pokalstufen</h2>
+    <p class="lead reveal d2">Pro KPI gibt es Bronze, Silber und Gold – mit eigener €-Prämie pro Stück.</p>
+    <div class="tiers">
+      <div class="tier b reveal d1"><h3>🥉 Bronze</h3><div class="rate">100 % vom Ziel<br>5 € / St. BB · 2,50 € / St. PP</div></div>
+      <div class="tier s reveal d2"><h3>🥈 Silber</h3><div class="rate">115 % vom Ziel<br>7 € / St. BB · 3,50 € / St. PP</div></div>
+      <div class="tier g reveal d3"><h3>🥇 Gold</h3><div class="rate">130 % vom Ziel<br>14 € / St. BB · 7 € / St. PP</div></div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="step reveal">Schritt 3</div>
+    <h2 class="reveal d1">Das schwächere KPI entscheidet</h2>
+    <p class="lead reveal d2">Die Team-Trophäe richtet sich nach dem schwächeren der beiden KPI.</p>
+    <div class="ex reveal d2"><span class="good">Breitband Gold</span> + <span style="color:#b9bec9">PP Neu PK Silber</span> = <span class="res">Trophäe Silber</span></div>
+    <p class="note reveal d3">Beide KPI müssen stark sein – ein schwaches Produkt zieht die Trophäe runter.</p>
+  </section>
+
+  <section class="green">
+    <div class="step reveal" style="color:#fff">Schritt 4</div>
+    <h2 class="reveal d1">Das Gate</h2>
+    <p class="lead reveal d2">Grundvoraussetzung für die Wertung:</p>
+    <div class="gatebox reveal d2"><b>MagentaTV AQ ≥ 90 %</b><br><span style="color:#cfeede">Erst wenn das Gate erfüllt ist, zählt die Trophäe und es wird ausgezahlt.</span></div>
+  </section>
+
+  <section class="dark">
+    <div class="step reveal">Schritt 5</div>
+    <h2 class="reveal d1" style="color:var(--gold)">Was jeder verdient</h2>
+    <p class="lead reveal d2">Die Prämie wird <b style="color:#fff">pro Treffer</b> ausgezahlt – mit dem Satz der erreichten Stufe. Auf der Tabelle siehst du je Team und Mitarbeiter den aktuellen Verdienst.</p>
+    <div class="ex reveal d3">Beispiel Gold: 10 × <span class="good">14 €</span> BB + 8 × <span class="good">7 €</span> PP = <span class="res">196 €</span></div>
+  </section>
+
+  <section class="green cta">
+    <h2 class="reveal">Jetzt live dabei!</h2>
+    <p class="lead reveal d1" style="color:#fff">Pokal-Tabelle, Verdienst pro Mitarbeiter und Torschützen – immer aktuell.</p>
+    <a class="reveal d2" href="cupclash.html">Zur Pokal-Tabelle →</a>
+  </section>
+
+  <footer>Voss Telekom · Magenta Cup Clash</footer>
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.2});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

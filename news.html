@@ -68,16 +68,7 @@
 </style>
 </head>
 <body>
-  <nav class="nav">
-    <div class="brand">Telekom Shop Cup</div>
-    <div class="navlinks">
-      <a href="index.html">Tabelle</a>
-      <a href="stats.html">Rankings</a>
-      <a href="news.html" class="active">News</a>
-      <a href="erklaer.html">So geht's</a>
-      <a href="cupclash.html" style="background:#f5c542;color:#3a2b00;box-shadow:0 2px 10px rgba(245,197,66,.55)">🏆 Cup Clash</a>
-    </div>
-  </nav>
+  <nav class="nav" id="topnav"></nav>
 
   <div class="prizebanner">
     <div class="pb-art">
@@ -120,6 +111,27 @@
 
   <footer>Voss Telekom · Shop Cup News</footer>
 
+<script>
+(function(){
+  var clash = new URLSearchParams(location.search).get('cup')==='clash';
+  var nav=document.getElementById('topnav');
+  function pill(href,label,bg){ return '<a href="'+href+'" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:'+bg+';color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)">'+label+'</a>'; }
+  var links, sw;
+  if(clash){
+    document.documentElement.style.setProperty('--magenta','#0a9d57');
+    document.title='Magenta Cup Clash – News';
+    sw=pill('index.html','← Shop Cup','#E20074');
+    links='<a href="cupclash.html">Tabelle</a><a href="cupclash-rankings.html">Rankings</a><a href="news.html?cup=clash" class="active">News</a><a href="cupclash-erklaer.html">So geht\'s</a>';
+    var hero=document.querySelector('.hero'); if(hero){ hero.style.background='linear-gradient(135deg,#10a85e,#0a8f4c 55%,#076b3b)'; var ey=hero.querySelector('.eyebrow'); if(ey)ey.textContent='Rund um den Cup Clash'; }
+    var pb=document.querySelector('.prizebanner'); if(pb)pb.style.display='none';
+    var tk=document.querySelector('.ticker'); if(tk)tk.style.display='none';
+  } else {
+    sw=pill('cupclash.html','Cup Clash →','#0a9d57');
+    links='<a href="index.html">Tabelle</a><a href="stats.html">Rankings</a><a href="news.html?cup=shop" class="active">News</a><a href="erklaer.html">So geht\'s</a>';
+  }
+  nav.innerHTML=sw+'<div class="navlinks">'+links+'</div>';
+})();
+</script>
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
