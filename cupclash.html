@@ -132,6 +132,13 @@
   .emp-name{font-weight:600;display:flex;flex-direction:column;gap:1px}
   .emp-kpi{font-size:11px;color:var(--muted);font-weight:600}
   .emp-eur{font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink-soft);white-space:nowrap}
+  /* Anklickbare Team-Zeile + aufklappbare Mitarbeiter */
+  tr.team-row{cursor:pointer}
+  tr.team-row:hover{background:#faf6f9}
+  td.team .caret{color:var(--magenta);font-size:11px;margin-right:7px;display:inline-block}
+  tr.emp-detail>td{padding:0;background:#fcfcfd}
+  .emp-wrap{border-top:2px solid var(--magenta)}
+  .emp-empty{padding:12px 18px;color:var(--muted);font-size:13px}
 
   .rules{background:var(--card);border-radius:18px;padding:22px 24px;margin-top:26px;border:1px solid var(--line)}
   .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta)}
@@ -153,6 +160,8 @@
     .board td.pokal{text-align:left}
     .board .gatewrap{justify-content:flex-start}
     .board .locked{margin-top:6px}
+    .board tbody tr.emp-detail{display:block;padding:0;border-bottom:8px solid var(--bg)}
+    .board tbody tr.emp-detail>td{display:block;width:100%!important;padding:0}
   }
   @media(max-width:560px){
     .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
@@ -215,6 +224,7 @@
 
   <div class="wrap">
     <div class="sectitle">Pokal-Tabelle · 16 Teams</div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);margin:-8px 0 14px">👆 Team antippen – zeigt die Mitarbeiter &amp; ihren Verdienst</div>
     <div class="board">
       <div class="tbl-wrap">
         <table>
@@ -226,12 +236,6 @@
           <tbody id="board-body"><tr><td colspan="6"><div class="loading">Lade Cup Clash …</div></td></tr></tbody>
         </table>
       </div>
-    </div>
-
-    <div class="scorers">
-      <div class="sc-head"><span class="ball">💶</span><h3>Wer verdient wie viel? (pro Shop)</h3></div>
-      <div id="earn-body"><div class="sc-empty">Noch keine Daten – wird beim nächsten Daten-Import gefüllt.</div></div>
-      <div class="sc-note" id="earn-note"></div>
     </div>
 
     <div class="scorers">
@@ -309,20 +313,39 @@
       return (b.res.bbPct+b.res.ppPct)-(a.res.bbPct+a.res.ppPct);
     });
 
+    // Mitarbeiter je Shop (für aufklappbare Detailzeile)
+    const tj=shopData["_torjaeger"]||{};
+    const playersByShop={};
+    (Array.isArray(tj.players)?tj.players:[]).forEach(function(p){ const id=p.shopId||p.shop; if(!id) return; (playersByShop[id]=playersByShop[id]||[]).push(p); });
+    function empRowsHtml(id){
+      const arr=(playersByShop[id]||[]).slice();
+      if(!arr.length) return '<div class="emp-empty">Noch keine Mitarbeiterdaten – kommt beim nächsten Daten-Import.</div>';
+      const tier=teamTierMap[id]||0;
+      arr.sort(function(a,b){ return window.ccEarning(b.bb,b.pp,tier)-window.ccEarning(a.bb,a.pp,tier); });
+      let h='';
+      arr.forEach(function(p){
+        h+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")
+          +'<small class="emp-kpi">'+(Number(p.bb)||0)+' BB Neu · '+(Number(p.pp)||0)+' PP Neu PK</small></span>'
+          +'<span class="emp-eur">'+fmtEur(window.ccEarning(p.bb,p.pp,tier))+'</span></div>';
+      });
+      return h;
+    }
+
     let html="";
     rows.forEach(function(r,i){
       const t=r.res.targets, res=r.res;
       const tcls = res.trophyEffective===3?"t-g":res.trophyEffective===2?"t-s":res.trophyEffective===1?"t-b":"";
       const locked = (res.trophy>0 && !res.gatesOk);
-      html+='<tr class="'+tcls+'">'
+      html+='<tr class="'+tcls+' team-row" onclick="ccToggleEmp(\''+r.tc.id+'\')">'
         +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
-        +'<td class="team">'+r.team+'<span class="shop">'+shopName(r.tc.id)+'</span></td>'
+        +'<td class="team"><span class="caret" id="car-'+r.tc.id+'">▸</span>'+r.team+'<span class="shop">'+shopName(r.tc.id)+'</span></td>'
         +kpiCell(res.bbIst, t.bbB, t.bbS, t.bbG, res.bbNext, 'Breitband Neu')
         +kpiCell(res.ppIst, t.ppB, t.ppS, t.ppG, res.ppNext, 'PP Neu PK')
         +gateCell(res.gates)
         +'<td class="pokal" data-l="Pokal"><span class="tierbadge tb-'+res.trophyEffective+'">'+(res.trophyEffective>0?'🏆 '+TIER[res.trophyEffective]:'—')+'</span>'
         +(locked?'<span class="locked">Gates offen ('+TIER[res.trophy]+' möglich)</span>':'')+'</td>'
-        +'</tr>';
+        +'</tr>'
+        +'<tr class="emp-detail" id="emp-'+r.tc.id+'" style="display:none"><td colspan="6"><div class="emp-wrap">'+empRowsHtml(r.tc.id)+'</div></td></tr>';
     });
     document.getElementById("board-body").innerHTML=html;
 
@@ -342,41 +365,17 @@
     return tc?tc.team:id;
   }
 
+  // Klick auf Team-Zeile -> Mitarbeiter ein-/ausklappen
+  window.ccToggleEmp=function(id){
+    var row=document.getElementById('emp-'+id); if(!row) return;
+    var car=document.getElementById('car-'+id);
+    if(row.style.display==='none'){ row.style.display=''; if(car)car.textContent='▾'; }
+    else { row.style.display='none'; if(car)car.textContent='▸'; }
+  };
+
   function renderTorjaeger(doc){
     doc=doc||{};
     const players=Array.isArray(doc.players)?doc.players:[];
-    const eb=document.getElementById("earn-body");
-    const enote=document.getElementById("earn-note");
-
-    // --- Umsatz pro Shop (aufklappbar) ---
-    function earnOf(p){ return window.ccEarning(p.bb, p.pp, teamTierMap[p.shopId||p.shop]||0); }
-    if(!players.length){
-      eb.innerHTML='<div class="sc-empty">Noch keine Daten – wird beim nächsten Daten-Import gefüllt.</div>'; enote.textContent="";
-    } else {
-      const byShop={};
-      players.forEach(function(p){ const id=p.shopId||p.shop; if(!id) return; (byShop[id]=byShop[id]||[]).push(p); });
-      const shops=Object.keys(byShop).map(function(id){
-        const arr=byShop[id]; const total=arr.reduce(function(s,p){return s+earnOf(p);},0);
-        return {id:id, arr:arr, total:total};
-      }).sort(function(a,b){return b.total-a.total;});
-      let h="";
-      shops.forEach(function(sh){
-        const tier=teamTierMap[sh.id]||0;
-        sh.arr.sort(function(a,b){return earnOf(b)-earnOf(a);});
-        h+='<details class="shopdet"><summary><span class="sd-team">'+teamNameOf(sh.id)+'</span>'
-          +'<span class="sd-shop">'+shopName(sh.id)+' · '+TIER[tier]+'</span>'
-          +'<span class="sd-total">'+fmtEur(sh.total)+'</span></summary>';
-        sh.arr.forEach(function(p){
-          h+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")
-            +'<small class="emp-kpi">'+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span>'
-            +'<span class="emp-eur">'+fmtEur(earnOf(p))+'</span></div>';
-        });
-        h+='</details>';
-      });
-      eb.innerHTML=h;
-      enote.textContent = "Verdienst = Stückzahl × Satz der erreichten Stufe (Bronze 5/2,50 · Silber 7/3,50 · Gold 14/7 € je BB/PP). Ohne erfülltes Gate 0 €." + (doc.note?(" · "+doc.note):"");
-    }
-
     // --- Torschützenliste (Tore = BB Neu + PP Neu PK) ---
     let list;
     if(players.length){
