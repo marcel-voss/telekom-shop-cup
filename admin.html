@@ -213,7 +213,7 @@
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  let db = null, storage = null, shopData = {};
+  let db = null, storage = null, shopData = {}, ccPlayers = [];
 
   // --- Gate ---
   const gate = document.getElementById("gate");
@@ -355,6 +355,7 @@
   }
   function loadScorers(){
     const d=shopData["_torjaeger"]||{};
+    ccPlayers = Array.isArray(d.players)?d.players:[];
     const list=Array.isArray(d.scorers)?d.scorers:[];
     const lines=list.map(function(s){ return (s.name||"")+" | "+(s.team||"")+" | "+(Number(s.goals)||0); });
     document.getElementById("cc-scorers-text").value=lines.join("\n");
@@ -389,6 +390,9 @@
       const shopId=shopIdByName(shopM[1].trim());
       // Name = vor dem ersten " / "
       const name=line.split(" / ")[0].trim();
+      // Umsatz = erste €-Zahl
+      const umM=line.match(/([\d.]+)\s*€/);
+      const umsatz=umM?parseFloat(umM[1]):0;
       // alle "n / mh"-Paare in Reihenfolge der Spalten
       const pairs=[...line.matchAll(/(\d+)\s*\/\s*(\d+)h/g)].map(function(m){ return Number(m[1]); });
       if(pairs.length<7) return;
@@ -397,7 +401,7 @@
       if(shopId){
         teams[shopId].pp+=ppPk; teams[shopId].bb+=bbNeu;
         const goals=ppPk+bbNeu;
-        if(goals>0) persons.push({name:name, shopId:shopId, goals:goals});
+        persons.push({name:name, shopId:shopId, goals:goals, umsatz:umsatz});
       }
     });
     return { teams:teams, persons:persons };
@@ -420,6 +424,8 @@
       if(bbEl){ bbEl.value=t.bb; } if(ppEl){ ppEl.value=t.pp; }
       recalcCc(tc.id); filled++;
     });
+    // Spieler-Daten (Umsatz + Tore je Mitarbeiter) für die Seite merken
+    ccPlayers = res.persons.map(function(p){ return {name:p.name, shopId:p.shopId, umsatz:p.umsatz||0, goals:p.goals||0}; });
     // Torschützen: top 15 nach Toren, Teamname aus CC_TEAMS bzw. aktuellem Feld
     res.persons.sort(function(a,b){ return b.goals-a.goals; });
     const teamNameById=function(id){
@@ -458,6 +464,7 @@
       }
       await setDoc(doc(db,"shops","_torjaeger"), {
         scorers: parseScorers(),
+        players: ccPlayers,
         note: document.getElementById("cc-scorers-note").value.trim(),
         ccUpdatedAt: now
       }, { merge:true });
