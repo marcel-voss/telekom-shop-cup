@@ -136,9 +136,8 @@ window.computeGroupWinners = function (shopData) {
 //      - PP Neu PK: Prozent vom SOLL  (Bronze=100%, Silber=115%, Gold=130%).
 //  * Team-Trophäe = die SCHWÄCHERE der beiden KPI-Stufen
 //    (Beispiel: BB Gold + PP Silber  ->  Trophäe Silber).
-//  * Grundvoraussetzung (Gates, Betreiberebene je Shop):
-//      PP VVL >= 100 %,  MagentaTV >= 130 %,  TV AQ >= 90 %.
-//    Sind die Gates nicht erfüllt, ist die Trophäe (noch) gesperrt.
+//  * Grundvoraussetzung (Gate, je Shop): MagentaTV AQ >= 90 %.
+//    Ist das Gate nicht erfüllt, ist die Trophäe (noch) gesperrt.
 window.CUPCLASH = {
   name:  "Magenta Cup Clash",
   start: "2026-06-01T00:00:00",

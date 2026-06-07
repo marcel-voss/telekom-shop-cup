@@ -139,6 +139,8 @@
   tr.emp-detail>td{padding:0;background:#fcfcfd}
   .emp-wrap{border-top:2px solid var(--magenta)}
   .emp-empty{padding:12px 18px;color:var(--muted);font-size:13px}
+  .emp-note{padding:9px 18px;font-size:11.5px;color:var(--muted);background:#fff7fb;border-bottom:1px solid var(--line)}
+  .emp-note b{color:var(--ink-soft)}
 
   .rules{background:var(--card);border-radius:18px;padding:22px 24px;margin-top:26px;border:1px solid var(--line)}
   .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta)}
@@ -231,7 +233,7 @@
           <thead><tr>
             <th class="c">#</th><th>Team</th>
             <th>Breitband Neu</th><th>PP Neu PK</th>
-            <th class="c">Gates</th><th class="c">Pokal</th>
+            <th class="c">Gate</th><th class="c">Pokal</th>
           </tr></thead>
           <tbody id="board-body"><tr><td colspan="6"><div class="loading">Lade Cup Clash …</div></td></tr></tbody>
         </table>
@@ -322,7 +324,9 @@
       if(!arr.length) return '<div class="emp-empty">Noch keine Mitarbeiterdaten – kommt beim nächsten Daten-Import.</div>';
       const tier=teamTierMap[id]||0;
       arr.sort(function(a,b){ return window.ccEarning(b.bb,b.pp,tier)-window.ccEarning(a.bb,a.pp,tier); });
-      let h='';
+      let h='<div class="emp-note">Prämie zur aktuell erreichten Stufe: <b>'+TIER[tier]+'</b>'
+        +(tier===0?' – noch keine Stufe/Gate erreicht, daher 0 €':'')
+        +'. Verdienst = Stückzahl × Satz (Bronze 5/2,50 · Silber 7/3,50 · Gold 14/7 € je BB/PP).</div>';
       arr.forEach(function(p){
         h+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")
           +'<small class="emp-kpi">'+(Number(p.bb)||0)+' BB Neu · '+(Number(p.pp)||0)+' PP Neu PK</small></span>'
