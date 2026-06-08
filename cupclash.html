@@ -236,11 +236,6 @@
       </div>
     </div>
 
-    <div class="scorers">
-      <div class="sc-head"><span class="ball">⚽</span><h3>Torschützenliste</h3></div>
-      <div id="scorers-body"><div class="sc-empty">Noch keine Torschützen eingetragen.</div></div>
-      <div class="sc-note" id="scorers-note"></div>
-    </div>
 
     <div class="rules">
       <h3>🏆 So funktioniert der Cup Clash</h3>
@@ -354,8 +349,6 @@
     window.CC_TEAMS.forEach(function(tc){ const u=(shopData[tc.id]||{}).ccUpdatedAt||(shopData[tc.id]||{}).updatedAt; if(u && (!latest||u>latest)) latest=u; });
     document.getElementById("stamp-data").textContent=fmtStamp(latest);
 
-    // Umsatz pro Shop + Torschützenliste aus shops/_torjaeger
-    renderTorjaeger(shopData["_torjaeger"]);
   }
 
   function fmtEur(v){ v=Number(v)||0; return v.toLocaleString("de-DE",{minimumFractionDigits:0,maximumFractionDigits:2})+" €"; }
