@@ -348,7 +348,6 @@
     });
 
     // --- Springer-Zeile (Betreiber-Gesamt) ---
-    var tj=shopData["_torjaeger"]||{};
     var springer=Array.isArray(tj.springer)?tj.springer:[];
     var sollBB=0,sollPP=0;
     window.CC_TEAMS.forEach(function(tc){ var t=window.ccTargets(tc, shopData[tc.id]||{}); sollBB+=t.bbB; sollPP+=t.ppB; });
