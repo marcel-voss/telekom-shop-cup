@@ -154,6 +154,10 @@
   .emp-empty{padding:12px 18px;color:var(--muted);font-size:13px}
   .emp-note{padding:9px 18px;font-size:11.5px;color:var(--muted);background:#fff7fb;border-bottom:1px solid var(--line)}
   .emp-note b{color:var(--ink-soft)}
+  /* Springer / Joker */
+  #springer-wrap{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,40,.06)}
+  .spr-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 18px;background:linear-gradient(135deg,#1b1b22,#2b2b35);color:#fff}
+  .spr-betr{font-size:12px;color:#c8ccd4}
 
   .rules{background:var(--card);border-radius:18px;padding:22px 24px;margin-top:26px;border:1px solid var(--line)}
   .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta)}
@@ -236,6 +240,10 @@
       </div>
     </div>
 
+
+    <div class="sectitle" style="margin-top:28px">🃏 Springer / Joker</div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);margin:-8px 0 14px">Wertung auf Betreiber-Ebene (alle Shops zusammen) – nicht im Shop</div>
+    <div id="springer-wrap"><div class="sc-empty">Lade …</div></div>
 
     <div class="rules">
       <h3>🏆 So funktioniert der Cup Clash</h3>
@@ -349,6 +357,31 @@
     window.CC_TEAMS.forEach(function(tc){ const u=(shopData[tc.id]||{}).ccUpdatedAt||(shopData[tc.id]||{}).updatedAt; if(u && (!latest||u>latest)) latest=u; });
     document.getElementById("stamp-data").textContent=fmtStamp(latest);
 
+    renderSpringer();
+  }
+
+  function renderSpringer(){
+    var wrap=document.getElementById("springer-wrap"); if(!wrap) return;
+    var tj=shopData["_torjaeger"]||{};
+    var springer=Array.isArray(tj.springer)?tj.springer:[];
+    var sollBB=0,sollPP=0;
+    window.CC_TEAMS.forEach(function(tc){ var t=window.ccTargets(tc, shopData[tc.id]||{}); sollBB+=t.bbB; sollPP+=t.ppB; });
+    var istBB=Number(tj.betrBBist)||0, istPP=Number(tj.betrPPist)||0;
+    var bbPct=sollBB>0?Math.round(istBB/sollBB*100):0;
+    var ppPct=sollPP>0?Math.round(istPP/sollPP*100):0;
+    var gatesOk=(Number(tj.betrPpVvl)||0)>=100 && (Number(tj.betrMtv)||0)>=130 && (Number(tj.betrTvAq)||0)>=90;
+    var tier=window.ccBetreiberTier(bbPct,ppPct,gatesOk);
+    var head='<div class="spr-head"><span class="tierbadge tb-'+tier+'">'+(tier>0?'🏆 Joker '+TIER[tier]:'Joker —')+'</span>'
+      +'<span class="spr-betr">Betreiber: BB '+bbPct+'% · PP '+ppPct+'% · Gate '+(gatesOk?'✓':'offen')+'</span></div>';
+    if(!springer.length){ wrap.innerHTML=head+'<div class="emp-empty">Noch keine Springer – kommt beim nächsten Daten-Import.</div>'; return; }
+    var arr=springer.slice().sort(function(a,b){ return window.ccEarning(b.bb,b.pp,tier)-window.ccEarning(a.bb,a.pp,tier); });
+    var rows='';
+    arr.forEach(function(p){
+      rows+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")
+        +'<small class="emp-kpi">hilft in '+shopName(p.shopId||p.shop)+' · '+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span>'
+        +'<span class="emp-eur">'+fmtEur(window.ccEarning(p.bb,p.pp,tier))+'</span></div>';
+    });
+    wrap.innerHTML=head+rows;
   }
 
   function fmtEur(v){ v=Number(v)||0; return v.toLocaleString("de-DE",{minimumFractionDigits:0,maximumFractionDigits:2})+" €"; }

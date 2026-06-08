@@ -265,3 +265,24 @@ window.ccEarning = function (bb, pp, tier) {
   if (!r) return 0;
   return (Number(bb) || 0) * r.bb + (Number(pp) || 0) * r.pp;
 };
+
+// --- Springer / Joker (Betreiber-Ebene) -----------------------
+// Springer sind keinem Shop zugeordnet. Ihre Stufe ergibt sich aus den
+// BETREIBER-Gesamtwerten (Summe aller Shops, Ist vs. Soll) mit höheren Hürden:
+//   Bronze: BB >= 115 %  &  PP >= 115 %
+//   Silber: BB >= 115 %  &  PP >= 122,5 %
+//   Gold:   BB >= 130 %  &  PP >= 130 %
+// Sätze = wie Team (CC_PAYOUT). Verdienst = eigene Treffer * Satz der Stufe.
+// Betreiber-Gates (für alle Stufen): PP VVL >= 100, MagentaTV >= 130, TV AQ >= 90.
+window.CC_OPERATOR_GATES = [
+  { key: "ppVvl", label: "PP VVL",    min: 100 },
+  { key: "mtv",   label: "MagentaTV", min: 130 },
+  { key: "tvAq",  label: "TV AQ",     min: 90  }
+];
+window.ccBetreiberTier = function (bbPct, ppPct, gatesOk) {
+  if (!gatesOk) return 0;
+  if (ppPct >= 130   && bbPct >= 130) return 3; // Gold
+  if (ppPct >= 122.5 && bbPct >= 115) return 2; // Silber
+  if (ppPct >= 115   && bbPct >= 115) return 1; // Bronze
+  return 0;
+};

@@ -178,6 +178,17 @@
       </div>
     </details>
     <div class="cc-scorers" style="border-top:2px solid var(--line)">
+      <h3>🎚️ Betreiber-Werte (für Springer / Joker)</h3>
+      <div class="hint">Springer werden auf <b>Betreiber-Ebene</b> gewertet (Summe aller Shops). BB/PP-Ist werden beim Import automatisch summiert. Hier nur die <b>Betreiber-Gates</b> eintragen.</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-top:6px">
+        <label style="font-size:12px;font-weight:700;color:var(--muted)">PP VVL %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-ppvvl"></label>
+        <label style="font-size:12px;font-weight:700;color:var(--muted)">MagentaTV %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-mtv"></label>
+        <label style="font-size:12px;font-weight:700;color:var(--muted)">TV AQ %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-tvaq"></label>
+      </div>
+      <div class="cc-savemsg" id="cc-betr-info" style="margin-top:10px"></div>
+    </div>
+
+    <div class="cc-scorers" style="border-top:2px solid var(--line)">
       <h3>📥 Portal-Import (Verkäuferübersicht)</h3>
       <div class="hint">Die komplette Verkäuferübersicht (alle Seiten) aus dem Portal hier einfügen und „Daten übernehmen" klicken. Es werden je Team <b>BB-Neu- &amp; PP-Neu-PK-Ist</b> (Summe der Verkäufer) und die <b>Torschützenliste</b> automatisch gefüllt. Danach noch „Cup Clash speichern".</div>
       <textarea id="cc-import-text" placeholder="Verkäuferübersicht hier einfügen … (Name / Shop, / Rolle  Umsatz €  Stunden  …)"></textarea>
@@ -213,7 +224,7 @@
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  let db = null, storage = null, shopData = {}, ccPlayers = [];
+  let db = null, storage = null, shopData = {}, ccPlayers = [], ccSpringer = [], ccBetr = {bb:0, pp:0};
 
   // --- Gate ---
   const gate = document.getElementById("gate");
@@ -322,6 +333,22 @@
     cell.className="cc-pokal t"+res.trophyEffective;
     cell.innerHTML = CCTIER[res.trophyEffective] + (locked?'<small>Gates offen</small>':'');
   }
+  function ccBetreiberSoll(){
+    var bb=0,pp=0;
+    window.CC_TEAMS.forEach(function(tc){ var t=window.ccTargets(tc, shopData[tc.id]||{}); bb+=t.bbB; pp+=t.ppB; });
+    return {bb:bb, pp:pp};
+  }
+  function recalcBetr(){
+    var info=document.getElementById('cc-betr-info'); if(!info) return;
+    var soll=ccBetreiberSoll();
+    var bbPct=soll.bb>0?Math.round(ccBetr.bb/soll.bb*100):0;
+    var ppPct=soll.pp>0?Math.round(ccBetr.pp/soll.pp*100):0;
+    var g=function(id){var el=document.getElementById(id);return el?(Number(el.value)||0):0;};
+    var gatesOk = g('cc-betr-ppvvl')>=100 && g('cc-betr-mtv')>=130 && g('cc-betr-tvaq')>=90;
+    var tier=window.ccBetreiberTier(bbPct,ppPct,gatesOk);
+    var T=["—","Bronze","Silber","Gold"];
+    info.textContent='Betreiber-Ist: BB '+ccBetr.bb+' ('+bbPct+'%) · PP '+ccBetr.pp+' ('+ppPct+'%) · Gate '+(gatesOk?'erfüllt':'offen')+' → Joker-Stufe: '+T[tier];
+  }
   function buildCcForms(){
     const root=document.getElementById("cc-body");
     const tgt=document.getElementById("cc-tgt-body");
@@ -356,6 +383,12 @@
   function loadScorers(){
     const d=shopData["_torjaeger"]||{};
     ccPlayers = Array.isArray(d.players)?d.players:[];
+    ccSpringer = Array.isArray(d.springer)?d.springer:[];
+    ccBetr = {bb:Number(d.betrBBist)||0, pp:Number(d.betrPPist)||0};
+    var setv=function(id,v){var el=document.getElementById(id); if(el&&v!=null&&v!=='')el.value=v;};
+    setv('cc-betr-ppvvl', d.betrPpVvl); setv('cc-betr-mtv', d.betrMtv); setv('cc-betr-tvaq', d.betrTvAq);
+    ['cc-betr-ppvvl','cc-betr-mtv','cc-betr-tvaq'].forEach(function(id){var el=document.getElementById(id); if(el && !el._b){el._b=1; el.addEventListener('input',recalcBetr);}});
+    recalcBetr();
     const list=Array.isArray(d.scorers)?d.scorers:[];
     const lines=list.map(function(s){ return (s.name||"")+" | "+(s.team||"")+" | "+(Number(s.goals)||0); });
     document.getElementById("cc-scorers-text").value=lines.join("\n");
@@ -390,6 +423,10 @@
       const shopId=shopIdByName(shopM[1].trim());
       // Name = vor dem ersten " / "
       const name=line.split(" / ")[0].trim();
+      // Rolle = 3. Teil ("… / Shop, / Rolle  Umsatz €")
+      const parts=line.split(" / ");
+      const role=parts[2]?parts[2].trim().split(/\s+/)[0]:"";
+      const isSpringer=/Springer/i.test(role);
       // Umsatz = erste €-Zahl
       const umM=line.match(/([\d.]+)\s*€/);
       const umsatz=umM?parseFloat(umM[1]):0;
@@ -399,9 +436,9 @@
       const ppPk=pairs[4]||0;   // Spalte 5: PP NEU PK
       const bbNeu=pairs[6]||0;  // Spalte 7: BB NEU
       if(shopId){
-        teams[shopId].pp+=ppPk; teams[shopId].bb+=bbNeu;
-        const goals=ppPk+bbNeu;
-        persons.push({name:name, shopId:shopId, goals:goals, umsatz:umsatz, bb:bbNeu, pp:ppPk});
+        // Springer NICHT in den Shop zählen – aber in die Betreiber-Summe (persons)
+        if(!isSpringer){ teams[shopId].pp+=ppPk; teams[shopId].bb+=bbNeu; }
+        persons.push({name:name, shopId:shopId, goals:ppPk+bbNeu, umsatz:umsatz, bb:bbNeu, pp:ppPk, springer:isSpringer});
       }
     });
     return { teams:teams, persons:persons };
@@ -424,8 +461,12 @@
       if(bbEl){ bbEl.value=t.bb; } if(ppEl){ ppEl.value=t.pp; }
       recalcCc(tc.id); filled++;
     });
-    // Spieler-Daten (Umsatz + Tore je Mitarbeiter) für die Seite merken
-    ccPlayers = res.persons.map(function(p){ return {name:p.name, shopId:p.shopId, umsatz:p.umsatz||0, goals:p.goals||0, bb:p.bb||0, pp:p.pp||0}; });
+    // Spieler-Daten merken: Shop-Verkäufer (players) vs. Springer getrennt
+    ccPlayers = res.persons.filter(function(p){return !p.springer;}).map(function(p){ return {name:p.name, shopId:p.shopId, umsatz:p.umsatz||0, goals:p.goals||0, bb:p.bb||0, pp:p.pp||0}; });
+    ccSpringer = res.persons.filter(function(p){return p.springer;}).map(function(p){ return {name:p.name, shopId:p.shopId, umsatz:p.umsatz||0, goals:p.goals||0, bb:p.bb||0, pp:p.pp||0}; });
+    // Betreiber-Summe (ALLE 16-Shop-Verkäufer inkl. Springer)
+    ccBetr = {bb:0, pp:0};
+    res.persons.forEach(function(p){ ccBetr.bb+=(p.bb||0); ccBetr.pp+=(p.pp||0); });
     // Torschützen: top 15 nach Toren, Teamname aus CC_TEAMS bzw. aktuellem Feld
     res.persons.sort(function(a,b){ return b.goals-a.goals; });
     const teamNameById=function(id){
@@ -438,9 +479,10 @@
     document.getElementById("cc-scorers-text").value=lines.join("\n");
     const now=new Date();
     document.getElementById("cc-scorers-note").value="Zeitraum: "+monthLabel(now)+" · Stand: "+now.toLocaleDateString("de-DE")+" "+now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr";
+    recalcBetr();
     const totalPersons=res.persons.length;
     msg.className="cc-savemsg ok";
-    msg.textContent="Übernommen: "+filled+" Teams, "+totalPersons+" Verkäufer – jetzt unten Cup Clash speichern.";
+    msg.textContent="Übernommen: "+filled+" Teams, "+(totalPersons-ccSpringer.length)+" Shop-Verkäufer, "+ccSpringer.length+" Springer – jetzt unten Cup Clash speichern.";
   });
 
   document.getElementById("cc-save").addEventListener("click", async function(){
@@ -465,6 +507,9 @@
       await setDoc(doc(db,"shops","_torjaeger"), {
         scorers: parseScorers(),
         players: ccPlayers,
+        springer: ccSpringer,
+        betrBBist: ccBetr.bb, betrPPist: ccBetr.pp,
+        betrPpVvl: num("cc-betr-ppvvl"), betrMtv: num("cc-betr-mtv"), betrTvAq: num("cc-betr-tvaq"),
         note: document.getElementById("cc-scorers-note").value.trim(),
         ccUpdatedAt: now
       }, { merge:true });
