@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Telekom Shop Cup – News</title>
+<title>Roberto News – Voss Telekom</title>
 <style>
   :root{
     --magenta:#E20074; --magenta-deep:#8a0048;
@@ -87,8 +87,8 @@
 
   <header class="hero">
     <div class="eyebrow">Rund um den Shop Cup</div>
-    <h1>News & Updates</h1>
-    <div class="sub">Aktuelles vom Team – Texte, Bilder und Videos</div>
+    <h1>Roberto News</h1>
+    <div class="sub">Statements &amp; Kommentare von Roberto zum Verlauf</div>
   </header>
 
   <div class="wrap">
@@ -109,16 +109,16 @@
   var links, sw;
   if(clash){
     document.documentElement.style.setProperty('--magenta','#0a9d57');
-    document.title='Magenta Cup Clash – News';
+    document.title='Magenta Cup Clash – Roberto News';
     sw=pill('index.html','← Shop Cup','#E20074');
-    links='<a href="cupclash.html">Tabelle</a><a href="cupclash-rankings.html">Rankings</a><a href="news.html?cup=clash" class="active">News</a><a href="cupclash-erklaer.html">So geht\'s</a>';
+    links='<a href="cupclash.html">Tabelle</a><a href="cupclash-rankings.html">Rankings</a><a href="news.html?cup=clash" class="active">Roberto News</a><a href="cupclash-erklaer.html">So geht\'s</a>';
     var hero=document.querySelector('.hero'); if(hero){ hero.style.background='linear-gradient(135deg,#10a85e,#0a8f4c 55%,#076b3b)'; var ey=hero.querySelector('.eyebrow'); if(ey)ey.textContent='Rund um den Cup Clash'; }
     var gbe=document.querySelector('.gb-eyebrow'); if(gbe)gbe.textContent='Die Prämie';
     var gbt=document.querySelector('.gb-title'); if(gbt)gbt.innerHTML='Bronze · Silber · Gold <em>· pro Stück ausgezahlt</em>';
     var tk=document.querySelector('.ticker'); if(tk)tk.style.display='none';
   } else {
     sw=pill('cupclash.html','Cup Clash →','#0a9d57');
-    links='<a href="index.html">Tabelle</a><a href="stats.html">Rankings</a><a href="news.html?cup=shop" class="active">News</a><a href="erklaer.html">So geht\'s</a>';
+    links='<a href="index.html">Tabelle</a><a href="stats.html">Rankings</a><a href="news.html?cup=shop" class="active">Roberto News</a><a href="erklaer.html">So geht\'s</a>';
   }
   nav.innerHTML=sw+'<div class="navlinks">'+links+'</div>';
 })();
