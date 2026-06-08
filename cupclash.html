@@ -154,10 +154,8 @@
   .emp-empty{padding:12px 18px;color:var(--muted);font-size:13px}
   .emp-note{padding:9px 18px;font-size:11.5px;color:var(--muted);background:#fff7fb;border-bottom:1px solid var(--line)}
   .emp-note b{color:var(--ink-soft)}
-  /* Springer / Joker */
-  #springer-wrap{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,40,.06)}
-  .spr-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 18px;background:linear-gradient(135deg,#1b1b22,#2b2b35);color:#fff}
-  .spr-betr{font-size:12px;color:#c8ccd4}
+  /* Springer-Trennzeile in der Tabelle */
+  .board tbody tr.spr-sep td{background:#1b1b22;color:#fff;font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:8px 14px;border-top:3px solid var(--magenta)}
 
   .rules{background:var(--card);border-radius:18px;padding:22px 24px;margin-top:26px;border:1px solid var(--line)}
   .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta)}
@@ -181,6 +179,8 @@
     .board .locked{margin-top:6px}
     .board tbody tr.emp-detail{display:block;padding:0;border-bottom:8px solid var(--bg)}
     .board tbody tr.emp-detail>td{display:block;width:100%!important;padding:0}
+    .board tbody tr.spr-sep{display:block}
+    .board tbody tr.spr-sep td{display:block;width:100%!important;text-align:center}
   }
   @media(max-width:560px){
     .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
@@ -240,10 +240,6 @@
       </div>
     </div>
 
-
-    <div class="sectitle" style="margin-top:28px">🃏 Springer / Joker</div>
-    <div style="text-align:center;font-size:12px;color:var(--muted);margin:-8px 0 14px">Wertung auf Betreiber-Ebene (alle Shops zusammen) – nicht im Shop</div>
-    <div id="springer-wrap"><div class="sc-empty">Lade …</div></div>
 
     <div class="rules">
       <h3>🏆 So funktioniert der Cup Clash</h3>
@@ -350,38 +346,48 @@
         +'</tr>'
         +'<tr class="emp-detail" id="emp-'+r.tc.id+'" style="display:none"><td colspan="6"><div class="emp-wrap">'+empRowsHtml(r.tc.id)+'</div></td></tr>';
     });
+
+    // --- Springer-Zeile (Betreiber-Gesamt) ---
+    var tj=shopData["_torjaeger"]||{};
+    var springer=Array.isArray(tj.springer)?tj.springer:[];
+    var sollBB=0,sollPP=0;
+    window.CC_TEAMS.forEach(function(tc){ var t=window.ccTargets(tc, shopData[tc.id]||{}); sollBB+=t.bbB; sollPP+=t.ppB; });
+    var betrBB=Number(tj.betrBBist)||0, betrPP=Number(tj.betrPPist)||0;
+    var bbPct=sollBB>0?Math.round(betrBB/sollBB*100):0;
+    var ppPct=sollPP>0?Math.round(betrPP/sollPP*100):0;
+    var tvAq=Number(tj.betrTvAq)||0, gateOk=tvAq>=90;
+    var sprTier=window.ccBetreiberTier(bbPct,ppPct,gateOk);
+    var sprRaw=window.ccBetreiberTier(bbPct,ppPct,true);
+    var bbB=Math.ceil(sollBB*1.15), bbS=Math.ceil(sollBB*1.15), bbG=Math.ceil(sollBB*1.30);
+    var ppB=Math.ceil(sollPP*1.15), ppS=Math.ceil(sollPP*1.225), ppG=Math.ceil(sollPP*1.30);
+    var sprCls = sprTier===3?"t-g":sprTier===2?"t-s":sprTier===1?"t-b":"";
+    var sprLocked = sprRaw>0 && !gateOk;
+    html+='<tr class="spr-sep"><td colspan="6">🃏 Springer · Wertung auf Betreiber-Ebene (alle Shops gesamt)</td></tr>'
+      +'<tr class="'+sprCls+' team-row spr-row" onclick="ccToggleEmp(\'springer\')">'
+      +'<td class="pos"><span class="ranknum">S</span></td>'
+      +'<td class="team"><span class="caret" id="car-springer">▸</span>Springer<span class="shop">Betreiber gesamt</span></td>'
+      +kpiCell(betrBB, bbB, bbS, bbG, window.ccNextNeed(betrBB,bbB,bbS,bbG), 'Breitband Neu')
+      +kpiCell(betrPP, ppB, ppS, ppG, window.ccNextNeed(betrPP,ppB,ppS,ppG), 'PP Neu PK')
+      +gateCell([{label:'MagentaTV AQ', val:tvAq, min:90, ok:gateOk}])
+      +'<td class="pokal" data-l="Pokal"><span class="tierbadge tb-'+sprTier+'">'+(sprTier>0?'🏆 '+TIER[sprTier]:'—')+'</span>'
+      +(sprLocked?'<span class="locked">Gate offen ('+TIER[sprRaw]+' möglich)</span>':'')+'</td>'
+      +'</tr>';
+    var sdet='';
+    if(!springer.length){ sdet='<div class="emp-empty">Noch keine Springer – kommt beim nächsten Daten-Import.</div>'; }
+    else {
+      var sarr=springer.slice().sort(function(a,b){return window.ccEarning(b.bb,b.pp,sprTier)-window.ccEarning(a.bb,a.pp,sprTier);});
+      sarr.forEach(function(p){
+        sdet+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")+'<small class="emp-kpi">hilft in '+shopName(p.shopId||p.shop)+' · '+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span><span class="emp-eur">'+fmtEur(window.ccEarning(p.bb,p.pp,sprTier))+'</span></div>';
+      });
+    }
+    html+='<tr class="emp-detail" id="emp-springer" style="display:none"><td colspan="6"><div class="emp-wrap">'+sdet+'</div></td></tr>';
+
     document.getElementById("board-body").innerHTML=html;
 
     // Zeitstempel
     let latest=null;
     window.CC_TEAMS.forEach(function(tc){ const u=(shopData[tc.id]||{}).ccUpdatedAt||(shopData[tc.id]||{}).updatedAt; if(u && (!latest||u>latest)) latest=u; });
     document.getElementById("stamp-data").textContent=fmtStamp(latest);
-
-    renderSpringer();
-  }
-
-  function renderSpringer(){
-    var wrap=document.getElementById("springer-wrap"); if(!wrap) return;
-    var tj=shopData["_torjaeger"]||{};
-    var springer=Array.isArray(tj.springer)?tj.springer:[];
-    var sollBB=0,sollPP=0;
-    window.CC_TEAMS.forEach(function(tc){ var t=window.ccTargets(tc, shopData[tc.id]||{}); sollBB+=t.bbB; sollPP+=t.ppB; });
-    var istBB=Number(tj.betrBBist)||0, istPP=Number(tj.betrPPist)||0;
-    var bbPct=sollBB>0?Math.round(istBB/sollBB*100):0;
-    var ppPct=sollPP>0?Math.round(istPP/sollPP*100):0;
-    var gatesOk=(Number(tj.betrPpVvl)||0)>=100 && (Number(tj.betrMtv)||0)>=130 && (Number(tj.betrTvAq)||0)>=90;
-    var tier=window.ccBetreiberTier(bbPct,ppPct,gatesOk);
-    var head='<div class="spr-head"><span class="tierbadge tb-'+tier+'">'+(tier>0?'🏆 Joker '+TIER[tier]:'Joker —')+'</span>'
-      +'<span class="spr-betr">Betreiber: BB '+bbPct+'% · PP '+ppPct+'% · Gate '+(gatesOk?'✓':'offen')+'</span></div>';
-    if(!springer.length){ wrap.innerHTML=head+'<div class="emp-empty">Noch keine Springer – kommt beim nächsten Daten-Import.</div>'; return; }
-    var arr=springer.slice().sort(function(a,b){ return window.ccEarning(b.bb,b.pp,tier)-window.ccEarning(a.bb,a.pp,tier); });
-    var rows='';
-    arr.forEach(function(p){
-      rows+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")
-        +'<small class="emp-kpi">hilft in '+shopName(p.shopId||p.shop)+' · '+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span>'
-        +'<span class="emp-eur">'+fmtEur(window.ccEarning(p.bb,p.pp,tier))+'</span></div>';
-    });
-    wrap.innerHTML=head+rows;
   }
 
   function fmtEur(v){ v=Number(v)||0; return v.toLocaleString("de-DE",{minimumFractionDigits:0,maximumFractionDigits:2})+" €"; }

@@ -178,12 +178,10 @@
       </div>
     </details>
     <div class="cc-scorers" style="border-top:2px solid var(--line)">
-      <h3>🎚️ Betreiber-Werte (für Springer / Joker)</h3>
-      <div class="hint">Springer werden auf <b>Betreiber-Ebene</b> gewertet (Summe aller Shops). BB/PP-Ist werden beim Import automatisch summiert. Hier nur die <b>Betreiber-Gates</b> eintragen.</div>
+      <h3>🎚️ Betreiber-Wert (für Springer)</h3>
+      <div class="hint">Springer werden auf <b>Betreiber-Ebene</b> gewertet (Summe aller Shops). BB/PP-Ist werden beim Import automatisch summiert. Hier nur das <b>Gate MagentaTV AQ</b> (≥ 90 %) eintragen.</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-top:6px">
-        <label style="font-size:12px;font-weight:700;color:var(--muted)">PP VVL %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-ppvvl"></label>
-        <label style="font-size:12px;font-weight:700;color:var(--muted)">MagentaTV %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-mtv"></label>
-        <label style="font-size:12px;font-weight:700;color:var(--muted)">TV AQ %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-tvaq"></label>
+        <label style="font-size:12px;font-weight:700;color:var(--muted)">MagentaTV AQ %<br><input class="cc-in" type="number" min="0" step="1" id="cc-betr-tvaq"></label>
       </div>
       <div class="cc-savemsg" id="cc-betr-info" style="margin-top:10px"></div>
     </div>
@@ -344,10 +342,10 @@
     var bbPct=soll.bb>0?Math.round(ccBetr.bb/soll.bb*100):0;
     var ppPct=soll.pp>0?Math.round(ccBetr.pp/soll.pp*100):0;
     var g=function(id){var el=document.getElementById(id);return el?(Number(el.value)||0):0;};
-    var gatesOk = g('cc-betr-ppvvl')>=100 && g('cc-betr-mtv')>=130 && g('cc-betr-tvaq')>=90;
+    var gatesOk = g('cc-betr-tvaq')>=90;
     var tier=window.ccBetreiberTier(bbPct,ppPct,gatesOk);
     var T=["—","Bronze","Silber","Gold"];
-    info.textContent='Betreiber-Ist: BB '+ccBetr.bb+' ('+bbPct+'%) · PP '+ccBetr.pp+' ('+ppPct+'%) · Gate '+(gatesOk?'erfüllt':'offen')+' → Joker-Stufe: '+T[tier];
+    info.textContent='Betreiber-Ist: BB '+ccBetr.bb+' ('+bbPct+'%) · PP '+ccBetr.pp+' ('+ppPct+'%) · Gate MTV AQ '+(gatesOk?'✓':'offen')+' → Springer-Stufe: '+T[tier];
   }
   function buildCcForms(){
     const root=document.getElementById("cc-body");
