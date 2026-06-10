@@ -96,6 +96,7 @@
   .rem.done{color:var(--pitch);font-weight:800}
   .crown{margin-right:4px}
   .gcrown{margin-left:4px;font-size:15px}
+  .jersey{margin-left:4px;font-size:14px}
   .ghead.topgroup{background:linear-gradient(135deg,#3a2f00,#6b5400)}
   .ghead.topgroup .lead b{color:var(--gold)}
   .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
@@ -315,11 +316,12 @@
       }
       rows.forEach(function(r,i){
         const isLead=r.shop.id===winnerId;
+        const winsJersey=isLead||isTopGroup;
         const cls=isLead?"lead":(r.sc.qualified?"q":"");
         const badge=r.sc.qualified?'<span class="stat q">dabei</span>':'<span class="stat o">offen</span>';
         html+='<tr class="'+cls+'">'
             +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
-            +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+'</td>'
+            +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+(winsJersey?' <span class="jersey" title="Würde aktuell ein Trikot gewinnen">👕</span>':'')+'</td>'
             +cell(r.p.bb, r.p.bbRest, r.p.bbZiel)
             +cell(r.p.tv, r.p.tvRest, r.p.tvZiel)
             +'<td class="pts">'+(r.sc.qualified?r.sc.total:'–')+'</td>'
