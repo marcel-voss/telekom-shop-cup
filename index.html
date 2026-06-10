@@ -95,6 +95,9 @@
   .rem{font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:600}
   .rem.done{color:var(--pitch);font-weight:800}
   .crown{margin-right:4px}
+  .gcrown{margin-left:4px;font-size:15px}
+  .ghead.topgroup{background:linear-gradient(135deg,#3a2f00,#6b5400)}
+  .ghead.topgroup .lead b{color:var(--gold)}
   .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
   .stat.q{background:#e3f6ec;color:var(--pitch-dk)}
   .stat.o{background:#f0f0f3;color:#9a9aa3}
@@ -281,16 +284,27 @@
   function render(){
     const root=document.getElementById("groups");
     const winners=window.computeGroupWinners(shopData);
-    let html="";
+    // Gruppen-Daten + Gesamtpunkte vorab berechnen
+    const gd={};
     window.GROUPS.forEach(function(g){
       const rows=window.SHOPS.filter(s=>s.group===g).map(function(s){
         const p=window.shopPercents(shopData[s.id]||{});
         return {shop:s, p:p, sc:window.computeScore(p.bb,p.tv)};
       }).sort((a,b)=>b.sc.total-a.sc.total);
+      const total=rows.reduce((sum,r)=>sum+(r.sc.qualified?r.sc.total:0),0);
+      gd[g]={rows:rows, total:total};
+    });
+    let maxTotal=0;
+    window.GROUPS.forEach(g=>{ if(gd[g].total>maxTotal) maxTotal=gd[g].total; });
+    let html="";
+    window.GROUPS.forEach(function(g){
+      const rows=gd[g].rows;
+      const total=gd[g].total;
+      const isTopGroup=maxTotal>0 && total===maxTotal;
       const winnerId=winners[g];
-      const winnerName=winnerId?window.SHOPS.find(s=>s.id===winnerId).name:"—";
-      html+='<div class="gcard"><div class="ghead"><div class="gbadge">'+g+'</div>'
-          +'<h2>Gruppe '+g+'</h2><div class="lead">Führend<b>'+winnerName+'</b></div></div>'
+      html+='<div class="gcard"><div class="ghead'+(isTopGroup?' topgroup':'')+'"><div class="gbadge">'+g+'</div>'
+          +'<h2>Gruppe '+g+(isTopGroup?' <span class="gcrown" title="Punktbeste Gruppe">👑</span>':'')+'</h2>'
+          +'<div class="lead">Gesamt<b>'+total+' Pkt</b></div></div>'
           +'<div class="tbl-wrap"><table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitband</th><th>MagentaTV</th><th>Pkt</th><th>Status</th></tr></thead><tbody>';
       function cell(pct, rest, ziel){
         const hit = pct>=100;
