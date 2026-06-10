@@ -71,6 +71,9 @@
   .sb-msg{font-size:13px;color:var(--muted)}
   .btn{background:var(--magenta);color:#fff;border:none;border-radius:11px;padding:13px 26px;font-size:16px;font-weight:800;cursor:pointer;white-space:nowrap}
   .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--magenta);border:1.5px solid var(--magenta)}
+  .submitbar .inner .sb-msg{flex:1;text-align:center}
+  .page{display:none}
   .q.invalid .q-label{color:var(--magenta)}
   .q.invalid .q-body{outline:2px solid #f6c5dd;outline-offset:6px;border-radius:8px}
   .done{max-width:620px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:46px 30px;text-align:center;box-shadow:0 6px 24px rgba(20,20,40,.08)}
@@ -87,7 +90,7 @@
 </style>
 </head>
 <body>
-  <header class="hero">
+  <header class="hero" id="hero">
     <div class="eyebrow">Voss Telekom · Mitarbeiter-Feedback</div>
     <h1>Wir bauen das neue Voss Portal.<br>Du entscheidest mit.</h1>
     <p>Bevor wir bauen, wollen wir von dir wissen, was im Alltag wirklich hilft, was nervt und was auf deinem Dashboard stehen soll. Deine Antworten formen das neue System – ein eigenes, passendes Dashboard pro Rolle.</p>
@@ -103,8 +106,10 @@
 
   <div class="submitbar">
     <div class="inner">
-      <span class="sb-msg" id="sb-msg">Deine Antworten werden anonym im System gespeichert.</span>
-      <button class="btn" id="submit">Absenden</button>
+      <button class="btn ghost" id="back" style="visibility:hidden">← Zurück</button>
+      <span class="sb-msg" id="sb-msg">Deine Antworten werden anonym gespeichert.</span>
+      <button class="btn" id="next">Weiter →</button>
+      <button class="btn" id="submit" style="display:none">Absenden</button>
     </div>
   </div>
 
@@ -126,7 +131,7 @@
   // ---------- Render ----------
   S.sections.forEach((sec, si)=>{
     const secEl = document.createElement("section");
-    secEl.className = "sec";
+    secEl.className = "sec page";
     let h = '<div class="sec-h"><div class="sec-n">'+(si+1)+'</div><h2>'+esc(sec.title)+'</h2></div>';
     if(sec.intro) h += '<div class="sec-intro">'+esc(sec.intro)+'</div>';
     secEl.innerHTML = h;
@@ -228,14 +233,7 @@
     if(q.type==="nps_0_10") return typeof a==="number";
     return a!==undefined && a!=="" && a!==null;
   }
-  function updateProgress(){
-    const qs=S.all.filter(q=>q.type!=="text_short"||q.required||["q2_4","q5_4"].indexOf(q.id)===-1);
-    const total=S.all.length;
-    const done=S.all.filter(isAnswered).length;
-    const pct=Math.round(done/total*100);
-    document.getElementById("prog").style.width=pct+"%";
-    document.getElementById("progtxt").textContent=pct+" % ausgefüllt";
-  }
+  function updateProgress(){}  // Fortschritt ist jetzt seitenbasiert (siehe showStep)
   function clearInvalid(id){ const el=document.getElementById("q-"+id); if(el) el.classList.remove("invalid"); }
 
   // ---------- Submit ----------
@@ -276,7 +274,47 @@
     }
   });
 
-  updateProgress();
+  // ---------- Wizard / Seiten ----------
+  const pages=[].slice.call(document.querySelectorAll('.page'));
+  const N=pages.length;
+  let cur=0;
+  const elHero=document.getElementById('hero');
+  const elBack=document.getElementById('back');
+  const elNext=document.getElementById('next');
+  const elSubmit=document.getElementById('submit');
+  const elMsg=document.getElementById('sb-msg');
+
+  function showStep(i){
+    cur=Math.max(0,Math.min(N-1,i));
+    pages.forEach(function(p,ix){ p.style.display = ix===cur?'block':'none'; });
+    elHero.style.display = cur===0 ? 'block':'none';
+    document.getElementById('prog').style.width=Math.round((cur+1)/N*100)+'%';
+    document.getElementById('progtxt').textContent='Seite '+(cur+1)+' von '+N;
+    elBack.style.visibility = cur===0?'hidden':'visible';
+    var last = cur===N-1;
+    elNext.style.display = last?'none':'inline-block';
+    elSubmit.style.display = last?'inline-block':'none';
+    elMsg.style.color='var(--muted)';
+    elMsg.textContent = last ? 'Fast geschafft – jetzt absenden.' : 'Deine Antworten werden anonym gespeichert.';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function validateStep(i){
+    var sec=S.sections[i];
+    var missing=sec.questions.filter(function(q){ return q.required && !isAnswered(q); });
+    missing.forEach(function(q){ document.getElementById('q-'+q.id).classList.add('invalid'); });
+    if(missing.length){
+      document.getElementById('q-'+missing[0].id).scrollIntoView({behavior:'smooth',block:'center'});
+      elMsg.textContent='Bitte noch '+missing.length+' Pflichtfeld(er) auf dieser Seite ausfüllen.';
+      elMsg.style.color='var(--magenta)';
+      return false;
+    }
+    return true;
+  }
+
+  elNext.addEventListener('click', function(){ if(validateStep(cur)) showStep(cur+1); });
+  elBack.addEventListener('click', function(){ showStep(cur-1); });
+  showStep(0);
 </script>
 </body>
 </html>
