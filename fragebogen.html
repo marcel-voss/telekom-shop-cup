@@ -107,7 +107,7 @@
   <div class="submitbar">
     <div class="inner">
       <button class="btn ghost" id="back" style="visibility:hidden">← Zurück</button>
-      <span class="sb-msg" id="sb-msg">Deine Antworten werden anonym gespeichert.</span>
+      <span class="sb-msg" id="sb-msg"></span>
       <button class="btn" id="next">Weiter →</button>
       <button class="btn" id="submit" style="display:none">Absenden</button>
     </div>
@@ -295,7 +295,7 @@
     elNext.style.display = last?'none':'inline-block';
     elSubmit.style.display = last?'inline-block':'none';
     elMsg.style.color='var(--muted)';
-    elMsg.textContent = last ? 'Fast geschafft – jetzt absenden.' : 'Deine Antworten werden anonym gespeichert.';
+    elMsg.textContent = last ? 'Fast geschafft – jetzt absenden.' : '';
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
