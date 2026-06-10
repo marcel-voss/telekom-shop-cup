@@ -106,6 +106,55 @@
   #cc-table-tgt th,#cc-table-tgt td{padding:8px 8px;white-space:nowrap;border-bottom:1px solid var(--line);text-align:center}
   #cc-table-tgt th{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
   #cc-table-tgt td.tname{text-align:left}
+  /* ===== Tab-Leiste ===== */
+  .tabbar{display:flex;gap:8px;margin-bottom:18px;border-bottom:2px solid var(--line);padding-bottom:0}
+  .tab{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 16px;font-size:15px;font-weight:800;color:var(--muted);cursor:pointer;border-radius:8px 8px 0 0}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--magenta);border-bottom-color:var(--magenta)}
+  .tab-badge{background:var(--magenta);color:#fff;border-radius:99px;font-size:11px;padding:1px 7px;margin-left:4px;font-weight:800}
+  /* ===== Fragebogen-Auswertung ===== */
+  .sv-head h2{font-size:20px;margin-bottom:4px}
+  .sv-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0 10px}
+  .sv-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;line-height:1.1}
+  .sv-stat span{font-size:22px;font-weight:900;color:var(--magenta);display:block}
+  .sv-stat small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .sv-filter{font-size:13px;font-weight:700;color:var(--ink2)}
+  .sv-filter select{margin-left:6px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+  .btn.ghost{background:#fff;color:var(--magenta);border:1px solid var(--magenta)}
+  .sv-tabs{display:flex;gap:6px;margin:8px 0 16px}
+  .svtab{background:#f0f0f4;border:none;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:800;color:var(--ink2);cursor:pointer}
+  .svtab.active{background:var(--magenta);color:#fff}
+  .sv-q{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+  .sv-q .qh{font-weight:800;font-size:15px;margin-bottom:3px}
+  .sv-q .qid{color:var(--muted);font-weight:700;font-size:12px}
+  .sv-q .qsub{color:var(--muted);font-size:12px;margin-bottom:10px}
+  .bar-row{display:grid;grid-template-columns:minmax(120px,1fr) 2.4fr auto;gap:10px;align-items:center;margin:5px 0;font-size:13px}
+  .bar-row .lab{color:var(--ink2)}
+  .bar-track{background:#eee;border-radius:99px;height:18px;overflow:hidden}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--magenta),#ff5db1);border-radius:99px}
+  .bar-val{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sv-texts{display:flex;flex-direction:column;gap:8px}
+  .sv-text{background:#faf7f9;border-left:3px solid var(--magenta);border-radius:0 8px 8px 0;padding:8px 12px;font-size:13.5px}
+  .sv-text .who{color:var(--muted);font-size:11.5px;font-weight:700;margin-top:3px}
+  .sv-empty{color:var(--muted);font-style:italic;font-size:13px}
+  .nps-dist{display:flex;gap:3px;margin-top:8px}
+  .nps-dist b{flex:1;text-align:center;font-size:11px;font-weight:800;color:var(--muted)}
+  .nps-dist .bar{height:34px;display:flex;align-items:flex-end}
+  .nps-dist i{display:block;width:100%;background:var(--magenta);border-radius:3px 3px 0 0;min-height:2px}
+  /* Einsendungen */
+  .sv-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .sv-card:hover{border-color:var(--magenta);box-shadow:0 2px 10px rgba(226,0,116,.12)}
+  .sv-card .nm{font-weight:800}
+  .sv-card .rl{display:inline-block;background:#fdeef6;color:var(--magenta-dark);border-radius:99px;padding:2px 10px;font-size:12px;font-weight:700;margin-left:8px}
+  .sv-card .dt{color:var(--muted);font-size:12px}
+  /* Detail-Overlay */
+  .sv-detail{position:fixed;inset:0;background:rgba(20,20,30,.5);z-index:50;display:flex;justify-content:center;align-items:flex-start;padding:30px 14px;overflow:auto}
+  .sv-detail .sheet{background:#fff;border-radius:16px;max-width:760px;width:100%;padding:24px 26px}
+  .sv-detail h3{font-size:20px}
+  .sv-detail .da{padding:12px 0;border-top:1px solid var(--line)}
+  .sv-detail .da .l{font-weight:800;font-size:14px}
+  .sv-detail .da .v{font-size:14px;margin-top:3px;color:var(--ink2);white-space:pre-wrap}
+  .sv-detail .closebtn{float:right;background:#f0f0f4;border:none;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer}
 </style>
 </head>
 <body>
@@ -125,6 +174,11 @@
 
 <!-- App -->
 <div class="wrap hidden" id="app">
+  <div class="tabbar">
+    <button class="tab active" data-view="cup">⚙️ Cup-Verwaltung</button>
+    <button class="tab" data-view="survey">📋 Fragebogen<span class="tab-badge" id="tab-survey-badge"></span></button>
+  </div>
+  <div id="view-cup">
   <div class="topnav">
     <span>Pro Produkt <b>Ziel (Soll)</b> setzen und den <b>aktuellen Ist-Stand</b> eintragen – % &amp; Restwerte werden automatisch berechnet.</span>
     <span><a href="index.html" target="_blank">Shop Cup ↗</a> &nbsp;·&nbsp; <a href="cupclash.html" target="_blank">Cup Clash ↗</a> &nbsp;·&nbsp; <a href="news.html" target="_blank">Roberto News ↗</a></span>
@@ -207,6 +261,31 @@
       <span class="cc-savemsg" id="cc-savemsg">Eigener Speicher-Button für den Cup Clash.</span>
     </div>
   </div>
+  </div><!-- /view-cup -->
+
+  <!-- ===== Fragebogen-Auswertung ===== -->
+  <div id="view-survey" class="hidden">
+    <div class="sv-head">
+      <h2>📋 Fragebogen – Mitarbeiter-Feedback zum neuen Portal</h2>
+      <div class="hint">Live aus der Datenbank. Im Frontend bewusst <b>nicht verlinkt</b> – erreichbar nur über den direkten Link <code>fragebogen.html</code>, den du gezielt teilst.</div>
+    </div>
+    <div class="sv-toolbar">
+      <div class="sv-stat"><span id="sv-count">0</span><small>Einsendungen</small></div>
+      <div class="sv-stat"><span id="sv-nps">–</span><small>NPS (Q1.1)</small></div>
+      <label class="sv-filter">Rolle:
+        <select id="sv-role"><option value="">Alle Rollen</option></select>
+      </label>
+      <button class="btn ghost" id="sv-reload">↻ Aktualisieren</button>
+      <button class="btn" id="sv-csv">⬇︎ CSV exportieren</button>
+    </div>
+    <div class="sv-tabs">
+      <button class="svtab active" data-svtab="agg">📊 Auswertung</button>
+      <button class="svtab" data-svtab="list">🗂️ Einsendungen</button>
+    </div>
+    <div id="sv-agg" class="sv-panel"></div>
+    <div id="sv-list" class="sv-panel hidden"></div>
+    <div id="sv-detail" class="sv-detail hidden"></div>
+  </div>
 </div>
 
 <div class="bar hidden" id="bar">
@@ -215,6 +294,7 @@
 </div>
 
 <script src="config.js?v=4"></script>
+<script src="survey-schema.js?v=1"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, orderBy }
@@ -305,6 +385,7 @@
       buildCcForms();
       loadScorers();
       initNews();
+      initSurvey();
     }catch(e){
       console.error(e);
       document.getElementById("forms").innerHTML =
@@ -615,6 +696,225 @@
       console.error(e); msg.className = "savemsg"; msg.textContent = "Fehler beim Speichern – siehe Konsole.";
     }finally{ btn.disabled = false; }
   });
+
+  // ============================================================
+  //  Tabs: Cup-Verwaltung  /  Fragebogen
+  // ============================================================
+  document.querySelectorAll('.tabbar .tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      var v=t.dataset.view;
+      document.querySelectorAll('.tabbar .tab').forEach(function(x){ x.classList.toggle('active', x===t); });
+      document.getElementById('view-cup').classList.toggle('hidden', v!=='cup');
+      document.getElementById('view-survey').classList.toggle('hidden', v!=='survey');
+      document.getElementById('bar').classList.toggle('hidden', v!=='cup');
+    });
+  });
+
+  // ============================================================
+  //  Fragebogen-Auswertung
+  // ============================================================
+  var SV = window.SURVEY;
+  var svData = [];
+  var svView = 'agg';
+
+  function svEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function svDate(ms){ return ms? new Date(ms).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '–'; }
+  function svQid(id){ return id.toUpperCase().replace('_','.'); }
+  function getA(row,qid){ return (row.answers||{})[qid]; }
+
+  function initSurvey(){
+    if(!SV) return;
+    var sel=document.getElementById('sv-role');
+    SV.roles.forEach(function(r){ var o=document.createElement('option'); o.value=r; o.textContent=r; sel.appendChild(o); });
+    sel.addEventListener('change', renderSurvey);
+    document.getElementById('sv-reload').addEventListener('click', loadSurvey);
+    document.getElementById('sv-csv').addEventListener('click', exportCsv);
+    document.querySelectorAll('.svtab').forEach(function(t){
+      t.addEventListener('click', function(){
+        svView=t.dataset.svtab;
+        document.querySelectorAll('.svtab').forEach(function(x){ x.classList.toggle('active', x===t); });
+        document.getElementById('sv-agg').classList.toggle('hidden', svView!=='agg');
+        document.getElementById('sv-list').classList.toggle('hidden', svView!=='list');
+      });
+    });
+    loadSurvey();
+  }
+
+  async function loadSurvey(){
+    if(!db || !SV) return;
+    document.getElementById('sv-agg').innerHTML='<div class="sv-empty">Lade …</div>';
+    try{
+      var snap=await getDocs(collection(db, SV.collection));
+      svData=[];
+      snap.forEach(function(d){ var x=d.data(); x._id=d.id; svData.push(x); });
+      svData.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+    }catch(e){
+      console.error(e);
+      document.getElementById('sv-agg').innerHTML='<div class="sv-empty">Antworten konnten nicht geladen werden. Falls noch nie eine eingegangen ist, ist das normal. Sonst Firestore-Regeln für die Sammlung „surveys" prüfen.</div>';
+      return;
+    }
+    renderSurvey();
+  }
+
+  function svFiltered(){
+    var role=document.getElementById('sv-role').value;
+    return role ? svData.filter(function(r){ return (r.role||'')===role; }) : svData;
+  }
+
+  function renderSurvey(){
+    var rows=svFiltered();
+    document.getElementById('sv-count').textContent=rows.length;
+    document.getElementById('tab-survey-badge').textContent = svData.length || '';
+    document.getElementById('sv-nps').textContent = npsScore(rows);
+    renderAgg(rows);
+    renderList(rows);
+  }
+
+  function npsScore(rows){
+    var vals=rows.map(function(r){ return getA(r,'q1_1'); }).filter(function(v){ return typeof v==='number'; });
+    if(!vals.length) return '–';
+    var prom=vals.filter(function(v){ return v>=9; }).length;
+    var det=vals.filter(function(v){ return v<=6; }).length;
+    return Math.round((prom-det)/vals.length*100);
+  }
+
+  function barPct(lab,pct,valText){
+    return '<div class="bar-row"><div class="lab">'+svEsc(lab)+'</div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+Math.max(0,Math.min(100,pct))+'%"></div></div>'+
+      '<div class="bar-val">'+valText+'</div></div>';
+  }
+
+  function renderAgg(rows){
+    var root=document.getElementById('sv-agg');
+    if(!rows.length){ root.innerHTML='<div class="sv-empty">Noch keine Einsendungen'+(document.getElementById('sv-role').value?' für diese Rolle':'')+'.</div>'; return; }
+    var html='';
+    SV.sections.forEach(function(sec){
+      sec.questions.forEach(function(q){
+        if(q.id==='q0_1') return;
+        html+='<div class="sv-q"><div class="qh"><span class="qid">'+svQid(q.id)+'</span> · '+svEsc(q.label)+'</div>'+aggQuestion(q,rows)+'</div>';
+      });
+    });
+    root.innerHTML=html;
+  }
+
+  function aggQuestion(q,rows){
+    var t=q.type, out='';
+    if(t==='single'){
+      var c={},tot=0;
+      rows.forEach(function(r){ var v=getA(r,q.id); if(v!=null&&v!==''){ c[v]=(c[v]||0)+1; tot++; } });
+      if(!tot) return '<div class="sv-empty">keine Antworten</div>';
+      q.options.forEach(function(o){ if(c[o]) out+=barPct(o,c[o]/tot*100,c[o]+' · '+Math.round(c[o]/tot*100)+'%'); });
+      return out;
+    }
+    if(t==='multi'){
+      var c={},n=rows.length;
+      rows.forEach(function(r){ var v=getA(r,q.id); if(Array.isArray(v)) v.forEach(function(o){ c[o]=(c[o]||0)+1; }); });
+      var ks=Object.keys(c); if(!ks.length) return '<div class="sv-empty">keine Antworten</div>';
+      (q.options||ks).forEach(function(o){ if(c[o]) out+=barPct(o,c[o]/n*100,c[o]+'× · '+Math.round(c[o]/n*100)+'%'); });
+      return out;
+    }
+    if(t==='nps_0_10'){
+      var vals=rows.map(function(r){ return getA(r,q.id); }).filter(function(v){ return typeof v==='number'; });
+      if(!vals.length) return '<div class="sv-empty">keine Antworten</div>';
+      var dist=[]; for(var i=0;i<=10;i++)dist[i]=0; vals.forEach(function(v){ dist[v]++; });
+      var mx=Math.max.apply(null,dist)||1;
+      var avg=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);
+      out='<div class="qsub">NPS: <b>'+npsScore(rows)+'</b> · Ø '+avg+' · '+vals.length+' Antw.</div><div class="nps-dist">';
+      for(var j=0;j<=10;j++){ out+='<b><span class="bar"><i style="height:'+Math.round(dist[j]/mx*34)+'px"></i></span><br>'+j+'<br>'+dist[j]+'</b>'; }
+      return out+'</div>';
+    }
+    if(t==='scale_1_5'){
+      out='<div class="qsub">Ø-Wert je Punkt (1–5, ohne „nutze ich nicht")</div>';
+      q.items.forEach(function(it){
+        var nums=[],na=0;
+        rows.forEach(function(r){ var v=getA(r,q.id); if(v&&v[it]!==undefined){ if(v[it]==='na')na++; else nums.push(v[it]); } });
+        if(!nums.length&&!na){ out+=barPct(it,0,'–'); return; }
+        var avg= nums.length? nums.reduce(function(a,b){return a+b;},0)/nums.length : 0;
+        out+=barPct(it, nums.length? avg/5*100:0, (nums.length? avg.toFixed(1):'–')+(na?' · '+na+'× n/a':''));
+      });
+      return out;
+    }
+    if(t==='rank'){
+      var score={},app={};
+      rows.forEach(function(r){ var v=getA(r,q.id); if(Array.isArray(v)) v.forEach(function(o,ix){ score[o]=(score[o]||0)+(q.n-ix); app[o]=(app[o]||0)+1; }); });
+      var ks=Object.keys(score); if(!ks.length) return '<div class="sv-empty">keine Antworten</div>';
+      ks.sort(function(a,b){ return score[b]-score[a]; });
+      var mx=score[ks[0]]||1;
+      out='<div class="qsub">Gewichtet · Platz 1 = '+q.n+' Pkt … Platz '+q.n+' = 1 Pkt</div>';
+      ks.forEach(function(o){ out+=barPct(o, score[o]/mx*100, score[o]+' Pkt · '+app[o]+'× genannt'); });
+      return out;
+    }
+    if(t==='text_short'||t==='text_long'){
+      var tx=rows.map(function(r){ return {t:getA(r,q.id), who:(r.name||'?')+' · '+(r.role||'?')}; }).filter(function(x){ return x.t&&String(x.t).trim(); });
+      if(!tx.length) return '<div class="sv-empty">keine Antworten</div>';
+      out='<div class="sv-texts">';
+      tx.forEach(function(x){ out+='<div class="sv-text">'+svEsc(x.t)+'<div class="who">'+svEsc(x.who)+'</div></div>'; });
+      return out+'</div>';
+    }
+    return '';
+  }
+
+  function renderList(rows){
+    var root=document.getElementById('sv-list');
+    if(!rows.length){ root.innerHTML='<div class="sv-empty">Noch keine Einsendungen.</div>'; return; }
+    root.innerHTML=rows.map(function(r,i){
+      return '<div class="sv-card" data-i="'+i+'"><div><span class="nm">'+svEsc(r.name||'(ohne Namen)')+'</span><span class="rl">'+svEsc(r.role||'?')+'</span></div><span class="dt">'+svDate(r.createdAt)+'</span></div>';
+    }).join('');
+    root.querySelectorAll('.sv-card').forEach(function(c){ c.addEventListener('click', function(){ showDetail(rows[+c.dataset.i]); }); });
+  }
+
+  function fmtAnswer(q,v){
+    if(v==null||v===''||(Array.isArray(v)&&!v.length)) return '<span style="color:#bbb">—</span>';
+    if(q.type==='multi') return v.map(svEsc).join(', ');
+    if(q.type==='rank') return v.map(function(o,i){ return (i+1)+'. '+svEsc(o); }).join('<br>');
+    if(q.type==='scale_1_5') return q.items.map(function(it){ var x=v[it]; return svEsc(it)+': <b>'+(x===undefined?'—':(x==='na'?'n/a':x))+'</b>'; }).join('<br>');
+    return svEsc(v);
+  }
+
+  function showDetail(r){
+    var d=document.getElementById('sv-detail');
+    var html='<div class="sheet"><button class="closebtn" id="sv-close">Schließen ✕</button>'+
+      '<h3>'+svEsc(r.name||'(ohne Namen)')+'</h3>'+
+      '<div class="qsub" style="color:#8a8a95;font-size:13px;margin-bottom:6px">'+svEsc(r.role||'?')+' · '+svDate(r.createdAt)+'</div>';
+    SV.all.forEach(function(q){
+      if(q.id==='q0_1'||q.id==='q0_2') return;
+      html+='<div class="da"><div class="l"><span style="color:#8a8a95;font-weight:700">'+svQid(q.id)+'</span> '+svEsc(q.label)+'</div><div class="v">'+fmtAnswer(q,getA(r,q.id))+'</div></div>';
+    });
+    html+='</div>';
+    d.innerHTML=html; d.classList.remove('hidden');
+    document.getElementById('sv-close').addEventListener('click', function(){ d.classList.add('hidden'); });
+    d.addEventListener('click', function(e){ if(e.target===d) d.classList.add('hidden'); });
+  }
+
+  function exportCsv(){
+    var rows=svFiltered();
+    if(!rows.length){ alert('Keine Daten zum Export.'); return; }
+    var qcols=[];
+    SV.all.forEach(function(q){
+      if(q.id==='q0_1'||q.id==='q0_2') return;
+      if(q.type==='scale_1_5') q.items.forEach(function(it){ qcols.push({q:q,item:it,head:svQid(q.id)+' – '+it}); });
+      else qcols.push({q:q,head:svQid(q.id)+' '+q.label});
+    });
+    var cols=['Datum','Name','Rolle'].concat(qcols.map(function(c){ return c.head; }));
+    function cell(s){ return '"'+String(s==null?'':s).replace(/"/g,'""')+'"'; }
+    var lines=[cols.map(cell).join(';')];
+    rows.forEach(function(r){
+      var line=[svDate(r.createdAt), r.name||'', r.role||''];
+      qcols.forEach(function(c){
+        var v=getA(r,c.q.id), o='';
+        if(c.q.type==='scale_1_5'){ var x=v&&v[c.item]; o = x===undefined?'':(x==='na'?'n/a':x); }
+        else if(c.q.type==='multi') o=Array.isArray(v)?v.join(' | '):'';
+        else if(c.q.type==='rank') o=Array.isArray(v)?v.map(function(it,i){ return (i+1)+'. '+it; }).join(' | '):'';
+        else o=(v==null?'':v);
+        line.push(o);
+      });
+      lines.push(line.map(cell).join(';'));
+    });
+    var blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='voss-fragebogen-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
 </script>
 </body>
 </html>
