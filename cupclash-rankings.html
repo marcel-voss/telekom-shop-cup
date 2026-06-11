@@ -88,18 +88,18 @@
   <header class="hero">
     <div class="eyebrow">Magenta Cup Clash</div>
     <h1>Rankings</h1>
-    <div class="sub">Top-Teams · Top-Verdiener · Torschützen</div>
+    <div class="sub">Top-Teams · Torschützen</div>
   </header>
 
   <div class="wrap">
     <div class="sectit">🏆 Top-Teams</div>
     <div class="podium" id="podium"><div class="loading">Lade …</div></div>
 
-    <div class="sectit">💶 Top-Verdiener</div>
-    <div class="listbox" id="earners"><div class="empty">Noch keine Daten.</div></div>
-
     <div class="sectit">⚽ Torschützenliste</div>
     <div class="listbox" id="scorers"><div class="empty">Noch keine Daten.</div></div>
+    <div id="scorers-more-wrap" style="text-align:center;margin-top:14px;display:none">
+      <button id="scorers-more" style="background:#fff;border:1.5px solid var(--magenta);color:var(--magenta);font-weight:800;font-size:14px;padding:10px 22px;border-radius:999px;cursor:pointer">+ Mehr anzeigen</button>
+    </div>
   </div>
 
   <footer>Voss Telekom · Magenta Cup Clash</footer>
@@ -141,26 +141,29 @@
     // Spieler
     const tj=shopData["_torjaeger"]||{};
     const players=Array.isArray(tj.players)?tj.players:[];
-    function earnOf(p){ return window.ccEarning(p.bb, p.pp, teamTierMap[p.shopId||p.shop]||0); }
-    // Top-Verdiener
-    const earners=players.slice().sort(function(a,b){return earnOf(b)-earnOf(a);}).slice(0,10);
-    const eb=document.getElementById("earners");
-    if(!players.length){ eb.innerHTML='<div class="empty">Noch keine Daten – wird beim nächsten Import gefüllt.</div>'; }
-    else{
-      let h=""; earners.forEach(function(p,i){
-        h+='<div class="lrow"><span class="lrank">'+(i+1)+'</span><span class="lname">'+(p.name||"—")+'<small>'+teamNameOf(p.shopId||p.shop)+' · '+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span><span class="lval">'+fmtEur(earnOf(p))+'</span></div>';
-      });
-      eb.innerHTML=h;
-    }
-    // Torschützen
-    const scorers=players.slice().sort(function(a,b){return (Number(b.goals)||0)-(Number(a.goals)||0);}).filter(function(p){return (Number(p.goals)||0)>0;}).slice(0,10);
+    // Torschützenliste – nur Spieler mit Absatz (mind. 1 Tor). Top 10, „+" zeigt alle.
+    const scorers=players.slice()
+      .filter(function(p){return (Number(p.goals)||0)>0;})
+      .sort(function(a,b){return (Number(b.goals)||0)-(Number(a.goals)||0);});
     const sb=document.getElementById("scorers");
-    if(!scorers.length){ sb.innerHTML='<div class="empty">Noch keine Torschützen.</div>'; }
-    else{
-      let h=""; scorers.forEach(function(p,i){
+    const moreWrap=document.getElementById("scorers-more-wrap");
+    const moreBtn=document.getElementById("scorers-more");
+    function renderScorers(showAll){
+      const list=showAll?scorers:scorers.slice(0,10);
+      let h=""; list.forEach(function(p,i){
         h+='<div class="lrow"><span class="lrank">'+(i+1)+'</span><span class="lname">'+(p.name||"—")+'<small>'+teamNameOf(p.shopId||p.shop)+'</small></span><span class="lval">'+(Number(p.goals)||0)+' <small>Tore</small></span></div>';
       });
       sb.innerHTML=h;
+      moreBtn.textContent = showAll ? '− Weniger anzeigen' : ('+ Mehr anzeigen ('+(scorers.length-10)+')');
+    }
+    if(!scorers.length){ sb.innerHTML='<div class="empty">Noch keine Torschützen.</div>'; moreWrap.style.display='none'; }
+    else{
+      renderScorers(false);
+      if(scorers.length>10){
+        moreWrap.style.display='block';
+        let expanded=false;
+        moreBtn.onclick=function(){ expanded=!expanded; renderScorers(expanded); };
+      } else { moreWrap.style.display='none'; }
     }
   }
 

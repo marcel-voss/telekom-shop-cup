@@ -316,8 +316,11 @@
     const playersByShop={};
     (Array.isArray(tj.players)?tj.players:[]).forEach(function(p){ const id=p.shopId||p.shop; if(!id) return; (playersByShop[id]=playersByShop[id]||[]).push(p); });
     function empRowsHtml(id){
-      const arr=(playersByShop[id]||[]).slice();
-      if(!arr.length) return '<div class="emp-empty">Noch keine Mitarbeiterdaten – kommt beim nächsten Daten-Import.</div>';
+      const raw=(playersByShop[id]||[]);
+      if(!raw.length) return '<div class="emp-empty">Noch keine Mitarbeiterdaten – kommt beim nächsten Daten-Import.</div>';
+      // Nur Mitarbeiter mit Absatz (mind. 1 Treffer BB Neu oder PP Neu PK)
+      const arr=raw.slice().filter(function(p){ return (Number(p.bb)||0)+(Number(p.pp)||0) > 0; });
+      if(!arr.length) return '<div class="emp-empty">Noch keine Treffer in diesem Zeitraum.</div>';
       const tier=teamTierMap[id]||0;
       arr.sort(function(a,b){ return window.ccEarning(b.bb,b.pp,tier)-window.ccEarning(a.bb,a.pp,tier); });
       let h='<div class="emp-note">Prämie zur aktuell erreichten Stufe: <b>'+TIER[tier]+'</b>'
@@ -373,9 +376,11 @@
       +(sprLocked?'<span class="locked">Gate offen ('+TIER[sprRaw]+' möglich)</span>':'')+'</td>'
       +'</tr>';
     var sdet='';
+    var sprWithAbsatz=springer.slice().filter(function(p){ return (Number(p.bb)||0)+(Number(p.pp)||0) > 0; });
     if(!springer.length){ sdet='<div class="emp-empty">Noch keine Springer – kommt beim nächsten Daten-Import.</div>'; }
+    else if(!sprWithAbsatz.length){ sdet='<div class="emp-empty">Noch keine Treffer in diesem Zeitraum.</div>'; }
     else {
-      var sarr=springer.slice().sort(function(a,b){return window.ccEarning(b.bb,b.pp,sprTier)-window.ccEarning(a.bb,a.pp,sprTier);});
+      var sarr=sprWithAbsatz.sort(function(a,b){return window.ccEarning(b.bb,b.pp,sprTier)-window.ccEarning(a.bb,a.pp,sprTier);});
       sarr.forEach(function(p){
         sdet+='<div class="emp-row"><span class="emp-name">'+(p.name||"—")+'<small class="emp-kpi">hilft in '+shopName(p.shopId||p.shop)+' · '+(Number(p.bb)||0)+' BB · '+(Number(p.pp)||0)+' PP</small></span><span class="emp-eur">'+fmtEur(window.ccEarning(p.bb,p.pp,sprTier))+'</span></div>';
       });
