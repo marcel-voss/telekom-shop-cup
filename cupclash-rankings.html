@@ -140,7 +140,10 @@
 
     // Spieler
     const tj=shopData["_torjaeger"]||{};
-    const players=Array.isArray(tj.players)?tj.players:[];
+    // Spieler aus den Shops + Springer (separate Liste) zusammenführen
+    const players=(Array.isArray(tj.players)?tj.players:[]).concat(
+      (Array.isArray(tj.springer)?tj.springer:[]).map(function(p){ return Object.assign({}, p, {_spr:true}); })
+    );
     // Torschützenliste – nur Spieler mit Absatz (mind. 1 Tor). Top 10, „+" zeigt alle.
     const scorers=players.slice()
       .filter(function(p){return (Number(p.goals)||0)>0;})
@@ -151,7 +154,7 @@
     function renderScorers(showAll){
       const list=showAll?scorers:scorers.slice(0,10);
       let h=""; list.forEach(function(p,i){
-        h+='<div class="lrow"><span class="lrank">'+(i+1)+'</span><span class="lname">'+(p.name||"—")+'<small>'+teamNameOf(p.shopId||p.shop)+'</small></span><span class="lval">'+(Number(p.goals)||0)+' <small>Tore</small></span></div>';
+        h+='<div class="lrow"><span class="lrank">'+(i+1)+'</span><span class="lname">'+(p.name||"—")+'<small>'+teamNameOf(p.shopId||p.shop)+(p._spr?' · Springer':'')+'</small></span><span class="lval">'+(Number(p.goals)||0)+' <small>Tore</small></span></div>';
       });
       sb.innerHTML=h;
       moreBtn.textContent = showAll ? '− Weniger anzeigen' : ('+ Mehr anzeigen ('+(scorers.length-10)+')');
