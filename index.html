@@ -98,7 +98,28 @@
   .rem.done{color:var(--pitch);font-weight:800}
   .crown{margin-right:4px}
   .gcrown{margin-left:4px;font-size:15px}
-  .jersey{margin-left:4px;font-size:14px}
+  .jersey{margin-left:4px;font-size:14px;cursor:pointer;border-radius:6px;padding:1px 3px}
+  .jersey:hover{background:#fdeef6;transform:scale(1.15)}
+  .jmodal{position:fixed;inset:0;background:rgba(20,20,30,.55);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow:auto}
+  .jmodal.hidden{display:none}
+  .jm-sheet{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:24px 24px 26px;position:relative;box-shadow:0 14px 50px rgba(0,0,0,.3)}
+  .jm-x{position:absolute;top:14px;right:14px;border:none;background:#f0f0f4;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;cursor:pointer;color:#555}
+  .jm-sheet h3{font-size:21px;font-weight:900;margin-bottom:2px}
+  .jm-sub{color:#777;font-size:14px;margin-bottom:14px}
+  .jm-sub b{color:var(--magenta)}
+  .jm-l{display:block;font-size:13px;font-weight:800;margin:12px 0 4px;color:#333}
+  .jm-sheet input,.jm-sheet select{width:100%;border:1px solid var(--line,#e7e7ec);border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;background:#fcfcfd}
+  .jm-sheet input:focus,.jm-sheet select:focus{outline:none;border-color:var(--magenta)}
+  .jm-msg{min-height:18px;font-size:13px;font-weight:700;margin-top:8px}
+  .jm-save{width:100%;margin-top:12px;background:var(--magenta);color:#fff;border:none;border-radius:11px;padding:13px;font-size:16px;font-weight:800;cursor:pointer}
+  .jm-save:disabled{opacity:.6}
+  .jm-listtit{font-size:13px;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.4px;margin:20px 0 8px;border-top:1px solid var(--line,#eee);padding-top:14px}
+  .jm-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto}
+  .jm-empty{color:#aaa;font-style:italic;font-size:13px}
+  .jm-item{display:flex;align-items:center;gap:8px;background:#faf7f9;border-radius:8px;padding:8px 11px;font-size:13.5px}
+  .jm-i-name{font-weight:700;flex:1}
+  .jm-i-size{background:var(--magenta);color:#fff;border-radius:6px;padding:1px 8px;font-weight:800;font-size:12px}
+  .jm-i-team{color:#888;font-size:12px}
   .ghead.topgroup{background:linear-gradient(135deg,#3a2f00,#6b5400)}
   .ghead.topgroup .lead b{color:var(--gold)}
   .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
@@ -230,12 +251,35 @@
 
   <div id="toasts"></div>
 
+  <!-- Trikot-Eintrag Pop-up -->
+  <div id="jmodal" class="jmodal hidden">
+    <div class="jm-sheet">
+      <button class="jm-x" onclick="closeJersey()" aria-label="Schließen">✕</button>
+      <h3>👕 Trikot eintragen</h3>
+      <div class="jm-sub">Shop: <b id="jm-shop"></b></div>
+      <label class="jm-l" for="jm-name">Name</label>
+      <input type="text" id="jm-name" placeholder="Vor- und Nachname">
+      <label class="jm-l" for="jm-size">Trikotgröße</label>
+      <select id="jm-size">
+        <option value="">Bitte wählen …</option>
+        <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option>
+      </select>
+      <label class="jm-l" for="jm-team">Mannschaft</label>
+      <input type="text" id="jm-team" placeholder="Mannschaft / Team">
+      <div class="jm-msg" id="jm-msg"></div>
+      <button class="jm-save" id="jm-save" onclick="saveJersey()">Speichern</button>
+      <div class="jm-listtit">Bereits eingetragen</div>
+      <div class="jm-list" id="jm-list"></div>
+    </div>
+  </div>
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="config.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  let DB=null;
   document.getElementById("event-name").textContent = window.EVENT.name;
 
   function fmtStamp(ts){ return ts ? (new Date(ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" Uhr") : "–"; }
@@ -324,7 +368,7 @@
         const badge=r.sc.qualified?'<span class="stat q">dabei</span>':'<span class="stat o">offen</span>';
         html+='<tr class="'+cls+'">'
             +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
-            +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+(winsJersey?' <span class="jersey" title="Würde aktuell ein Trikot gewinnen">👕</span>':'')+'</td>'
+            +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+(winsJersey?' <span class="jersey" role="button" title="Trikot eintragen – klicken" onclick="openJersey(\''+r.shop.id+'\')">👕</span>':'')+'</td>'
             +cell(r.p.bb, r.p.bbRest, r.p.bbZiel)
             +cell(r.p.tv, r.p.tvRest, r.p.tvZiel)
             +'<td class="pts">'+(r.sc.qualified?r.sc.total:'–')+'</td>'
@@ -335,10 +379,58 @@
     root.innerHTML=html;
   }
 
+  // ===== Trikot-Eintrag (Pop-up) =====
+  const JSIZES=["XS","S","M","L","XL","XXL","3XL"];
+  let jShopId=null;
+  function jEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function shopName(id){ const s=window.SHOPS.find(x=>x.id===id); return s?s.name:id; }
+
+  window.openJersey=function(id){
+    jShopId=id;
+    const m=document.getElementById('jmodal');
+    document.getElementById('jm-shop').textContent=shopName(id);
+    document.getElementById('jm-name').value='';
+    document.getElementById('jm-team').value=shopName(id);
+    document.getElementById('jm-size').value='';
+    document.getElementById('jm-msg').textContent='';
+    renderJerseyList(id);
+    m.classList.remove('hidden');
+    setTimeout(function(){ document.getElementById('jm-name').focus(); },50);
+  };
+  window.closeJersey=function(){ document.getElementById('jmodal').classList.add('hidden'); jShopId=null; };
+
+  function renderJerseyList(id){
+    const arr=((shopData[id]||{}).jerseys)||[];
+    const box=document.getElementById('jm-list');
+    if(!arr.length){ box.innerHTML='<div class="jm-empty">Noch keine Einträge.</div>'; return; }
+    box.innerHTML=arr.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);}).map(function(e){
+      return '<div class="jm-item"><span class="jm-i-name">'+jEsc(e.name)+'</span>'
+        +'<span class="jm-i-size">'+jEsc(e.size)+'</span>'
+        +'<span class="jm-i-team">'+jEsc(e.team)+'</span></div>';
+    }).join('');
+  }
+  function refreshJerseyModal(){ if(jShopId && !document.getElementById('jmodal').classList.contains('hidden')) renderJerseyList(jShopId); }
+
+  window.saveJersey=async function(){
+    if(!jShopId||!DB) return;
+    const name=document.getElementById('jm-name').value.trim();
+    const size=document.getElementById('jm-size').value;
+    const team=document.getElementById('jm-team').value.trim();
+    const msg=document.getElementById('jm-msg');
+    if(!name||!size){ msg.style.color='var(--magenta)'; msg.textContent='Bitte Name und Trikotgröße angeben.'; return; }
+    const btn=document.getElementById('jm-save'); btn.disabled=true; btn.textContent='Speichert …';
+    try{
+      await updateDoc(doc(DB,'shops',jShopId), { jerseys: arrayUnion({ name:name, size:size, team:team, shopId:jShopId, ts:Date.now() }) });
+      msg.style.color='var(--pitch,#0fa45a)'; msg.textContent='Gespeichert ✓';
+      document.getElementById('jm-name').value=''; document.getElementById('jm-size').value='';
+    }catch(e){ console.error(e); msg.style.color='var(--magenta)'; msg.textContent='Speichern fehlgeschlagen – bitte nochmal versuchen.'; }
+    finally{ btn.disabled=false; btn.textContent='Speichern'; }
+  };
+
   try{
     const app=initializeApp(window.FIREBASE_CONFIG);
-    const db=getFirestore(app);
-    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();updateDataStamp();checkMilestones();},
+    const db=getFirestore(app); DB=db;
+    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();updateDataStamp();checkMilestones();refreshJerseyModal();},
       err=>{console.error(err);document.getElementById("groups").innerHTML='<div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div>';});
     // Zeitstempel der letzten News
     try{

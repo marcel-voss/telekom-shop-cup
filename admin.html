@@ -178,6 +178,7 @@
   <div class="tabbar">
     <button class="tab active" data-view="cup">⚙️ Cup-Verwaltung</button>
     <button class="tab" data-view="survey">📋 Fragebogen<span class="tab-badge" id="tab-survey-badge"></span></button>
+    <button class="tab" data-view="jerseys">🎽 Trikots<span class="tab-badge" id="tab-jersey-badge"></span></button>
   </div>
   <div id="view-cup">
   <div class="topnav">
@@ -286,6 +287,21 @@
     <div id="sv-agg" class="sv-panel"></div>
     <div id="sv-list" class="sv-panel hidden"></div>
     <div id="sv-detail" class="sv-detail hidden"></div>
+  </div>
+
+  <!-- ===== Trikot-Bestellungen ===== -->
+  <div id="view-jerseys" class="hidden">
+    <div class="sv-head">
+      <h2>🎽 Trikot-Bestellungen</h2>
+      <div class="hint">Alle Einträge, die Mitarbeiter über das 👕 in der Shop-Cup-Tabelle gemacht haben. Live aus der Datenbank.</div>
+    </div>
+    <div class="sv-toolbar">
+      <div class="sv-stat"><span id="jb-count">0</span><small>Einträge gesamt</small></div>
+      <button class="btn ghost" id="jb-reload">↻ Aktualisieren</button>
+      <button class="btn" id="jb-csv">⬇︎ CSV exportieren</button>
+    </div>
+    <div id="jb-sizes" style="margin:6px 0 16px"></div>
+    <div id="jb-body"></div>
   </div>
 </div>
 
@@ -707,9 +723,69 @@
       document.querySelectorAll('.tabbar .tab').forEach(function(x){ x.classList.toggle('active', x===t); });
       document.getElementById('view-cup').classList.toggle('hidden', v!=='cup');
       document.getElementById('view-survey').classList.toggle('hidden', v!=='survey');
+      document.getElementById('view-jerseys').classList.toggle('hidden', v!=='jerseys');
       document.getElementById('bar').classList.toggle('hidden', v!=='cup');
+      if(v==='jerseys') loadJerseys();
     });
   });
+
+  // ===== Trikot-Bestellungen =====
+  var jbData=[]; // {name,size,team,shopId,ts,shopName}
+  function jbEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function jbShopName(id){ var s=(window.SHOPS||[]).find(function(x){return x.id===id;}); return s?s.name:id; }
+  async function loadJerseys(){
+    if(!db) return;
+    document.getElementById('jb-body').innerHTML='<div class="sv-empty">Lade …</div>';
+    try{
+      var snap=await getDocs(collection(db,'shops'));
+      jbData=[];
+      snap.forEach(function(d){
+        var arr=(d.data().jerseys)||[];
+        if(Array.isArray(arr)) arr.forEach(function(e){ jbData.push({name:e.name,size:e.size,team:e.team,shopId:d.id,ts:e.ts||0,shopName:jbShopName(d.id)}); });
+      });
+    }catch(e){ console.error(e); document.getElementById('jb-body').innerHTML='<div class="sv-empty">Konnte nicht laden.</div>'; return; }
+    renderJerseys();
+  }
+  function renderJerseys(){
+    document.getElementById('jb-count').textContent=jbData.length;
+    document.getElementById('tab-jersey-badge').textContent=jbData.length||'';
+    var sizesEl=document.getElementById('jb-sizes');
+    var body=document.getElementById('jb-body');
+    if(!jbData.length){ sizesEl.innerHTML=''; body.innerHTML='<div class="sv-empty">Noch keine Trikot-Einträge.</div>'; return; }
+    // Größen-Übersicht
+    var bySize={}; jbData.forEach(function(e){ var s=e.size||'?'; bySize[s]=(bySize[s]||0)+1; });
+    var order=["XS","S","M","L","XL","XXL","3XL"];
+    var chips=order.filter(function(s){return bySize[s];}).map(function(s){ return '<span class="sv-stat" style="display:inline-block;padding:6px 12px;margin:0 6px 6px 0"><span style="font-size:18px">'+bySize[s]+'</span><small>'+s+'</small></span>'; }).join('');
+    sizesEl.innerHTML='<div style="font-weight:800;font-size:13px;color:var(--muted);margin-bottom:8px">GRÖSSEN-ÜBERSICHT</div>'+chips;
+    // Gruppiert nach Shop
+    var byShop={}; jbData.forEach(function(e){ (byShop[e.shopId]=byShop[e.shopId]||[]).push(e); });
+    var html='';
+    Object.keys(byShop).sort(function(a,b){return jbShopName(a).localeCompare(jbShopName(b));}).forEach(function(id){
+      var list=byShop[id].slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);});
+      html+='<div class="sv-q"><div class="qh">'+jbEsc(jbShopName(id))+' · '+list.length+' Trikot(s)</div>';
+      list.forEach(function(e){
+        html+='<div class="bar-row" style="grid-template-columns:1fr auto auto"><div class="lab"><b>'+jbEsc(e.name)+'</b></div>'
+          +'<div class="bar-val" style="background:var(--magenta);color:#fff;border-radius:6px;padding:2px 9px">'+jbEsc(e.size)+'</div>'
+          +'<div class="bar-val" style="color:var(--muted)">'+jbEsc(e.team)+'</div></div>';
+      });
+      html+='</div>';
+    });
+    body.innerHTML=html;
+  }
+  function exportJerseysCsv(){
+    if(!jbData.length){ alert('Keine Daten zum Export.'); return; }
+    function cell(s){ return '"'+String(s==null?'':s).replace(/"/g,'""')+'"'; }
+    var lines=[['Shop','Name','Trikotgröße','Mannschaft','Eingetragen am'].map(cell).join(';')];
+    jbData.slice().sort(function(a,b){return a.shopName.localeCompare(b.shopName)||(a.ts-b.ts);}).forEach(function(e){
+      lines.push([e.shopName,e.name,e.size,e.team, e.ts?new Date(e.ts).toLocaleString('de-DE'):''].map(cell).join(';'));
+    });
+    var blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+    var url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url; a.download='trikot-bestellungen-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  document.getElementById('jb-reload').addEventListener('click', loadJerseys);
+  document.getElementById('jb-csv').addEventListener('click', exportJerseysCsv);
 
   // ============================================================
   //  Fragebogen-Auswertung
