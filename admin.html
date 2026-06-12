@@ -775,7 +775,7 @@
   function exportJerseysCsv(){
     if(!jbData.length){ alert('Keine Daten zum Export.'); return; }
     function cell(s){ return '"'+String(s==null?'':s).replace(/"/g,'""')+'"'; }
-    var lines=[['Shop','Name','Trikotgröße','Mannschaft','Eingetragen am'].map(cell).join(';')];
+    var lines=[['Shop','Name','Trikotgröße','Nationalmannschaft','Eingetragen am'].map(cell).join(';')];
     jbData.slice().sort(function(a,b){return a.shopName.localeCompare(b.shopName)||(a.ts-b.ts);}).forEach(function(e){
       lines.push([e.shopName,e.name,e.size,e.team, e.ts?new Date(e.ts).toLocaleString('de-DE'):''].map(cell).join(';'));
     });

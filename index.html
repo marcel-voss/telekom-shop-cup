@@ -264,8 +264,8 @@
         <option value="">Bitte wählen …</option>
         <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option>
       </select>
-      <label class="jm-l" for="jm-team">Mannschaft</label>
-      <input type="text" id="jm-team" placeholder="Mannschaft / Team">
+      <label class="jm-l" for="jm-team">Nationalmannschaft</label>
+      <input type="text" id="jm-team" placeholder="z. B. Deutschland, Brasilien, Spanien …">
       <div class="jm-msg" id="jm-msg"></div>
       <button class="jm-save" id="jm-save" onclick="saveJersey()">Speichern</button>
       <div class="jm-listtit">Bereits eingetragen</div>
@@ -390,7 +390,7 @@
     const m=document.getElementById('jmodal');
     document.getElementById('jm-shop').textContent=shopName(id);
     document.getElementById('jm-name').value='';
-    document.getElementById('jm-team').value=shopName(id);
+    document.getElementById('jm-team').value='';
     document.getElementById('jm-size').value='';
     document.getElementById('jm-msg').textContent='';
     renderJerseyList(id);
