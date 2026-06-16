@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Telekom Shop Cup – Gruppentabellen</title>
+<style>
+  :root{
+    --magenta:#E20074; --magenta-dk:#a8005780; --magenta-deep:#8a0048;
+    --ink:#13131a; --ink-soft:#2a2a33;
+    --muted:#7a7a85; --line:#ededf0; --bg:#f3f3f6; --card:#fff;
+    --pitch:#0fa45a; --pitch-dk:#0b8048; --gold:#f5c542; --silver:#c8ccd4; --bronze:#d98a4a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+
+  /* ---- Top nav ---- */
+  .nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+  .tlogo{display:inline-flex;align-items:center;gap:3px}
+  .tlogo i{width:7px;height:7px;background:var(--magenta);border-radius:1px;display:inline-block}
+  .tlogo b{color:#3a3a44;font-size:20px;font-weight:800;margin:0 1px}
+  .navlinks{display:flex;gap:8px}
+  .navlinks a{text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-soft);padding:8px 14px;border-radius:999px}
+  .navlinks a.active{background:var(--magenta);color:#fff}
+  .navlinks a:not(.active):hover{background:#f3eef1}
+  .cupswitch{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:#0a9d57;color:#fff;box-shadow:0 2px 10px rgba(10,157,87,.4)}
+  .cupswitch:hover{filter:brightness(1.05)}
+  .portalbtn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:#15151c;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+  .portalbtn:hover{filter:brightness(1.4)}
+  /* Einheitliches Gewinn-Banner */
+  .gewinnbanner{background:linear-gradient(100deg,#1b1b22,#2b2b35);border-bottom:3px solid var(--gold)}
+  .gb-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:13px;padding:11px 18px}
+  .gb-medal{font-size:26px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+  .gb-txt{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+  .gb-eyebrow{color:var(--gold);font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+  .gb-title{color:#fff;font-weight:800;font-size:clamp(14px,3.6vw,18px)}
+  .gb-title em{font-style:normal;font-weight:600;color:#b9b9c4;font-size:.9em}
+  @media(max-width:560px){.gb-inner{padding:10px 14px;gap:10px}.gb-medal{font-size:22px}}
+
+  /* ---- Hero / scoreboard ---- */
+  .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#E20074 0%,#b3005c 55%,#8a0048 100%);color:#fff;padding:30px 20px 38px;text-align:center}
+  .hero .pitch-lines{position:absolute;inset:0;opacity:.18;pointer-events:none}
+  .hero .blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
+  .hero .b1{width:360px;height:360px;top:-160px;left:-120px}
+  .hero .b2{width:300px;height:300px;bottom:-160px;right:-80px;background:rgba(0,0,0,.10)}
+  .hero-inner{position:relative;z-index:2}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.9;font-weight:700}
+  .hero h1{font-size:38px;font-weight:900;margin:8px 0 2px;letter-spacing:-.5px;line-height:1.05}
+  .hero .sub{font-size:15px;opacity:.95}
+  .matchday{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:700}
+  .matchday .live-dot{width:8px;height:8px;border-radius:50%;background:#3df08a;box-shadow:0 0 0 0 rgba(61,240,138,.7);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,240,138,.6)}70%{box-shadow:0 0 0 10px rgba(61,240,138,0)}100%{box-shadow:0 0 0 0 rgba(61,240,138,0)}}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 16px 70px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center;font-size:13px;color:var(--muted);margin-bottom:22px}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:14px;height:14px;border-radius:4px;display:inline-block}
+  .sw-q{background:var(--pitch)} .sw-lead{background:var(--gold)}
+
+  .groups{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:780px){.groups{grid-template-columns:1fr}}
+
+  .gcard{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,40,.06);border:1px solid var(--line)}
+  .ghead{display:flex;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#1b1b22,#2b2b35);color:#fff}
+  .gbadge{width:38px;height:38px;border-radius:11px;background:var(--magenta);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;box-shadow:0 3px 8px rgba(226,0,116,.45)}
+  .ghead h2{font-size:16px;font-weight:800;letter-spacing:.5px;flex:1}
+  .ghead .lead{font-size:12px;opacity:.8;text-align:right}
+  .ghead .lead b{display:block;font-size:13px;opacity:1}
+
+  table{width:100%;border-collapse:collapse}
+  .gcard table{table-layout:fixed}
+  .gcard th:nth-child(1),.gcard td:nth-child(1){width:7%}
+  .gcard th:nth-child(2),.gcard td:nth-child(2){width:27%}
+  .gcard th:nth-child(3),.gcard td:nth-child(3){width:25%}
+  .gcard th:nth-child(4),.gcard td:nth-child(4){width:25%}
+  .gcard th:nth-child(5),.gcard td:nth-child(5){width:6%}
+  .gcard th:nth-child(6),.gcard td:nth-child(6){width:10%}
+  .gcard td.team{overflow:hidden;text-overflow:ellipsis}
+  thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}
+  thead th.l{text-align:left}
+  tbody td{padding:11px 8px;border-bottom:1px solid var(--line);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:none}
+  td.pos{text-align:center;width:42px}
+  td.team{text-align:left;font-weight:700}
+  .ranknum{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#eceef2;color:#444;font-weight:800;font-size:13px}
+  tr.q .ranknum{background:var(--pitch);color:#fff}
+  tr.lead .ranknum{background:var(--gold);color:#3a2b00}
+  tr.q{background:linear-gradient(90deg,rgba(15,164,90,.08),transparent)}
+  tr.lead{background:linear-gradient(90deg,rgba(245,197,66,.16),transparent)}
+  tr.q td.team, tr.lead td.team{box-shadow:inset 4px 0 0 var(--pitch)}
+  tr.lead td.team{box-shadow:inset 4px 0 0 var(--gold)}
+  .pct{font-weight:600;color:var(--ink-soft)}
+  .pct.hit{color:var(--pitch);font-weight:800}
+  .pts{font-weight:900;color:var(--magenta);font-size:15px}
+  .rem{font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:600}
+  .rem.done{color:var(--pitch);font-weight:800}
+  .crown{margin-right:4px}
+  .gcrown{margin-left:4px;font-size:15px}
+  .jersey{margin-left:4px;font-size:14px;cursor:pointer;border-radius:6px;padding:1px 3px}
+  .jersey:hover{background:#fdeef6;transform:scale(1.15)}
+  .jmodal{position:fixed;inset:0;background:rgba(20,20,30,.55);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow:auto}
+  .jmodal.hidden{display:none}
+  .jm-sheet{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:24px 24px 26px;position:relative;box-shadow:0 14px 50px rgba(0,0,0,.3)}
+  .jm-x{position:absolute;top:14px;right:14px;border:none;background:#f0f0f4;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;cursor:pointer;color:#555}
+  .jm-sheet h3{font-size:21px;font-weight:900;margin-bottom:2px}
+  .jm-sub{color:#777;font-size:14px;margin-bottom:14px}
+  .jm-sub b{color:var(--magenta)}
+  .jm-l{display:block;font-size:13px;font-weight:800;margin:12px 0 4px;color:#333}
+  .jm-sheet input,.jm-sheet select{width:100%;border:1px solid var(--line,#e7e7ec);border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;background:#fcfcfd}
+  .jm-sheet input:focus,.jm-sheet select:focus{outline:none;border-color:var(--magenta)}
+  .jm-msg{min-height:18px;font-size:13px;font-weight:700;margin-top:8px}
+  .jm-save{width:100%;margin-top:12px;background:var(--magenta);color:#fff;border:none;border-radius:11px;padding:13px;font-size:16px;font-weight:800;cursor:pointer}
+  .jm-save:disabled{opacity:.6}
+  .jm-listtit{font-size:13px;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.4px;margin:20px 0 8px;border-top:1px solid var(--line,#eee);padding-top:14px}
+  .jm-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto}
+  .jm-empty{color:#aaa;font-style:italic;font-size:13px}
+  .jm-item{display:flex;align-items:center;gap:8px;background:#faf7f9;border-radius:8px;padding:8px 11px;font-size:13.5px}
+  .jm-i-name{font-weight:700;flex:1}
+  .jm-i-size{background:var(--magenta);color:#fff;border-radius:6px;padding:1px 8px;font-weight:800;font-size:12px}
+  .jm-i-team{color:#888;font-size:12px}
+  .ghead.topgroup{background:linear-gradient(135deg,#3a2f00,#6b5400)}
+  .ghead.topgroup .lead b{color:var(--gold)}
+  .stat{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;padding:3px 7px;border-radius:6px}
+  .stat.q{background:#e3f6ec;color:var(--pitch-dk)}
+  .stat.o{background:#f0f0f3;color:#9a9aa3}
+
+  .cta{display:flex;justify-content:center;margin-top:28px}
+  .cta a{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;text-decoration:none;font-weight:800;padding:15px 26px;border-radius:14px;font-size:15px;box-shadow:0 6px 20px rgba(20,20,40,.18)}
+  .cta a:hover{background:#000}
+  .cta .arrow{background:var(--magenta);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+  .rules{background:var(--card);border-radius:18px;padding:24px 26px;margin-top:26px;border:1px solid var(--line)}
+  .rules h3{font-size:16px;margin-bottom:10px;color:var(--magenta);display:flex;align-items:center;gap:8px}
+  .rules p{font-size:14px;color:#333;margin-bottom:10px}
+  .prize{margin-top:14px;padding:16px 18px;background:linear-gradient(135deg,#fff6fb,#fff0f7);border:1px solid #ffd9ec;border-radius:14px;font-size:14px}
+  .prize strong{color:var(--magenta)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px}
+  .loading{text-align:center;color:var(--muted);padding:50px;font-size:15px}
+  .stampbar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;background:#fff;border-bottom:1px solid var(--line);padding:11px 16px;font-size:13px;color:var(--muted)}
+  .stampbar span{display:inline-flex;align-items:center;gap:7px}
+  .stampbar b{color:var(--ink);font-weight:700}
+  #toasts{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+  .toast{background:#fff;border:1px solid var(--line);border-left:6px solid var(--pitch);border-radius:12px;padding:13px 20px;font-size:14px;font-weight:700;color:var(--ink);box-shadow:0 8px 30px rgba(20,20,40,.18);animation:tin .4s ease;max-width:90vw}
+  @keyframes tin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+  #confetti-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+  /* ---- Gewinn-Werbebanner ---- */
+  .prizebanner{position:relative;overflow:hidden;background:radial-gradient(circle at 18% 20%,#33333f,#14141a 72%);color:#fff;display:flex;align-items:center;gap:22px;padding:18px 26px;border-bottom:3px solid var(--gold)}
+  .pb-art{display:flex;align-items:center;gap:6px;flex:none;z-index:2}
+  .pb-art svg{width:66px;height:66px;filter:drop-shadow(0 5px 10px rgba(0,0,0,.45))}
+  .pb-art .jersey{animation:pbsway 3.5s ease-in-out infinite}
+  .pb-art .trophy{animation:pbpop 3.5s ease-in-out infinite}
+  @keyframes pbsway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  @keyframes pbpop{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .pb-text{flex:1;min-width:0;z-index:2}
+  .pb-eyebrow{color:var(--gold);font-size:12px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase}
+  .pb-title{font-size:27px;font-weight:900;line-height:1.05;margin:3px 0}
+  .pb-title .amp{color:var(--gold)}
+  .pb-sub{font-size:14px;opacity:.82}
+  .pb-ribbon{flex:none;z-index:2;background:var(--magenta);color:#fff;font-weight:900;font-size:13px;padding:9px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(226,0,116,.5);white-space:nowrap}
+  .pb-glow{position:absolute;right:-50px;top:-70px;width:240px;height:240px;background:radial-gradient(circle,rgba(226,0,116,.5),transparent 70%);pointer-events:none}
+  .pb-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.12) 50%,transparent 60%);transform:translateX(-100%);animation:pbshine 5s ease-in-out infinite;pointer-events:none}
+  @keyframes pbshine{0%,60%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  @media(max-width:640px){.prizebanner{gap:14px;padding:14px 16px}.pb-title{font-size:19px}.pb-art svg{width:50px;height:50px}.pb-ribbon{display:none}}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  @media(max-width:560px){
+    .nav{flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .navlinks{width:100%;justify-content:flex-start;flex-wrap:wrap;gap:6px}
+    .navlinks a{padding:7px 11px;font-size:13px}
+    .hero{padding:24px 16px 28px}
+    .hero h1{font-size:30px}
+    .groups{gap:14px}
+    .gcard table{min-width:0}
+    .gcard th:nth-child(1),.gcard td:nth-child(1){width:7%}
+    .gcard th:nth-child(2),.gcard td:nth-child(2){width:23%}
+    .gcard th:nth-child(3),.gcard td:nth-child(3){width:24%}
+    .gcard th:nth-child(4),.gcard td:nth-child(4){width:24%}
+    .gcard th:nth-child(5),.gcard td:nth-child(5){width:9%}
+    .gcard th:nth-child(6),.gcard td:nth-child(6){width:13%}
+    .ghead{padding:12px 14px}
+    thead th{padding:7px 4px;font-size:9px}
+    tbody td{padding:8px 4px;font-size:12px}
+    .pct{font-size:12px}.rem{font-size:8.5px;line-height:1.15}
+    .ranknum{width:22px;height:22px;font-size:12px}
+    .stat{padding:2px 5px;font-size:9px}
+    .gcard td.team{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2}
+    .stampbar{font-size:11.5px;gap:6px 16px;padding:10px 12px}
+    .rules{padding:18px 16px}
+  }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="cupswitch to-clash" href="cupclash.html">Cup Clash →</a>
+    <a class="portalbtn" href="fragebogen.html">📋 Fragebogen-Portal</a>
+    <div class="navlinks">
+      <a href="shopcup.html" class="active">Tabelle</a>
+      <a href="stats.html">Rankings</a>
+      <a href="news.html?cup=shop">Roberto News</a>
+      <a href="erklaer.html">So geht's</a>
+    </div>
+  </nav>
+
+  <div class="gewinnbanner">
+    <div class="gb-inner">
+      <span class="gb-medal">🏆</span>
+      <div class="gb-txt"><span class="gb-eyebrow">Zu gewinnen</span><span class="gb-title">Team-Trikots + Sprint-Pokal <em>· für die 4 Gruppensieger</em></span></div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <svg class="pitch-lines" viewBox="0 0 1120 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="1116" height="296" fill="none" stroke="#fff" stroke-width="2"/>
+      <line x1="560" y1="2" x2="560" y2="298" stroke="#fff" stroke-width="2"/>
+      <circle cx="560" cy="150" r="70" fill="none" stroke="#fff" stroke-width="2"/>
+      <circle cx="560" cy="150" r="4" fill="#fff"/>
+      <rect x="2" y="80" width="80" height="140" fill="none" stroke="#fff" stroke-width="2"/>
+      <rect x="1038" y="80" width="80" height="140" fill="none" stroke="#fff" stroke-width="2"/>
+    </svg>
+    <span class="blob b1"></span><span class="blob b2"></span>
+    <div class="hero-inner">
+      <div class="eyebrow">Voss Telekom · Sprint-Incentive</div>
+      <h1 id="event-name">Telekom Shop Cup</h1>
+      <div class="sub">Die Gruppenphase · <span id="event-dates">05.–13. Juni 2026</span></div>
+      <div class="matchday"><span class="live-dot"></span><span id="countdown">…</span></div>
+    </div>
+  </header>
+
+  <div class="stampbar">
+    <span>🕒 Letzte Eingabe der Ergebnisse: <b id="stamp-data">–</b></span>
+    <span>📰 Letzte News: <b id="stamp-news">–</b></span>
+  </div>
+
+  <div class="wrap">
+    <div class="groups" id="groups"><div class="loading">Lade Tabellen …</div></div>
+
+    <div class="cta">
+      <a href="stats.html">Zu den Top-Rankings & Statistiken <span class="arrow">→</span></a>
+    </div>
+
+    <div class="rules">
+      <h3>⚽ So funktioniert die Wertung</h3>
+      <p>Gemessen wird in zwei Produkten: <strong>Breitband Neu (PK/GK)</strong> und <strong>MagentaTV Neu</strong> – jeweils als Zielerreichung in Prozent.</p>
+      <p>Ein Shop steht erst in der Wertung, wenn er bei <strong>mindestens einem</strong> Produkt die <strong>100%</strong> knackt. In die Punkte zählt dann <strong>nur, was die 100% erreicht hat</strong>: Beispiel Breitband 108% / MagentaTV 90% = <strong>108 Punkte</strong>; Breitband 102% / MagentaTV 104% = <strong>206 Punkte</strong>. Schafft in einer Gruppe niemand die 100%, gibt es dort keinen Sieger.</p>
+      <div class="prize">🏆 Die vier Gruppensieger holen sich <strong>Trikots fürs ganze Team</strong> und den <strong>Sprint-Incentive-Pokal</strong>.</div>
+    </div>
+  </div>
+
+  <footer>Voss Telekom · Live-Tabelle · keine Anmeldung erforderlich</footer>
+
+  <div id="toasts"></div>
+
+  <!-- Trikot-Eintrag Pop-up -->
+  <div id="jmodal" class="jmodal hidden">
+    <div class="jm-sheet">
+      <button class="jm-x" onclick="closeJersey()" aria-label="Schließen">✕</button>
+      <h3>👕 Trikot eintragen</h3>
+      <div class="jm-sub">Shop: <b id="jm-shop"></b></div>
+      <label class="jm-l" for="jm-name">Name</label>
+      <input type="text" id="jm-name" placeholder="Vor- und Nachname">
+      <label class="jm-l" for="jm-size">Trikotgröße</label>
+      <select id="jm-size">
+        <option value="">Bitte wählen …</option>
+        <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option>
+      </select>
+      <label class="jm-l" for="jm-team">Nationalmannschaft</label>
+      <input type="text" id="jm-team" placeholder="z. B. Deutschland, Brasilien, Spanien …">
+      <div class="jm-msg" id="jm-msg"></div>
+      <button class="jm-save" id="jm-save" onclick="saveJersey()">Speichern</button>
+      <div class="jm-listtit">Bereits eingetragen</div>
+      <div class="jm-list" id="jm-list"></div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="config.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  let DB=null;
+  document.getElementById("event-name").textContent = window.EVENT.name;
+
+  function fmtStamp(ts){ return ts ? (new Date(ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+" Uhr") : "–"; }
+  function updateDataStamp(){
+    let latest=null;
+    window.SHOPS.forEach(function(s){ const u=(shopData[s.id]||{}).updatedAt; if(u && (!latest || u>latest)) latest=u; });
+    document.getElementById("stamp-data").textContent = fmtStamp(latest);
+  }
+
+  function updateCountdown(){
+    const now=new Date(), start=new Date(window.EVENT.start), end=new Date(window.EVENT.end);
+    const el=document.getElementById("countdown");
+    if(now<start){const d=Math.ceil((start-now)/86400000);el.textContent="Anpfiff in "+d+" Tag"+(d===1?"":"en");}
+    else if(now<=end){const d=Math.ceil((end-now)/86400000);el.textContent="Live · noch "+d+" Tag"+(d===1?"":"e");}
+    else el.textContent="Abpfiff · Endstand";
+  }
+  updateCountdown(); setInterval(updateCountdown,60000);
+
+  // ---- Gamification: Konfetti + Glückwunsch bei neuem 100% ----
+  let prevHit=null;
+  function toast(msg){
+    const wrap=document.getElementById('toasts');
+    const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+    wrap.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .5s';t.style.opacity='0';setTimeout(()=>t.remove(),500);},6000);
+  }
+  function fireConfetti(){
+    if(typeof confetti!=='function') return;
+    const colors=['#E20074','#ffffff','#0fa45a','#f5c542'];
+    confetti({particleCount:140,spread:75,origin:{y:0.25},colors});
+    setTimeout(()=>confetti({particleCount:90,angle:60,spread:60,origin:{x:0,y:0.4},colors}),150);
+    setTimeout(()=>confetti({particleCount:90,angle:120,spread:60,origin:{x:1,y:0.4},colors}),150);
+  }
+  function checkMilestones(){
+    const cur={}; const newly=[];
+    window.SHOPS.forEach(s=>{
+      const p=window.shopPercents(shopData[s.id]||{});
+      const bb=p.bb>=100, tv=p.tv>=100;
+      cur[s.id]={bb,tv};
+      if(prevHit&&prevHit[s.id]){
+        if(bb&&!prevHit[s.id].bb) newly.push(s.name+' hat bei Breitband Neu die 100% geknackt!');
+        if(tv&&!prevHit[s.id].tv) newly.push(s.name+' hat bei MagentaTV Neu die 100% geknackt!');
+      }
+    });
+    prevHit=cur;
+    if(newly.length){ fireConfetti(); newly.forEach(m=>toast('🎉 '+m)); }
+  }
+
+  let shopData={};
+  function render(){
+    const root=document.getElementById("groups");
+    const winners=window.computeGroupWinners(shopData);
+    // Gruppen-Daten + Gesamtpunkte vorab berechnen
+    const gd={};
+    window.GROUPS.forEach(function(g){
+      const rows=window.SHOPS.filter(s=>s.group===g).map(function(s){
+        const p=window.shopPercents(shopData[s.id]||{});
+        return {shop:s, p:p, sc:window.computeScore(p.bb,p.tv)};
+      }).sort((a,b)=>b.sc.total-a.sc.total);
+      const total=rows.reduce((sum,r)=>sum+(r.sc.qualified?r.sc.total:0),0);
+      gd[g]={rows:rows, total:total};
+    });
+    let maxTotal=0;
+    window.GROUPS.forEach(g=>{ if(gd[g].total>maxTotal) maxTotal=gd[g].total; });
+    let html="";
+    window.GROUPS.forEach(function(g){
+      const rows=gd[g].rows;
+      const total=gd[g].total;
+      const isTopGroup=maxTotal>0 && total===maxTotal;
+      const winnerId=winners[g];
+      html+='<div class="gcard"><div class="ghead'+(isTopGroup?' topgroup':'')+'"><div class="gbadge">'+g+'</div>'
+          +'<h2>Gruppe '+g+(isTopGroup?' <span class="gcrown" title="Punktbeste Gruppe">👑</span>':'')+'</h2>'
+          +'<div class="lead">Gesamt<b>'+total+' Pkt</b></div></div>'
+          +'<div class="tbl-wrap"><table><thead><tr><th class="l">#</th><th class="l">Shop</th><th>Breitband</th><th>MagentaTV</th><th>Pkt</th><th>Status</th></tr></thead><tbody>';
+      function cell(pct, rest, ziel){
+        const hit = pct>=100;
+        const rem = ziel<=0 ? '<div class="rem">–</div>'
+                  : (hit ? '<div class="rem done">✓ Ziel erreicht</div>'
+                         : '<div class="rem">noch '+rest+' bis 100%</div>');
+        return '<td><span class="pct'+(hit?' hit':'')+'">'+pct+'%</span>'+rem+'</td>';
+      }
+      rows.forEach(function(r,i){
+        const isLead=r.shop.id===winnerId;
+        const winsJersey=isLead||isTopGroup;
+        const cls=isLead?"lead":(r.sc.qualified?"q":"");
+        const badge=r.sc.qualified?'<span class="stat q">dabei</span>':'<span class="stat o">offen</span>';
+        html+='<tr class="'+cls+'">'
+            +'<td class="pos"><span class="ranknum">'+(i+1)+'</span></td>'
+            +'<td class="team">'+(isLead?'<span class="crown">👑</span>':'')+r.shop.name+(winsJersey?' <span class="jersey" role="button" title="Trikot eintragen – klicken" onclick="openJersey(\''+r.shop.id+'\')">👕</span>':'')+'</td>'
+            +cell(r.p.bb, r.p.bbRest, r.p.bbZiel)
+            +cell(r.p.tv, r.p.tvRest, r.p.tvZiel)
+            +'<td class="pts">'+(r.sc.qualified?r.sc.total:'–')+'</td>'
+            +'<td>'+badge+'</td></tr>';
+      });
+      html+='</tbody></table></div></div>';
+    });
+    root.innerHTML=html;
+  }
+
+  // ===== Trikot-Eintrag (Pop-up) =====
+  const JSIZES=["XS","S","M","L","XL","XXL","3XL"];
+  let jShopId=null;
+  function jEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function shopName(id){ const s=window.SHOPS.find(x=>x.id===id); return s?s.name:id; }
+
+  window.openJersey=function(id){
+    jShopId=id;
+    const m=document.getElementById('jmodal');
+    document.getElementById('jm-shop').textContent=shopName(id);
+    document.getElementById('jm-name').value='';
+    document.getElementById('jm-team').value='';
+    document.getElementById('jm-size').value='';
+    document.getElementById('jm-msg').textContent='';
+    renderJerseyList(id);
+    m.classList.remove('hidden');
+    setTimeout(function(){ document.getElementById('jm-name').focus(); },50);
+  };
+  window.closeJersey=function(){ document.getElementById('jmodal').classList.add('hidden'); jShopId=null; };
+
+  function renderJerseyList(id){
+    const arr=((shopData[id]||{}).jerseys)||[];
+    const box=document.getElementById('jm-list');
+    if(!arr.length){ box.innerHTML='<div class="jm-empty">Noch keine Einträge.</div>'; return; }
+    box.innerHTML=arr.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0);}).map(function(e){
+      return '<div class="jm-item"><span class="jm-i-name">'+jEsc(e.name)+'</span>'
+        +'<span class="jm-i-size">'+jEsc(e.size)+'</span>'
+        +'<span class="jm-i-team">'+jEsc(e.team)+'</span></div>';
+    }).join('');
+  }
+  function refreshJerseyModal(){ if(jShopId && !document.getElementById('jmodal').classList.contains('hidden')) renderJerseyList(jShopId); }
+
+  window.saveJersey=async function(){
+    if(!jShopId||!DB) return;
+    const name=document.getElementById('jm-name').value.trim();
+    const size=document.getElementById('jm-size').value;
+    const team=document.getElementById('jm-team').value.trim();
+    const msg=document.getElementById('jm-msg');
+    if(!name||!size){ msg.style.color='var(--magenta)'; msg.textContent='Bitte Name und Trikotgröße angeben.'; return; }
+    const btn=document.getElementById('jm-save'); btn.disabled=true; btn.textContent='Speichert …';
+    try{
+      await updateDoc(doc(DB,'shops',jShopId), { jerseys: arrayUnion({ name:name, size:size, team:team, shopId:jShopId, ts:Date.now() }) });
+      msg.style.color='var(--pitch,#0fa45a)'; msg.textContent='Gespeichert ✓';
+      document.getElementById('jm-name').value=''; document.getElementById('jm-size').value='';
+    }catch(e){ console.error(e); msg.style.color='var(--magenta)'; msg.textContent='Speichern fehlgeschlagen – bitte nochmal versuchen.'; }
+    finally{ btn.disabled=false; btn.textContent='Speichern'; }
+  };
+
+  try{
+    const app=initializeApp(window.FIREBASE_CONFIG);
+    const db=getFirestore(app); DB=db;
+    onSnapshot(collection(db,"shops"),snap=>{shopData={};snap.forEach(d=>shopData[d.id]=d.data());render();updateDataStamp();checkMilestones();refreshJerseyModal();},
+      err=>{console.error(err);document.getElementById("groups").innerHTML='<div class="loading">Verbindung zur Datenbank fehlgeschlagen.</div>';});
+    // Zeitstempel der letzten News
+    try{
+      onSnapshot(query(collection(db,"news"),orderBy("createdAt","desc")),function(snap){
+        let latest=null; snap.forEach(function(d){ const c=d.data().createdAt; if(c && (!latest||c>latest)) latest=c; });
+        document.getElementById("stamp-news").textContent = fmtStamp(latest);
+      }, function(){});
+    }catch(e){}
+  }catch(e){console.error(e);document.getElementById("groups").innerHTML='<div class="loading">Firebase nicht konfiguriert.</div>';}
+</script>
+</body>
+</html>

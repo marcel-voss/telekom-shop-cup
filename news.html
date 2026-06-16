@@ -103,14 +103,14 @@
 
 <script>
 (function(){
-  var clash = new URLSearchParams(location.search).get('cup')==='clash';
+  var clash = new URLSearchParams(location.search).get('cup')!=='shop';
   var nav=document.getElementById('topnav');
   function pill(href,label,bg){ return '<a href="'+href+'" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:800;font-size:13px;padding:8px 15px;border-radius:999px;white-space:nowrap;background:'+bg+';color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.2)">'+label+'</a>'; }
   var links, sw;
   if(clash){
     document.documentElement.style.setProperty('--magenta','#0a9d57');
     document.title='Magenta Cup Clash – Roberto News';
-    sw=pill('index.html','← Shop Cup','#E20074');
+    sw='';
     links='<a href="cupclash.html">Tabelle</a><a href="cupclash-rankings.html">Rankings</a><a href="news.html?cup=clash" class="active">Roberto News</a><a href="cupclash-erklaer.html">So geht\'s</a>';
     var hero=document.querySelector('.hero'); if(hero){ hero.style.background='linear-gradient(135deg,#10a85e,#0a8f4c 55%,#076b3b)'; var ey=hero.querySelector('.eyebrow'); if(ey)ey.textContent='Rund um den Cup Clash'; }
     var gbe=document.querySelector('.gb-eyebrow'); if(gbe)gbe.textContent='Die Prämie';
